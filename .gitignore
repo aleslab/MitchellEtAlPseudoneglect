@@ -1,0 +1,10 @@
+#tempory files from matlab
+*.m~
+*.asv
+tmp_*
+
+#OSX files
+.DS_store
+
+#hidden files
+.*
