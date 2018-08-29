@@ -1,4 +1,4 @@
-%% Touch screen calibration
+ %% Touch screen calibration
 %% AG. Mitchell 27.08.18
 % This code runs a calibration of the touchscreen manually
 % Presents a cross at centre folowed by 12 points on the screen, waits for a 'touch' input.
@@ -36,7 +36,7 @@ try
     %Basically gets rid of all sync warnings if not needed
     Screen('Preference', 'SkipSyncTests', 1);
     Screen('Preference','SuppressAllWarnings', 1);
-    Screen('Preference','VisualDebugLevel', 0);
+    Screen('Preference','VisualDebugLevel', 3  );
 
     %define back and white (white = 1, black = 0)
     white = WhiteIndex(screenNumber);
@@ -74,7 +74,11 @@ try
     if useTouch
         touch.device = GetTouchDeviceIndices(); %getting device for touchscreen
         slots = 1; %number of 'touches' at one point
-        touch.waitsecs = 10; %maximum response time before moving on
+        touch.waitsecs = 60 ; %maximum response time before moving on
+        % Create and start touch queue for window and touchscreen:
+        TouchQueueCreate(window, touch.device, [], [], [], 8 );
+        TouchQueueStart(touch.device); 
+            
     end
 
     %% Setting calibration points
@@ -104,6 +108,8 @@ try
     Screen('Flip', window); 
     KbStrokeWait;
     Screen('Flip', window);
+    HideCursor(1);
+    ListenChar(2); 
     
     %% Running calibration
     for i = 1:length(calStim.mat)
@@ -111,11 +117,9 @@ try
         Screen('Flip', window)
 
         if useTouch
-            % Create and start touch queue for window and touchscreen:
-            TouchQueueCreate(window, touch.device);
-            TouchQueueStart(touch.device);
-            
+            TouchEventFlush(touch.device)
             event = TouchEventGet(touch.device, window, touch.waitsecs);
+            navail = TouchEventAvail(touch.device)
         else
             WaitSecs(2)
         end

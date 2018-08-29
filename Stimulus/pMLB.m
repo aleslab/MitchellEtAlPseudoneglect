@@ -211,7 +211,7 @@ for i = 1:nrtrials
     Screen('Flip',window);
     time.target.end(i) = GetSecs;
     time0=GetSecs; %for response
-    %KbStrokeWait;
+    %KbStrokeWait; 
     
     % Getting expected response
     if isstruct(event) == 1 %if receive an event1
