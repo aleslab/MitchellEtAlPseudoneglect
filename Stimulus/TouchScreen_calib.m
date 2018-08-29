@@ -74,7 +74,7 @@ try
     if useTouch
         touch.device = GetTouchDeviceIndices(); %getting device for touchscreen
         slots = 1; %number of 'touches' at one point
-        touch.waitsecs = 2; %maximum response time before moving on
+        touch.waitsecs = 10; %maximum response time before moving on
     end
 
     %% Setting calibration points
@@ -119,17 +119,28 @@ try
         else
             WaitSecs(2)
         end
-        Screen('DrawText', window, calStim.text, calStim.mat(i,1), calStim.mat(i,2), red);
-        Screen('Flip', window);
-        WaitSecs(0.25)
         
-        %% Getting response
+                %% Getting response
         if useTouch
-            calResponse.actual(i,1) = event.MappedX; 
-            calResponse.actual(i,2) = event.MappedY;
-        else
+            if isstruct(event) %incase there is no response
+                calResponse.actual(i,1) = event.MappedX; 
+                calResponse.actual(i,2) = event.MappedY;
+            else
+                calResponse.actual(i,1) = NaN; 
+                calResponse.actual(i,2) = NaN;
+            end
+        else           
+            calResponse.actual(i,1) = NaN; 
+            calResponse.actual(i,2) = NaN;
         end
         
+        errorX(i) = calResponse.actual(i,1) - calStim.mat(i,1); %square rooted so that the 
+        errorY(i) = calResponse.actual(i,2) - calStim.mat(i,2);
+     
+        Screen('DrawText', window, calStim.text, calStim.mat(i,1), calStim.mat(i,2), red);
+        Screen('Flip', window);
+        WaitSecs(0.6)
+                 
     end
     sca
 catch
