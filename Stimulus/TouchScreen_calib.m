@@ -10,7 +10,7 @@
 clear all
 clc
 datenow(1:6) = fix(clock);
-dummymode = 1;
+dummymode = 0 ;
 useTouch = true;
 
 %% Variables

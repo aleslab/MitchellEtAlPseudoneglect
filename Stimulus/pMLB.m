@@ -219,7 +219,7 @@ for i = 1:nrtrials
         response.touch(i,2) = event.MappedY;       
     else
         response.touch(i,1) = NaN;
-        response.touch(i,2) = NaN;
+        response.touch(i,2) = NaN; 
     end
     % Getting actual line middle
     response.middle(i,:) = midX+offset;
