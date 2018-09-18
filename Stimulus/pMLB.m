@@ -4,7 +4,8 @@ clc
 clear all
 datenow(1:6) = fix(clock);
 dummymode = 0;
-practice = 1;
+practice = 0;
+useTouch = true;
 
 %% Variables
 matfilename = sprintf('MLB_%d%d%d_%d%d%d', datenow);
@@ -109,9 +110,14 @@ stim.line.offsetpix = stimlineoff_cm*vadxcm;
 %stim.dim.dist.pix = stim.dim.dist.cm*DisplayXSize/sx;
 
 %% Get touchscreen info
-touch.device = GetTouchDeviceIndices(); %getting device for touchscreen
-slots = 1; %number of 'touches' at one point
-touch.waitsecs = 2; %maximum response time before moving on
+if useTouch
+    touch.device = GetTouchDeviceIndices(); %getting device for touchscreen
+    slots = 1; %number of 'touches' at one point
+    touch.waitsecs = 60 ; %maximum response time before moving on
+    % Create and start touch queue for window and touchscreen:
+    TouchQueueCreate(window, touch.device, [], [], [], 8 );
+    TouchQueueStart(touch.device); 
+end
 
 %% Starting experiment
 % Welcome screen
@@ -196,15 +202,18 @@ for i = 1:nrtrials
    % end
    
    % Create and start touch queue for window and touchscreen:
-    TouchQueueCreate(window, touch.device);
-    TouchQueueStart(touch.device);
-    
+
+
     Screen('Flip', window);
     time.target.start(i) = GetSecs;
     %WaitSecs(stim.time.line)
-    % Touch information received
-    %while TouchEventAvail(touch.device)
-    event = TouchEventGet(touch.device, window, touch.waitsecs);
+    if useTouch
+        TouchEventFlush(touch.device)
+        event = TouchEventGet(touch.device, window, touch.waitsecs);
+        navail = TouchEventAvail(touch.device);
+    else
+        WaitSecs(2)
+    end
     %end
     
     %KbStrokeWait; %for testing
@@ -224,9 +233,18 @@ for i = 1:nrtrials
     % Getting actual line middle
     response.middle(i,:) = midX+offset;
     % Releasing queue
-    TouchQueueRelease(touch.device)
+    
+    if i == (length(nrtrials)/2);
+        text = 'Switch hands...';
+        width = RectWidth(Screen ('TextBounds', window, text));
+        Screen('DrawText', window, text, DisplayXSize/2 - width/2, DisplayYSize/2, black); 
+        Screen('Flip', window); 
+        KbStrokeWait;
+        Screen('Flip', window);
+    end
 end
 time.experiment.end = GetSecs;
+TouchQueueRelease(touch.device)
 
 % Thank you screen
     thankYouText = 'End of task, thank you!';
@@ -243,15 +261,16 @@ time.experiment.end = GetSecs;
  %data.RT = response.RT*1000; %transforming to ms
 load('ts_calib.mat');
 % correcting response with calibration results
-response.touchcorr = response.touch - calResponse.avError(1);
+response.touchcorr(:,1) = response.touch(:,1) - calResponse.avError(1);
+response.touchcorr(:,2) = response.touch(:,2) - calResponse.avError(2);
 % 
 time.target.dur = time.target.end - time.target.start;
 time.experiment.dur = time.experiment.end - time.experiment.start;
 % 
 % %% Combining results for analysis
 response.middle = response.middle/vadx; %converting results from pix to degrees
-response.touch = response.touch/vadx;
-response.error = response.touch-response.middle; %everything -ve left-hand error, everything +ve right hand error
+response.touchcorr = response.touchcorr/vadx;
+response.error = response.touchcorr-response.middle; %everything -ve left-hand error, everything +ve right hand error
 
 % removing outlier trials from the experiment
 averror = nanmean(response.error);
