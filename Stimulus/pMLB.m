@@ -241,6 +241,9 @@ time.experiment.end = GetSecs;
 %% Analysing
 % Results
  %data.RT = response.RT*1000; %transforming to ms
+load('ts_calib.mat');
+% correcting response with calibration results
+response.touchcorr = response.touch - calResponse.avError(1);
 % 
 time.target.dur = time.target.end - time.target.start;
 time.experiment.dur = time.experiment.end - time.experiment.start;
