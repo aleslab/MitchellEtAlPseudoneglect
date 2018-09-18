@@ -211,7 +211,7 @@ for i = 1:nrtrials
     Screen('Flip',window);
     time.target.end(i) = GetSecs;
     time0=GetSecs; %for response
-    %KbStrokeWait;
+    %KbStrokeWait; 
     
     % Getting expected response
     if isstruct(event) == 1 %if receive an event1
@@ -219,7 +219,7 @@ for i = 1:nrtrials
         response.touch(i,2) = event.MappedY;       
     else
         response.touch(i,1) = NaN;
-        response.touch(i,2) = NaN;
+        response.touch(i,2) = NaN; 
     end
     % Getting actual line middle
     response.middle(i,:) = midX+offset;
@@ -241,6 +241,9 @@ time.experiment.end = GetSecs;
 %% Analysing
 % Results
  %data.RT = response.RT*1000; %transforming to ms
+load('ts_calib.mat');
+% correcting response with calibration results
+response.touchcorr = response.touch - calResponse.avError(1);
 % 
 time.target.dur = time.target.end - time.target.start;
 time.experiment.dur = time.experiment.end - time.experiment.start;
