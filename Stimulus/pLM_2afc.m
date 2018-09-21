@@ -1,4 +1,4 @@
-%% Landmarks task - AG.Mitchell 09.05.18
+1%% Landmarks task - AG.Mitchell 09.05.18
 
 clc
 clear all
@@ -108,6 +108,7 @@ white = WhiteIndex(screenNumber);
 black = BlackIndex(screenNumber);
 grey=white/2; %white is too strong on CRT
 inc = white-grey;
+ListenChar(2)
 
 if dummymode==1%For debugging use a smaller window
     [window,rect] = Screen('OpenWindow', screenNumber, grey,[RectLeft, RectTop RectLeft+850 RectTop+250]); %for testing    
@@ -296,9 +297,9 @@ for i = 1:nrtrials
             Screen('FillRect', window, black,...
                 [linex1+offset+stim.rshiftpix(i), liney1-(stim.line.widthpix/2), midX+offset, liney1]); %line 1 - top left
             Screen('FillRect', window, white,...
-                [midX+offset, liney1-(stim.line.widthpix/2), linex1+offset+stim.rshiftpix(i), liney1]); % line 2 - top right
+                [midX+offset, liney1-(stim.line.widthpix/2), linex2+offset+stim.rshiftpix(i), liney1]); % line 2 - top right
             Screen('FillRect', window, white,...
-                [linex2+offset+stim.rshiftpix(i), liney1, midX+offset, liney1+stim.line.widthpix/2]); %line 3 - bottom left
+                [linex1+offset+stim.rshiftpix(i), liney1, midX+offset, liney1+stim.line.widthpix/2]); %line 3 - bottom left
             Screen('FillRect', window, black,...
                 [midX+offset, liney1, linex2+offset+stim.rshiftpix(i), liney1+stim.line.widthpix/2]); % line 4 - bottom right
         elseif stim.first(i) == 1
@@ -306,9 +307,9 @@ for i = 1:nrtrials
             Screen('FillRect', window, white,...
                 [linex1+offset-stim.lshiftpix(i), liney2-(stim.line.widthpix/2), midX+offset, liney2]); %line 1 - top left
             Screen('FillRect', window, black,...
-                [midX+offset, liney2-(stim.line.widthpix/2), linex1+offset-stim.lshiftpix(i), liney2]); % line 2 - top right
+                [midX+offset, liney2-(stim.line.widthpix/2), linex2+offset-stim.lshiftpix(i), liney2]); % line 2 - top right
             Screen('FillRect', window, black,...
-                [linex2+offset-stim.lshiftpix(i), liney2, midX+offset, liney2+stim.line.widthpix/2]); %line 3 - bottom left
+                [linex1+offset-stim.lshiftpix(i), liney2, midX+offset, liney2+stim.line.widthpix/2]); %line 3 - bottom left
             Screen('FillRect', window, white,...
                 [midX+offset, liney2, linex2+offset-stim.lshiftpix(i), liney2+stim.line.widthpix/2]); % line 4 - bottom right
         end
@@ -404,6 +405,8 @@ catch
     rethrow(lasterror) 
     sca
     save(matfilename, 'stim', 'response', 'time', 'data')
+    ListenChar(0)
 end
 sca
+ListenChar(0)
 save(matfilename, 'stim', 'response', 'time', 'data')

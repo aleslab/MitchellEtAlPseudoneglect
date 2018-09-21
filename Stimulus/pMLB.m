@@ -4,7 +4,7 @@ clc
 clear all
 datenow(1:6) = fix(clock);
 dummymode = 0;
-practice = 0;
+practice = 0 ;
 useTouch = true;
 
 %% Variables
@@ -282,8 +282,8 @@ data.matrix = [stim.size, stim.side, response.middle, response.touch, response.e
 data.matrix = data.matrix(find(data.matrix(:,5) >= 0.0001|data.matrix(:,5) <= 0.0001),:); %removing NaN trials
 
 % remaining mean and std
-data.error.mean = mean(response.error);
-data.error.sd = std(response.error);
+data.error.mean = nanmean(response.error);
+data.error.sd = nanstd(response.error);
 
 %% Don't forget to get read of NaN values within matrix
 % 
