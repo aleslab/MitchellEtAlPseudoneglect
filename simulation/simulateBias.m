@@ -2,10 +2,10 @@ function results=simulateBias()
 %To simulate the data we will use a linear hierarchical model
 %Each trial is drawn
 
-nTrialsPerSession = 100;
+nTrialsPerSession = 180;
 nSessions         = 4;
-nParticipants     = 30;
-nSimulations       = 100; %Use at least 1000 for good estimates
+nParticipants     = 25;
+nSimulations       = 1000; %Use at least 1000 for good estimates
 
 %Define random distributions.
 %Use function handle and param vector to make this easy to change to
@@ -23,18 +23,18 @@ sessionParam = { 0 0};
 %Draw the bias from each participant from a normal distribution
 %Subtle point This model means that EVERYONE has a non-zero bias, BUT the
 %POPULATION MEAN is 0.  
-participantRandFun = @normrnd;
-participantParam   = { 0 1};
+% participantRandFun = @normrnd;
+% participantParam   = { 0 1};
 
 % 
 %Now let's do something tricky.  Define a function to simulate participants
 %that are have a 0 bias or non-zero bias.  For those with bias draw the
 %bias amount from a normal distribtion.  Heavily leveraging anonymous
 %function capabilities. 
-% biasMean = .1;
-% biasStd  = .1;
-% participantRandFun = @(varargin) binornd(varargin{:}) .* normrnd(biasMean,biasStd,varargin{3:end});
-% participantParam   = { 1 .25}; %params are: {n p}
+biasMean = 0.08;
+biasStd  = 1;
+participantRandFun = @(varargin) binornd(varargin{:}) .* normrnd(biasMean,biasStd,varargin{3:end});
+participantParam   = { 1 .25}; %params are: {n p}
 
 
 
@@ -62,10 +62,15 @@ for iSim = 1:nSimulations,
     %to take a mean across both sessions and trials.
     %Could also call mean twice.
     meanData = mean(dataMatrix(:,:),2);
+    % calculating mean across sessions
+    meanSessData = mean(dataMatrix,3);
     
     %Do a single-sample t-test against 0.
     [results(iSim).h results(iSim).p results(iSim).ci results(iSim).stats] = ttest(meanData);
-    
+    % Running correlation analysis
+    [R, cp] = corrcoef(meanSessData);
+    results(iSim).R = mean(R(1,2:4));
+    results(iSim).cp = mean(cp(1,2:4));
     
     %Now let's try calculating a bayes factor.  Using a nice matlab tool
     %box.  For this we are going to compare two hypotheses.
@@ -73,11 +78,7 @@ for iSim = 1:nSimulations,
     %non-zero effect using a Cauchy prior.
     results(iSim).bf = t1smpbf(results(iSim).stats.tstat,100);
     
-    
-    
-   
-    
-    
+  
 end
 
 
@@ -92,7 +93,8 @@ percentExperimentsSig = mean([results(:).h])
 %What is the mean bayes factor
 meanBF = mean([results(:).bf])
 
-
+%What was the average correlation coefficient across sessions?
+averageCoeff = mean([results(:).R])
 
 
 
