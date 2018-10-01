@@ -39,6 +39,9 @@ bottomleft = data.matrix(find(data.matrix(:,4)==2 & data.matrix(:,3)==1),:);
 % be longer
 data.topl = (length(topleft)/length(top))*100;
 data.bottoml = (length(bottomleft)/length(bottom))*100;
-data.percentl = ((length(topleft)+length(bottomleft))/length(data.response))*100;
+for i = 1:length(data.response)
+    perceivedlong(i) = isequal(data.line(i), data.response(i));
+end
+data.percentl = (sum(perceivedlong)/length(data.response))*100;
 
 save(matfilename)
