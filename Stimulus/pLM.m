@@ -297,6 +297,13 @@ data.matrix = [stim.size, stim.side, stim.shift, response.actual]; %matrix of re
 data.left = data.matrix(find(data.matrix(:,4)==1),:);
 data.right = data.matrix(find(data.matrix(:,4)==2),:);
 
+% Finding percentage of 'left longer' trials
+data.percentl = (length(data.left)/length(response.actual))*100;
+% Percentage of mid-bisection, left longer trials
+mid =  data.matrix(find(data.matrix(:,2)==0),:);
+midleft = data.matrix(find(data.matrix(:,2)==0 & data.matrix(:,4)==1),:);
+data.percentlmid = (length(midleft)/length(mid))*100;
+
 %% Saving data
 catch
     rethrow(lasterror) 
