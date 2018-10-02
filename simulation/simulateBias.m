@@ -5,7 +5,7 @@ function results=simulateBias()
 nTrialsPerSession = 180;
 nSessions         = 4;
 nParticipants     = 25;
-nSimulations       = 1000; %Use at least 1000 for good estimates
+nSimulations       = 10; %Use at least 1000 for good estimates
 
 %Define random distributions.
 %Use function handle and param vector to make this easy to change to
@@ -14,7 +14,7 @@ nSimulations       = 1000; %Use at least 1000 for good estimates
 
 %Distribution to draw each trial from
 trialRandFun = @normrnd;
-trialParam   = { 0 1};
+trialParam   = { 0 100};
 
 %Distribution to draw each sessions bias from
 sessionRandFun = @normrnd;
@@ -26,15 +26,19 @@ sessionParam = { 0 0};
 % participantRandFun = @normrnd;
 % participantParam   = { 0 1};
 
+%Draw the bias from each participant from a normal distribution  
+participantRandFun = @normrnd;
+participantParam   = { 5 10};
+
 % 
 %Now let's do something tricky.  Define a function to simulate participants
 %that are have a 0 bias or non-zero bias.  For those with bias draw the
 %bias amount from a normal distribtion.  Heavily leveraging anonymous
 %function capabilities. 
-biasMean = 0.08;
-biasStd  = 1;
-participantRandFun = @(varargin) binornd(varargin{:}) .* normrnd(biasMean,biasStd,varargin{3:end});
-participantParam   = { 1 .25}; %params are: {n p}
+% biasMean = 0.08;
+% biasStd  = 1;
+% participantRandFun = @(varargin) binornd(varargin{:}) .* normrnd(biasMean,biasStd,varargin{3:end});
+% participantParam   = { 1 .25}; %params are: {n p}
 
 
 
@@ -63,14 +67,18 @@ for iSim = 1:nSimulations,
     %Could also call mean twice.
     meanData = mean(dataMatrix(:,:),2);
     % calculating mean across sessions
-    meanSessData = mean(dataMatrix,3);
+    meanTrialData = mean(dataMatrix,3);
+    
     
     %Do a single-sample t-test against 0.
     [results(iSim).h results(iSim).p results(iSim).ci results(iSim).stats] = ttest(meanData);
-    % Running correlation analysis
-    [R, cp] = corrcoef(meanSessData);
-    results(iSim).R = mean(R(1,2:4));
-    results(iSim).cp = mean(cp(1,2:4));
+    % Running factor analysis
+    [LAMBDA, PSI, T, STATS] = factoran(meanTrialData, 1)
+    [COEFF, SCORE, LATENT, TSQUARED, EXPLAINED, MU] = pca(meanTrialData)
+    
+    [R, cp] = corrcoef(meanTrialData);
+    results(iSim).R = R;
+    results(iSim).cp = cp;
     
     %Now let's try calculating a bayes factor.  Using a nice matlab tool
     %box.  For this we are going to compare two hypotheses.
