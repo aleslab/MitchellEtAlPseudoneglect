@@ -2,10 +2,10 @@ function results=simulateBias()
 %To simulate the data we will use a linear hierarchical model
 %Each trial is drawn
 
-nTrialsPerSession = 180;
-nSessions         = 4;
-nParticipants     = 25;
-nSimulations       = 10; %Use at least 1000 for good estimates
+nTrialsPerSession = 60;
+nSessions         = 3;
+nParticipants     = 30;
+nSimulations       = 1000; %Use at least 1000 for good estimates
 
 %Define random distributions.
 %Use function handle and param vector to make this easy to change to
@@ -14,11 +14,11 @@ nSimulations       = 10; %Use at least 1000 for good estimates
 
 %Distribution to draw each trial from
 trialRandFun = @normrnd;
-trialParam   = { 0 100};
+trialParam   = { 0 1};
 
 %Distribution to draw each sessions bias from
 sessionRandFun = @normrnd;
-sessionParam = { 0 0};
+sessionParam = { 0 0.5 };
 
 %Draw the bias from each participant from a normal distribution
 %Subtle point This model means that EVERYONE has a non-zero bias, BUT the
@@ -28,7 +28,7 @@ sessionParam = { 0 0};
 
 %Draw the bias from each participant from a normal distribution  
 participantRandFun = @normrnd;
-participantParam   = { 5 10};
+participantParam   = { 0.5 0.6};
 
 % 
 %Now let's do something tricky.  Define a function to simulate participants
@@ -73,12 +73,16 @@ for iSim = 1:nSimulations,
     %Do a single-sample t-test against 0.
     [results(iSim).h results(iSim).p results(iSim).ci results(iSim).stats] = ttest(meanData);
     % Running factor analysis
-    [LAMBDA, PSI, T, STATS] = factoran(meanTrialData, 1)
-    [COEFF, SCORE, LATENT, TSQUARED, EXPLAINED, MU] = pca(meanTrialData)
+    %[LAMBDA, PSI, T, STATS] = factoran(meanTrialData, 1);
+    [COEFF, SCORE, LATENT, TSQUARED, EXPLAINED, MU] = pca(meanTrialData);
     
     [R, cp] = corrcoef(meanTrialData);
     results(iSim).R = R;
     results(iSim).cp = cp;
+    
+    %Cronbach's alpha - sessions
+    type = 'C-k';
+    [results(iSim).sessr, LB, UB, F, df1, df2, results(iSim).sessp] = ICC(meanTrialData, type);
     
     %Now let's try calculating a bayes factor.  Using a nice matlab tool
     %box.  For this we are going to compare two hypotheses.
@@ -101,8 +105,11 @@ percentExperimentsSig = mean([results(:).h])
 %What is the mean bayes factor
 meanBF = mean([results(:).bf])
 
+%Cronbach's a > 0
+cronbachAlpaSig = mean([results(:).sessr])
+
 %What was the average correlation coefficient across sessions?
-averageCoeff = mean([results(:).R])
+averageCoeff = mean([results(:).R]);
 
 
 
