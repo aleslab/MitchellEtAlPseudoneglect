@@ -1,10 +1,10 @@
-1%% Landmarks task - AG.Mitchell 09.05.18
+%% Landmarks task - AG.Mitchell 09.05.18
 
 clc
 clear all
 datenow(1:6) = fix(clock);
 dummymode = 0;
-practice = 0;
+practice = 1;
 
 %% Variables
 matfilename = sprintf('LM2afc_%d%d%d_%d%d%d', datenow);
@@ -26,7 +26,7 @@ sy = 26.5;
 stim.line.width = 0.9; %line width in degrees
 %stim.line.width = 0.3; %testing on laptop
 stimlinewdth_cm = tan(pi*stim.line.width/360)*2*sd; %in cm
-stim.line.offset = 0; %offset left or right by 5 degrees
+stim.line.offset = 2; %offset left or right by 2 degrees, used for the lapse rate trials
 stimlineoff_cm = tan(pi*stim.line.offset/360)*2*sd;
 % Different linelengths
 stim.line.lengths = [10, 20, 30];
@@ -193,7 +193,8 @@ for i = 1:nrtrials
     linex1 = midX-linelength/2;
     linex2 = midX+linelength/2;
     
-    % Stimulus side (from midline)
+    % Stimulus side (from midline) - for lapse rate trials, one line
+    % clearly longer than the other
     switch stim.side(i)
         case 0
             offset = 0; %also the location for the middle of the line
@@ -208,7 +209,7 @@ for i = 1:nrtrials
     width = RectWidth(Screen ('TextBounds', window, text));
     height = RectHeight(Screen ('TextBounds', window, text));
     Screen('Flip', window);
-    Screen('DrawText', window, text, midX+offset, midY-height/2, black); %fixation cross at center
+    Screen('DrawText', window, text, midX, midY-height/2, black); %fixation cross at center
     Screen('Flip', window);
     WaitSecs(stim.time.fix)
 
@@ -219,41 +220,41 @@ for i = 1:nrtrials
             Screen('FillRect', window, black,...
                 [linex1+offset-stim.lshiftpix(i), liney1-(stim.line.widthpix/2), midX+offset, liney1]); %line 1 - top left
             Screen('FillRect', window, white,...
-                [midX+offset, liney1-(stim.line.widthpix/2), linex2+offset-stim.lshiftpix(i), liney1]); % line 2 - top right
+                [midX+offset, liney1-(stim.line.widthpix/2), linex2-stim.lshiftpix(i), liney1]); % line 2 - top right
             Screen('FillRect', window, white,...
                 [linex1+offset-stim.lshiftpix(i), liney1, midX+offset, liney1+stim.line.widthpix/2]); %line 3 - bottom left
             Screen('FillRect', window, black,...
-                [midX+offset, liney1, linex2+offset-stim.lshiftpix(i), liney1+stim.line.widthpix/2]); % line 4 - bottom right
+                [midX+offset, liney1, linex2-stim.lshiftpix(i), liney1+stim.line.widthpix/2]); % line 4 - bottom right
             elseif stim.first(i) == 2
         % Bottom line
             Screen('FillRect', window, white,...
-                [linex1+offset+stim.rshiftpix(i), liney2-(stim.line.widthpix/2), midX+offset, liney2]); %line 1 - top left
+                [linex1+stim.rshiftpix(i), liney2-(stim.line.widthpix/2), midX, liney2]); %line 1 - top left
             Screen('FillRect', window, black,...
-                [midX+offset, liney2-(stim.line.widthpix/2), linex2+offset+stim.rshiftpix(i), liney2]); % line 2 - top right
+                [midX, liney2-(stim.line.widthpix/2), linex2+stim.rshiftpix(i), liney2]); % line 2 - top right
             Screen('FillRect', window, black,...
-                [linex1+offset+stim.rshiftpix(i), liney2, midX+offset, liney2+stim.line.widthpix/2]); %line 3 - bottom left
+                [linex1+stim.rshiftpix(i), liney2, midX, liney2+stim.line.widthpix/2]); %line 3 - bottom left
             Screen('FillRect', window, white,...
-                [midX+offset, liney2, linex2+offset+stim.rshiftpix(i), liney2+stim.line.widthpix/2]); % line 4 - bottom right
+                [midX, liney2, linex2+stim.rshiftpix(i), liney2+stim.line.widthpix/2]); % line 4 - bottom right
         end
     elseif stim.pos(i) == 2  
         if stim.first(i) == 1
         % Top line
             Screen('FillRect', window, black,...
-                [linex1+offset+stim.rshiftpix(i), liney1-(stim.line.widthpix/2), midX+offset, liney1]); %line 1 - top left
+                [linex1+stim.rshiftpix(i), liney1-(stim.line.widthpix/2), midX, liney1]); %line 1 - top left
             Screen('FillRect', window, white,...
-                [midX+offset, liney1-(stim.line.widthpix/2), linex2+offset+stim.rshiftpix(i), liney1]); % line 2 - top right
+                [midX, liney1-(stim.line.widthpix/2), linex2+stim.rshiftpix(i), liney1]); % line 2 - top right
             Screen('FillRect', window, white,...
-                [linex1+offset+stim.rshiftpix(i), liney1, midX+offset, liney1+stim.line.widthpix/2]); %line 3 - bottom left
+                [linex1+stim.rshiftpix(i), liney1, midX, liney1+stim.line.widthpix/2]); %line 3 - bottom left
             Screen('FillRect', window, black,...
-                [midX+offset, liney1, linex2+offset+stim.rshiftpix(i), liney1+stim.line.widthpix/2]); % line 4 - bottom right
+                [midX, liney1, linex2+stim.rshiftpix(i), liney1+stim.line.widthpix/2]); % line 4 - bottom right
         elseif stim.first(i) == 2
         % Bottom line
             Screen('FillRect', window, white,...
-                [linex1+offset-stim.lshiftpix(i), liney2-(stim.line.widthpix/2), midX+offset, liney2]); %line 1 - top left
+                [linex1-stim.lshiftpix(i), liney2-(stim.line.widthpix/2), midX+offset, liney2]); %line 1 - top left
             Screen('FillRect', window, black,...
                 [midX+offset, liney2-(stim.line.widthpix/2), linex2+offset-stim.lshiftpix(i), liney2]); % line 2 - top right
             Screen('FillRect', window, black,...
-                [linex1+offset-stim.lshiftpix(i), liney2, midX+offset, liney2+stim.line.widthpix/2]); %line 3 - bottom left
+                [linex1-stim.lshiftpix(i), liney2, midX+offset, liney2+stim.line.widthpix/2]); %line 3 - bottom left
             Screen('FillRect', window, white,...
                 [midX+offset, liney2, linex2+offset-stim.lshiftpix(i), liney2+stim.line.widthpix/2]); % line 4 - bottom right
         end
@@ -275,41 +276,41 @@ for i = 1:nrtrials
             Screen('FillRect', window, black,...
                 [linex1+offset-stim.lshiftpix(i), liney1-(stim.line.widthpix/2), midX+offset, liney1]); %line 1 - top left
             Screen('FillRect', window, white,...
-                [midX+offset, liney1-(stim.line.widthpix/2), linex2+offset-stim.lshiftpix(i), liney1]); % line 2 - top right
+                [midX+offset, liney1-(stim.line.widthpix/2), linex2-stim.lshiftpix(i), liney1]); % line 2 - top right
             Screen('FillRect', window, white,...
                 [linex1+offset-stim.lshiftpix(i), liney1, midX+offset, liney1+stim.line.widthpix/2]); %line 3 - bottom left
             Screen('FillRect', window, black,...
-                [midX+offset, liney1, linex2+offset-stim.lshiftpix(i), liney1+stim.line.widthpix/2]); % line 4 - bottom right
+                [midX+offset, liney1, linex2-stim.lshiftpix(i), liney1+stim.line.widthpix/2]); % line 4 - bottom right
             elseif stim.first(i) == 1
         % Bottom line
             Screen('FillRect', window, white,...
-                [linex1+offset+stim.rshiftpix(i), liney2-(stim.line.widthpix/2), midX+offset, liney2]); %line 1 - top left
+                [linex1+stim.rshiftpix(i), liney2-(stim.line.widthpix/2), midX, liney2]); %line 1 - top left
             Screen('FillRect', window, black,...
-                [midX+offset, liney2-(stim.line.widthpix/2), linex2+offset+stim.rshiftpix(i), liney2]); % line 2 - top right
+                [midX, liney2-(stim.line.widthpix/2), linex2+stim.rshiftpix(i), liney2]); % line 2 - top right
             Screen('FillRect', window, black,...
-                [linex1+offset+stim.rshiftpix(i), liney2, midX+offset, liney2+stim.line.widthpix/2]); %line 3 - bottom left
+                [linex1+stim.rshiftpix(i), liney2, midX, liney2+stim.line.widthpix/2]); %line 3 - bottom left
             Screen('FillRect', window, white,...
-                [midX+offset, liney2, linex2+offset+stim.rshiftpix(i), liney2+stim.line.widthpix/2]); % line 4 - bottom right
+                [midX, liney2, linex2+stim.rshiftpix(i), liney2+stim.line.widthpix/2]); % line 4 - bottom right
         end
     elseif stim.pos(i) == 2  
         if stim.first(i) == 2
         % Top line
             Screen('FillRect', window, black,...
-                [linex1+offset+stim.rshiftpix(i), liney1-(stim.line.widthpix/2), midX+offset, liney1]); %line 1 - top left
+                [linex1+stim.rshiftpix(i), liney1-(stim.line.widthpix/2), midX, liney1]); %line 1 - top left
             Screen('FillRect', window, white,...
-                [midX+offset, liney1-(stim.line.widthpix/2), linex2+offset+stim.rshiftpix(i), liney1]); % line 2 - top right
+                [midX, liney1-(stim.line.widthpix/2), linex2+stim.rshiftpix(i), liney1]); % line 2 - top right
             Screen('FillRect', window, white,...
-                [linex1+offset+stim.rshiftpix(i), liney1, midX+offset, liney1+stim.line.widthpix/2]); %line 3 - bottom left
+                [linex1+stim.rshiftpix(i), liney1, midX, liney1+stim.line.widthpix/2]); %line 3 - bottom left
             Screen('FillRect', window, black,...
-                [midX+offset, liney1, linex2+offset+stim.rshiftpix(i), liney1+stim.line.widthpix/2]); % line 4 - bottom right
+                [midX, liney1, linex2+stim.rshiftpix(i), liney1+stim.line.widthpix/2]); % line 4 - bottom right
         elseif stim.first(i) == 1
         % Bottom line
             Screen('FillRect', window, white,...
-                [linex1+offset-stim.lshiftpix(i), liney2-(stim.line.widthpix/2), midX+offset, liney2]); %line 1 - top left
+                [linex1-stim.lshiftpix(i), liney2-(stim.line.widthpix/2), midX+offset, liney2]); %line 1 - top left
             Screen('FillRect', window, black,...
                 [midX+offset, liney2-(stim.line.widthpix/2), linex2+offset-stim.lshiftpix(i), liney2]); % line 2 - top right
             Screen('FillRect', window, black,...
-                [linex1+offset-stim.lshiftpix(i), liney2, midX+offset, liney2+stim.line.widthpix/2]); %line 3 - bottom left
+                [linex1-stim.lshiftpix(i), liney2, midX+offset, liney2+stim.line.widthpix/2]); %line 3 - bottom left
             Screen('FillRect', window, white,...
                 [midX+offset, liney2, linex2+offset-stim.lshiftpix(i), liney2+stim.line.widthpix/2]); % line 4 - bottom right
         end
