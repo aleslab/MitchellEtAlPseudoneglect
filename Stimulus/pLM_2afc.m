@@ -4,7 +4,7 @@ clc
 clear all
 datenow(1:6) = fix(clock);
 dummymode = 0;
-practice = 1;
+practice = 0;
 
 %% Variables
 matfilename = sprintf('LM2afc_%d%d%d_%d%d%d', datenow);
@@ -47,7 +47,7 @@ stim.rshift = Data(:, ismember(Text, 'right shift'));
 
 % Deciding which stimuli to place  shift
 % if 1 = shift left top 2 = shift left bottom
-upper = zeros(90,1); upper = upper+1; lower = upper+1;
+upper = zeros(96,1); upper = upper+1; lower = upper+1;
 position = [upper; lower];
 stim.pos = position(randperm(length(position)));
 % Randomising which line goes first
