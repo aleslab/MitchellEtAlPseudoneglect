@@ -2,9 +2,9 @@ function results=simulateBias()
 %To simulate the data we will use a linear hierarchical model
 %Each trial is drawn
 
-nTrialsPerSession = 60;
-nSessions         = 3;
-nParticipants     = 30;
+nTrialsPerSession = 180;
+nSessions         = 4;
+nParticipants     = 25;
 nSimulations       = 1000; %Use at least 1000 for good estimates
 
 %Define random distributions.
@@ -14,7 +14,7 @@ nSimulations       = 1000; %Use at least 1000 for good estimates
 
 %Distribution to draw each trial from
 trialRandFun = @normrnd;
-trialParam   = { 0 1};
+trialParam   = { 0 0.5};
 
 %Distribution to draw each sessions bias from
 sessionRandFun = @normrnd;
@@ -28,7 +28,7 @@ sessionParam = { 0 0.5 };
 
 %Draw the bias from each participant from a normal distribution  
 participantRandFun = @normrnd;
-participantParam   = { 0.5 0.6};
+participantParam   = { 5 10};
 
 % 
 %Now let's do something tricky.  Define a function to simulate participants
