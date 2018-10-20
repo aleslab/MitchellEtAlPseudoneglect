@@ -14,11 +14,11 @@ nSimulations       = 1000; %Use at least 1000 for good estimates
 
 %Distribution to draw each trial from
 trialRandFun = @normrnd;
-trialParam   = { 0 0.5};
+trialParam   = { 0 100};
 
 %Distribution to draw each sessions bias from
 sessionRandFun = @normrnd;
-sessionParam = { 0 0.5 };
+sessionParam = { 0 10 };
 
 %Draw the bias from each participant from a normal distribution
 %Subtle point This model means that EVERYONE has a non-zero bias, BUT the
@@ -69,12 +69,13 @@ for iSim = 1:nSimulations,
     % calculating mean across sessions
     meanTrialData = mean(dataMatrix,3);
     
+    results(iSim).dataMatrix = dataMatrix;
     
     %Do a single-sample t-test against 0.
-    [results(iSim).h results(iSim).p results(iSim).ci results(iSim).stats] = ttest(meanData);
+    [results(iSim).ttest_h results(iSim).ttest_p results(iSim).ttest_ci results(iSim).ttest_stats] = ttest(meanData);
     % Running factor analysis
     %[LAMBDA, PSI, T, STATS] = factoran(meanTrialData, 1);
-    [COEFF, SCORE, LATENT, TSQUARED, EXPLAINED, MU] = pca(meanTrialData);
+    %[COEFF, SCORE, LATENT, TSQUARED, EXPLAINED, MU] = pca(meanTrialData);
     
     [R, cp] = corrcoef(meanTrialData);
     results(iSim).R = R;
@@ -82,13 +83,14 @@ for iSim = 1:nSimulations,
     
     %Cronbach's alpha - sessions
     type = 'C-k';
-    [results(iSim).sessr, LB, UB, F, df1, df2, results(iSim).sessp] = ICC(meanTrialData, type);
+    [results(iSim).alpha_r, LB, UB, F, df1, df2, results(iSim).alpha_p] = ICC(meanTrialData, type);
+    results(iSim).alpha_h = results(iSim).alpha_p < .05; %check if p-vale is below .05
     
     %Now let's try calculating a bayes factor.  Using a nice matlab tool
     %box.  For this we are going to compare two hypotheses.
     %Calculate the bayes factor comparing a null-hypothesis of 0 with a
     %non-zero effect using a Cauchy prior.
-    results(iSim).bf = t1smpbf(results(iSim).stats.tstat,100);
+    results(iSim).bf = t1smpbf(results(iSim).ttest_stats.tstat,100);
     
   
 end
@@ -99,14 +101,14 @@ end
 %What percent of experiments found a significant effect
 %This is the frequentist viewpoint.  If simulations above have a non-zero
 %effect it is the power.
-percentExperimentsSig = mean([results(:).h])
-
+percentExperimentsSigTtest = mean([results(:).ttest_h])
+percentExperimentsSigAlpha = mean([results(:).alpha_h])
 
 %What is the mean bayes factor
 meanBF = mean([results(:).bf])
 
-%Cronbach's a > 0
-cronbachAlpaSig = mean([results(:).sessr])
+% Average Cronbach's alpha across experiments.
+meanAlpha = mean([results(:).alpha_r])
 
 %What was the average correlation coefficient across sessions?
 averageCoeff = mean([results(:).R]);
