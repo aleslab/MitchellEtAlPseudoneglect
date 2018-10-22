@@ -14,7 +14,8 @@
 % paradigm 
 
 %% Importing data
-matfilename = ('TR2_results.mat');
+ppID = input('Participant ID? ', 's'); %for use when navigating files
+matfilename = sprintf('TR2_analysis%s.mat', ppID);
 
 data = struct;
 data.size = [];

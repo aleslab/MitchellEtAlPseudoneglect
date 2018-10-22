@@ -6,7 +6,8 @@
 % Then calculates bias relative to line length and shift into L/R hemifield
 
 %% Importing the data
-matfilename = ('TRB_results.mat');
+ppID = input('Participant ID? ', 's'); %for use when navigating files
+matfilename = sprintf('TRB_analysis%s.mat', ppID);
 
 data = struct;
 data.size = [];
