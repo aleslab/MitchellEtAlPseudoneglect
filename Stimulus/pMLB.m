@@ -27,7 +27,7 @@ sy = 26.5;
 % Size of stimuli
 stim.line.width = 0.9; %line width in degrees
 stimlinewdth_cm = tan(pi*stim.line.width/360)*2*sd; %in cm
-stim.line.offset = 1.5; %offset left or right by 1.5 degrees
+stim.line.offset = 2; %offset left or right by 1.5 degrees
 stimlineoff_cm = tan(pi*stim.line.offset/360)*2*sd;
 % Different linelengths
 stim.line.lengths = [10, 20, 30];

@@ -16,7 +16,7 @@ useTouch = true;
 %% Variables
 
 % Filename
-matfilename = sprintf('ts_calib.mat', datenow);
+matfilename = 'ts_calib.mat';
 
 % save data
 calStim = struct;
