@@ -27,24 +27,78 @@ for i = 1:length(nSessions)
     % Manual line bisection
     mlbName = dir([dirSess 'MLB_*.mat']); %getting file details for MLB data
     load(mlbName.name);    
-    mlb.data.(sprintf('%s', session)) = data;
+    mlb.(sprintf('%s', session)) = data;
     
     % Landmarks
     lmName = dir([dirSess 'LM_*.mat']); %getting file details for MLB data
     load(lmName.name);    
-    lm.data.(sprintf('%s', session)) = data;
+    lm.(sprintf('%s', session)) = data;
     
     % Landmarks 2AFC
     lm2Name= dir([dirSess 'LM2afc_*.mat']); %getting file details for MLB data
     load(lm2Name.name);    
-    lm2.data.(sprintf('%s', session)) = data;
+    lm2.(sprintf('%s', session)) = data;
 end
 
 %% Analyse MLB data
 % Grouping into line length
 for i = 1:length(nSessions)
+    session = sprintf('Session%0*d',2,nSessions(i));
+    % 10 cm line
+    mlb.(sprintf('%s', session)).line1mat = ...
+        mlb.(sprintf('%s', session)).matrix(find(mlb.(sprintf('%s', session)).matrix(:,1)== 1),:);
+    % 20 cm line
+    mlb.(sprintf('%s', session)).line2mat = ...
+        mlb.(sprintf('%s', session)).matrix(find(mlb.(sprintf('%s', session)).matrix(:,1)== 2),:);
+    % 30cm line
+    mlb.(sprintf('%s', session)).line3mat = ...
+        mlb.(sprintf('%s', session)).matrix(find(mlb.(sprintf('%s', session)).matrix(:,1)== 3),:);
+    
+    % Average and std line length for each session
+    avL1 = nanmean(mlb.(sprintf('%s', session)).line1mat(:,6)); %10 cm line
+    stdL1 = nanstd(mlb.(sprintf('%s', session)).line1mat(:,6));
+    mlb.(sprintf('%s', session)).error.line1 = [avL1, stdL1];
+    avL2 = nanmean(mlb.(sprintf('%s', session)).line2mat(:,6)); %20 cm line
+    stdL2 = nanstd(mlb.(sprintf('%s', session)).line2mat(:,6));
+    mlb.(sprintf('%s', session)).error.line2 = [avL2, stdL2];
+    avL3 = nanmean(mlb.(sprintf('%s', session)).line3mat(:,6)); %30 cm line
+    stdL3 = nanstd(mlb.(sprintf('%s', session)).line3mat(:,6));
+    mlb.(sprintf('%s', session)).error.line3 = [avL3, stdL3];
+end
+
+
+
+%% Analyse LM data 
+% Take percentage left-side longer responses for each shift in mm
+% Grouping into line length
+for i = 1:length(nSessions)
+    session = sprintf('Session%0*d',2,nSessions(i));
+    % 10 cm line
+    lm.(sprintf('%s', session)).line1mat = ...
+        lm.(sprintf('%s', session)).matrix(find(lm.(sprintf('%s', session)).matrix(:,1)== 1),:);
+    % 20 cm line
+    lm.(sprintf('%s', session)).line2mat = ...
+        lm.(sprintf('%s', session)).matrix(find(lm.(sprintf('%s', session)).matrix(:,1)== 2),:);
+    % 30cm line
+    lm.(sprintf('%s', session)).line3mat = ...
+        lm.(sprintf('%s', session)).matrix(find(lm.(sprintf('%s', session)).matrix(:,1)== 3),:);
 end
 
 %% Analyse LM data
-%% Analyse LM data
+% Take percentage top-line longer responses for each shift in mm (of the
+% top line)
+% Grouping into line length
+for i = 1:length(nSessions)
+    session = sprintf('Session%0*d',2,nSessions(i));
+    % 10 cm line
+    lm2.(sprintf('%s', session)).line1mat = ...
+        lm2.(sprintf('%s', session)).matrix(find(lm2.(sprintf('%s', session)).matrix(:,1)== 1),:);
+    % 20 cm line
+    lm2.(sprintf('%s', session)).line2mat = ...
+        lm2.(sprintf('%s', session)).matrix(find(lm2.(sprintf('%s', session)).matrix(:,1)== 2),:);
+    % 30cm line
+    lm2.(sprintf('%s', session)).line3mat = ...
+        lm2.(sprintf('%s', session)).matrix(find(lm2.(sprintf('%s', session)).matrix(:,1)== 3),:);
+end
+
 %% Close and save
