@@ -55,18 +55,25 @@ for i = 1:length(nSessions)
         mlb.(sprintf('%s', session)).matrix(find(mlb.(sprintf('%s', session)).matrix(:,1)== 3),:);
     
     % Average and std line length for each session
-    avL1 = nanmean(mlb.(sprintf('%s', session)).line1mat(:,6)); %10 cm line
-    stdL1 = nanstd(mlb.(sprintf('%s', session)).line1mat(:,6));
-    mlb.(sprintf('%s', session)).error.line1 = [avL1, stdL1];
-    avL2 = nanmean(mlb.(sprintf('%s', session)).line2mat(:,6)); %20 cm line
-    stdL2 = nanstd(mlb.(sprintf('%s', session)).line2mat(:,6));
-    mlb.(sprintf('%s', session)).error.line2 = [avL2, stdL2];
-    avL3 = nanmean(mlb.(sprintf('%s', session)).line3mat(:,6)); %30 cm line
-    stdL3 = nanstd(mlb.(sprintf('%s', session)).line3mat(:,6));
-    mlb.(sprintf('%s', session)).error.line3 = [avL3, stdL3];
+    avL1(i) = nanmean(mlb.(sprintf('%s', session)).line1mat(:,6)); %10 cm line
+    stdL1(i) = nanstd(mlb.(sprintf('%s', session)).line1mat(:,6));
+    mlb.(sprintf('%s', session)).error.line1 = [avL1(i), stdL1(i)];
+    avL2(i) = nanmean(mlb.(sprintf('%s', session)).line2mat(:,6)); %20 cm line
+    stdL2(i) = nanstd(mlb.(sprintf('%s', session)).line2mat(:,6));
+    mlb.(sprintf('%s', session)).error.line2 = [avL2(i), stdL2(i)];
+    avL3(i) = nanmean(mlb.(sprintf('%s', session)).line3mat(:,6)); %30 cm line
+    stdL3(i) = nanstd(mlb.(sprintf('%s', session)).line3mat(:,6));
+    mlb.(sprintf('%s', session)).error.line3 = [avL3(i), stdL3(i)];
 end
 
-
+% Average error across sessions
+% For each line length
+mlb.line1err = [mean(avL1), std(avL1)];
+mlb.line2err = [mean(avL2), std(avL2)];
+mlb.line3err = [mean(avL3), std(avL3)];
+% Total error and std across sessions
+allError = [mlb.line1err(1), mlb.line2err(1), mlb.line3err(1)];
+mlb.meanTotError = mean(allError);
 
 %% Analyse LM data 
 % Take percentage left-side longer responses for each shift in mm
