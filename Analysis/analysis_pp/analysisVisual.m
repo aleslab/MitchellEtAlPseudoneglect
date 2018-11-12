@@ -54,7 +54,7 @@ for i = 1:length(nSessions)
     mlb.(sprintf('%s', session)).line3mat = ...
         mlb.(sprintf('%s', session)).matrix(find(mlb.(sprintf('%s', session)).matrix(:,1)== 3),:);
     
-    % Average and std line length for each session
+    % Average and std error for each line length
     avL1(i) = nanmean(mlb.(sprintf('%s', session)).line1mat(:,6)); %10 cm line
     stdL1(i) = nanstd(mlb.(sprintf('%s', session)).line1mat(:,6));
     mlb.(sprintf('%s', session)).error.line1 = [avL1(i), stdL1(i)];
@@ -79,17 +79,62 @@ mlb.meanTotError = mean(allError);
 % Take percentage left-side longer responses for each shift in mm
 % Grouping into line length
 for i = 1:length(nSessions)
-    session = sprintf('Session%0*d',2,nSessions(i));
+    session = sprintf('Session%0*d',2,nSessions(i));    
+    %% Line matrix for each session
     % 10 cm line
-    lm.(sprintf('%s', session)).line1mat = ...
-        lm.(sprintf('%s', session)).matrix(find(lm.(sprintf('%s', session)).matrix(:,1)== 1),:);
+    lm1mat = lm.(sprintf('%s', session)).matrix(find(lm.(sprintf('%s', session)).matrix(:,1)== 1),:);
+    lm.(sprintf('%s', session)).line1.mat = lm1mat;
     % 20 cm line
-    lm.(sprintf('%s', session)).line2mat = ...
-        lm.(sprintf('%s', session)).matrix(find(lm.(sprintf('%s', session)).matrix(:,1)== 2),:);
+    lm2mat = lm.(sprintf('%s', session)).matrix(find(lm.(sprintf('%s', session)).matrix(:,1)== 2),:);
+    lm.(sprintf('%s', session)).line2.mat = lm2mat;
     % 30cm line
-    lm.(sprintf('%s', session)).line3mat = ...
-        lm.(sprintf('%s', session)).matrix(find(lm.(sprintf('%s', session)).matrix(:,1)== 3),:);
+    lm3mat = lm.(sprintf('%s', session)).matrix(find(lm.(sprintf('%s', session)).matrix(:,1)== 3),:);
+    lm.(sprintf('%s', session)).line3.mat = lm3mat;
+    
+    % Matrix for each shift per line
+    lm.(sprintf('%s', session)).line1.mid = lm1mat(find(lm1mat(:,2)== 0),:); %line 1 midpoint
+    lm.(sprintf('%s', session)).line2.mid = lm2mat(find(lm2mat(:,2)== 0),:); %line 2 midpoint 
+    lm.(sprintf('%s', session)).line2.mid = lm3mat(find(lm3mat(:,2)== 0),:); %line 3 midpoint 
+    % For all lines
+    sessMat = lm.(sprintf('%s', session)).matrix; %entire session matrix
+    lm.(sprintf('%s', session)).allshift.mid = sessMat(find(sessMat(:,2)== 0),:); %midpoint
+    for ii = 1:5 %5 shifts per line
+        shift = ii*2; shiftmm = shift/10; %for naming
+        name = sprintf('%d', shift);
+        % Line 1
+        lm.(sprintf('%s', session)).line1.(sprintf('left%d', shift))...
+            = lm1mat(find(lm1mat(:,2)== 1 & lm1mat(:,3)== shiftmm),:); %left
+        lm.(sprintf('%s', session)).line1.(sprintf('right%d', shift))...
+            = lm1mat(find(lm1mat(:,2)== 2 & lm1mat(:,3)== shiftmm),:); %right
+        % Line 2
+        lm.(sprintf('%s', session)).line2.(sprintf('left%d', shift))...
+            = lm2mat(find(lm1mat(:,2)== 1 & lm2mat(:,3)== shiftmm),:); %left
+        lm.(sprintf('%s', session)).line2.(sprintf('right%d', shift))...
+            = lm2mat(find(lm1mat(:,2)== 2 & lm2mat(:,3)== shiftmm),:); %right
+        % Line 3
+        lm.(sprintf('%s', session)).line3.(sprintf('left%d', shift))...
+            = lm3mat(find(lm1mat(:,2)== 1 & lm3mat(:,3)== shiftmm),:); %left
+        lm.(sprintf('%s', session)).line3.(sprintf('right%d', shift))...
+            = lm3mat(find(lm1mat(:,2)== 2 & lm3mat(:,3)== shiftmm),:); %right
+        
+        % All lines!
+        lm.(sprintf('%s', session)).allshift.(sprintf('left%d', shift))...
+            = sessMat(find(sessMat(:,2)== 1 & sessMat(:,3)== shiftmm),:); %left
+        lm.(sprintf('%s', session)).allshift.(sprintf('right%d', shift))...
+            = sessMat(find(sessMat(:,2)== 2 & sessMat(:,3)== shiftmm),:); %left
+    end
+    
+    % Find percentage 'left side longer' for each line
+    %% continue here
+    measurements = [-10:2:10];
+    lm.(sprintf('%s', session)).line1.per(:,1) = measurements';
+    %% add percentages to each row in matrix
+    % Percentage 'left side longer' for each session (collapsed across
+    % line)
+    
 end
+
+
 
 %% Analyse LM data
 % Take percentage top-line longer responses for each shift in mm (of the
