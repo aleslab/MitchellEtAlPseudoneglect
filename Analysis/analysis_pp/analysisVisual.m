@@ -66,7 +66,7 @@ for i = 1:length(nSessions)
     mlb.(sprintf('%s', session)).error.line3 = [avL3(i), stdL3(i)];
 end
 
-% Average error across sessions
+%% Average error across sessions
 % For each line length
 mlb.line1err = [mean(avL1), std(avL1)];
 mlb.line2err = [mean(avL2), std(avL2)];
@@ -143,23 +143,143 @@ for i = 1:length(nSessions)
     lm.(sprintf('%s', session)).line3.per(6,2) = perMid; %line 3
     
     % Percentage for offsets
+    % Vector of values to add left shift into correct location
+    k = 1:5; k = flipud(k');
     for ii = 1:5
         shift = ii*2; shiftmm = shift/10; %for naming
         name = sprintf('%d', shift);
         % Line 1
         perL = (sum(lm.(sprintf('%s', session)).line1.(sprintf('left%d', shift))(:,4)==1)/...
         length(lm.(sprintf('%s', session)).line1.(sprintf('left%d', shift))(:,4)))*100; %left
-        %lm.(sprintf('%s', session)).line1.per(
+        lm.(sprintf('%s', session)).line1.per(k(ii), 2) = perL;
         perR = (sum(lm.(sprintf('%s', session)).line1.(sprintf('right%d', shift))(:,4)==1)/...
         length(lm.(sprintf('%s', session)).line1.(sprintf('right%d', shift))(:,4)))*100; %right
         lm.(sprintf('%s', session)).line1.per(ii+6, 2) = perR;
+        
+        %Line 2
+        perL = (sum(lm.(sprintf('%s', session)).line2.(sprintf('left%d', shift))(:,4)==1)/...
+        length(lm.(sprintf('%s', session)).line2.(sprintf('left%d', shift))(:,4)))*100; %left
+        lm.(sprintf('%s', session)).line2.per(k(ii), 2) = perL;
+        perR = (sum(lm.(sprintf('%s', session)).line2.(sprintf('right%d', shift))(:,4)==1)/...
+        length(lm.(sprintf('%s', session)).line2.(sprintf('right%d', shift))(:,4)))*100; %right
+        lm.(sprintf('%s', session)).line2.per(ii+6, 2) = perR;
+        
+        %Line 3
+        perL = (sum(lm.(sprintf('%s', session)).line3.(sprintf('left%d', shift))(:,4)==1)/...
+        length(lm.(sprintf('%s', session)).line3.(sprintf('left%d', shift))(:,4)))*100; %left
+        lm.(sprintf('%s', session)).line3.per(k(ii), 2) = perL;
+        perR = (sum(lm.(sprintf('%s', session)).line3.(sprintf('right%d', shift))(:,4)==1)/...
+        length(lm.(sprintf('%s', session)).line3.(sprintf('right%d', shift))(:,4)))*100; %right
+        lm.(sprintf('%s', session)).line3.per(ii+6, 2) = perR;       
     end
 
-    %% Percentage 'left side longer' for each session (collapsed across
-    % line)
+    %% Percentage 'left side longer' for each session (collapsed across line)
+    lm.(sprintf('%s', session)).per(:,1) = measurements';
+    % Percenttrage for mid bisected trials for all lines
+    perSmid = (sum(lm.(sprintf('%s', session)).allshift.mid(:,4)==1)/...
+        length(lm.(sprintf('%s', session)).allshift.mid(:,4)))*100;
+    lm.(sprintf('%s', session)).per(6,2) = perSmid;
     
+    % For all shifts
+    for ii = 1:5
+        shift = ii*2; shiftmm = shift/10; %for naming
+        name = sprintf('%d', shift);
+        
+        perSL = (sum(lm.(sprintf('%s', session)).allshift.(sprintf('left%d', shift))(:,4)==1)/...
+            length(lm.(sprintf('%s', session)).allshift.(sprintf('left%d', shift))(:,4)))*100; %left
+        lm.(sprintf('%s', session)).per(k(ii),2) = perSL;
+        perSR = (sum(lm.(sprintf('%s', session)).allshift.(sprintf('right%d', shift))(:,4)==1)/...
+            length(lm.(sprintf('%s', session)).allshift.(sprintf('right%d', shift))(:,4)))*100; %right
+        lm.(sprintf('%s', session)).per(ii+6,2) = perSR;        
+    end
 end
+% Data across all sessions
+% Matrices of shifts for each line length
+% Middle bisection
+lm.allsessions.line1.mid = [lm.Session01.line1.mid; lm.Session02.line1.mid;...
+    lm.Session03.line1.mid; lm.Session04.line1.mid]; %line1
+lm.allsessions.line2.mid = [lm.Session01.line2.mid; lm.Session02.line2.mid;...
+    lm.Session03.line2.mid; lm.Session04.line2.mid]; %line2
+lm.allsessions.line3.mid = [lm.Session01.line3.mid; lm.Session02.line3.mid;...
+    lm.Session03.line3.mid; lm.Session04.line3.mid]; %line3
+lm.allsessions.alllines.mid = [lm.allsessions.line1.mid; lm.allsessions.line2.mid; lm.allsessions.line3.mid]; %all lines
 
+% Percentage for the middle
+% Line 1
+lm.allsessions.line1.per(:,1) = measurements';
+lm.allsessions.line1.per(6,2) = (sum(lm.allsessions.line1.mid(:,4)==1)/...
+    length(lm.allsessions.line1.mid(:,4)))*100;
+% Line 2
+lm.allsessions.line2.per(:,1) = measurements';
+lm.allsessions.line2.per(6,2) = (sum(lm.allsessions.line2.mid(:,4)==1)/...
+    length(lm.allsessions.line2.mid(:,4)))*100;
+% Line 3
+lm.allsessions.line3.per(:,1) = measurements';
+lm.allsessions.line3.per(6,2) = (sum(lm.allsessions.line3.mid(:,4)==1)/...
+    length(lm.allsessions.line3.mid(:,4)))*100;
+% All
+lm.allsessions.per(:,1) = measurements';
+lm.allsessions.per(6,2) = (sum(lm.allsessions.alllines.mid(:,4)==1)/...
+    length(lm.allsessions.alllines.mid(:,4)))*100;
+
+% All other offsets
+for ii = 1:5
+    shift = ii*2; shiftmm = shift/10; %for naming
+    name = sprintf('%d', shift);
+    % Line 1
+    % Matrices
+    lm.allsessions.line1.(sprintf('left%d', shift)) = [lm.Session01.line1.(sprintf('left%d', shift)); ...
+        lm.Session02.line1.(sprintf('left%d', shift)); lm.Session03.line1.(sprintf('left%d', shift)); ...
+        lm.Session04.line1.(sprintf('left%d', shift))]; %left
+    lm.allsessions.line1.(sprintf('right%d', shift)) = [lm.Session01.line1.(sprintf('right%d', shift)); ...
+        lm.Session02.line1.(sprintf('right%d', shift)); lm.Session03.line1.(sprintf('right%d', shift)); ...
+        lm.Session04.line1.(sprintf('right%d', shift))]; %right
+    % Percentages
+    lm.allsessions.line1.per(k(ii),2) = (sum(lm.allsessions.line1.(sprintf('left%d', shift))(:,4)==1)/...
+        length(lm.allsessions.line1.(sprintf('left%d', shift))(:,4)))*100; %left
+    lm.allsessions.line1.per(ii+6,2) = (sum(lm.allsessions.line1.(sprintf('right%d', shift))(:,4)==1)/...
+        length(lm.allsessions.line1.(sprintf('right%d', shift))(:,4)))*100; %right
+    
+    % Line 2
+    % Matrices
+    lm.allsessions.line2.(sprintf('left%d', shift)) = [lm.Session01.line2.(sprintf('left%d', shift)); ...
+        lm.Session02.line2.(sprintf('left%d', shift)); lm.Session03.line2.(sprintf('left%d', shift)); ...
+        lm.Session04.line2.(sprintf('left%d', shift))]; %left
+    lm.allsessions.line2.(sprintf('right%d', shift)) = [lm.Session01.line2.(sprintf('right%d', shift)); ...
+        lm.Session02.line2.(sprintf('right%d', shift)); lm.Session03.line2.(sprintf('right%d', shift)); ...
+        lm.Session04.line2.(sprintf('right%d', shift))]; %right
+    % Percentages
+    lm.allsessions.line2.per(k(ii),2) = (sum(lm.allsessions.line2.(sprintf('left%d', shift))(:,4)==1)/...
+        length(lm.allsessions.line2.(sprintf('left%d', shift))(:,4)))*100; %left
+    lm.allsessions.line2.per(ii+6,2) = (sum(lm.allsessions.line2.(sprintf('right%d', shift))(:,4)==1)/...
+        length(lm.allsessions.line2.(sprintf('right%d', shift))(:,4)))*100; %right
+    
+    % Line 3
+    % Matrices
+    lm.allsessions.line3.(sprintf('left%d', shift)) = [lm.Session01.line3.(sprintf('left%d', shift)); ...
+        lm.Session02.line3.(sprintf('left%d', shift)); lm.Session03.line3.(sprintf('left%d', shift)); ...
+        lm.Session04.line3.(sprintf('left%d', shift))]; %left
+    lm.allsessions.line3.(sprintf('right%d', shift)) = [lm.Session01.line3.(sprintf('right%d', shift)); ...
+        lm.Session02.line3.(sprintf('right%d', shift)); lm.Session03.line3.(sprintf('right%d', shift)); ...
+        lm.Session04.line3.(sprintf('right%d', shift))]; %right
+    % Percentages
+    lm.allsessions.line3.per(k(ii),2) = (sum(lm.allsessions.line3.(sprintf('left%d', shift))(:,4)==1)/...
+        length(lm.allsessions.line3.(sprintf('left%d', shift))(:,4)))*100; %left
+    lm.allsessions.line3.per(ii+6,2) = (sum(lm.allsessions.line3.(sprintf('right%d', shift))(:,4)==1)/...
+        length(lm.allsessions.line3.(sprintf('right%d', shift))(:,4)))*100; %right
+    
+    % All lines
+    % Matrices
+    lm.allsessions.alllines.(sprintf('left%d', shift)) = [lm.allsessions.line1.(sprintf('left%d', shift));...
+        lm.allsessions.line2.(sprintf('left%d', shift)); lm.allsessions.line3.(sprintf('left%d', shift))]; %left
+    lm.allsessions.alllines.(sprintf('right%d', shift)) = [lm.allsessions.line1.(sprintf('right%d', shift));...
+        lm.allsessions.line2.(sprintf('right%d', shift)); lm.allsessions.line3.(sprintf('right%d', shift))]; %right
+    % Percentages
+    lm.allsessions.per(k(ii),2) = (sum(lm.allsessions.alllines.(sprintf('left%d', shift))(:,4)==1)/...
+        length(lm.allsessions.alllines.(sprintf('left%d', shift))(:,4)))*100; %left
+    lm.allsessions.per(ii+6,2) = (sum(lm.allsessions.alllines.(sprintf('right%d', shift))(:,4)==1)/...
+        length(lm.allsessions.alllines.(sprintf('right%d', shift))(:,4)))*100; %left
+end
 
 
 %% Analyse LM data
