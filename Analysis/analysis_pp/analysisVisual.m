@@ -12,7 +12,7 @@ clear all
 %% Variables
 ppID = input('Participant ID? ', 's'); %for use when navigating files
 matfilename = sprintf('MLB_analysis%s.mat', ppID);
-nSessions = 1:3; %vector number of sessions each participant does
+nSessions = 1:4; %vector number of sessions each participant does
 % Directory
 dirBias = ('C:\Users\Experimenter\Documents\Experiments2018\Bias'); %subject to change depending on where you analyse
 dirPP = [dirBias filesep ppID filesep]; %participant directory
@@ -94,7 +94,7 @@ for i = 1:length(nSessions)
     % Matrix for each shift per line
     lm.(sprintf('%s', session)).line1.mid = lm1mat(find(lm1mat(:,2)== 0),:); %line 1 midpoint
     lm.(sprintf('%s', session)).line2.mid = lm2mat(find(lm2mat(:,2)== 0),:); %line 2 midpoint 
-    lm.(sprintf('%s', session)).line2.mid = lm3mat(find(lm3mat(:,2)== 0),:); %line 3 midpoint 
+    lm.(sprintf('%s', session)).line3.mid = lm3mat(find(lm3mat(:,2)== 0),:); %line 3 midpoint 
     % For all lines
     sessMat = lm.(sprintf('%s', session)).matrix; %entire session matrix
     lm.(sprintf('%s', session)).allshift.mid = sessMat(find(sessMat(:,2)== 0),:); %midpoint
@@ -108,14 +108,14 @@ for i = 1:length(nSessions)
             = lm1mat(find(lm1mat(:,2)== 2 & lm1mat(:,3)== shiftmm),:); %right
         % Line 2
         lm.(sprintf('%s', session)).line2.(sprintf('left%d', shift))...
-            = lm2mat(find(lm1mat(:,2)== 1 & lm2mat(:,3)== shiftmm),:); %left
+            = lm2mat(find(lm2mat(:,2)== 1 & lm2mat(:,3)== shiftmm),:); %left
         lm.(sprintf('%s', session)).line2.(sprintf('right%d', shift))...
-            = lm2mat(find(lm1mat(:,2)== 2 & lm2mat(:,3)== shiftmm),:); %right
+            = lm2mat(find(lm2mat(:,2)== 2 & lm2mat(:,3)== shiftmm),:); %right
         % Line 3
         lm.(sprintf('%s', session)).line3.(sprintf('left%d', shift))...
-            = lm3mat(find(lm1mat(:,2)== 1 & lm3mat(:,3)== shiftmm),:); %left
+            = lm3mat(find(lm3mat(:,2)== 1 & lm3mat(:,3)== shiftmm),:); %left
         lm.(sprintf('%s', session)).line3.(sprintf('right%d', shift))...
-            = lm3mat(find(lm1mat(:,2)== 2 & lm3mat(:,3)== shiftmm),:); %right
+            = lm3mat(find(lm3mat(:,2)== 2 & lm3mat(:,3)== shiftmm),:); %right
         
         % All lines!
         lm.(sprintf('%s', session)).allshift.(sprintf('left%d', shift))...
@@ -124,11 +124,24 @@ for i = 1:length(nSessions)
             = sessMat(find(sessMat(:,2)== 2 & sessMat(:,3)== shiftmm),:); %left
     end
     
-    % Find percentage 'left side longer' for each line
-    %% continue here
-    measurements = [-10:2:10];
-    lm.(sprintf('%s', session)).line1.per(:,1) = measurements';
-    %% add percentages to each row in matrix
+    %% Find percentage 'left side longer' for each line
+    % Vector
+    measurements = -10:2:10;
+    lm.(sprintf('%s', session)).line1.per(:,1) = measurements'; %line 1
+    lm.(sprintf('%s', session)).line2.per(:,1) = measurements'; %line 2
+    lm.(sprintf('%s', session)).line3.per(:,1) = measurements'; %line 3
+    % Finding the number of responses where left side is longer, summing
+    % and then calculating percentage
+    perMid = (sum(lm.(sprintf('%s', session)).line1.mid(:,4)==1)/...
+        length(lm.(sprintf('%s', session)).line1.mid(:,4)))*100;
+    lm.(sprintf('%s', session)).line1.per(1,2) = perMid; %line 1
+    perMid = (sum(lm.(sprintf('%s', session)).line2.mid(:,4)==1)/...
+        length(lm.(sprintf('%s', session)).line2.mid(:,4)))*100;
+    lm.(sprintf('%s', session)).line2.per(1,2) = perMid; %line 2
+    perMid = (sum(lm.(sprintf('%s', session)).line3.mid(:,4)==1)/...
+        length(lm.(sprintf('%s', session)).line3.mid(:,4)))*100;
+    lm.(sprintf('%s', session)).line3.per(1,2) = perMid; %line 3
+
     % Percentage 'left side longer' for each session (collapsed across
     % line)
     
