@@ -75,6 +75,8 @@ mlb.line3err = [mean(avL3), std(avL3)];
 allError = [mlb.line1err(1), mlb.line2err(1), mlb.line3err(1)];
 mlb.meanTotError = mean(allError);
 
+%% Plotting MLB task
+
 %% Analyse LM data 
 % Take percentage left-side longer responses for each shift in mm
 % Grouping into line length
@@ -82,19 +84,19 @@ for i = 1:length(nSessions)
     session = sprintf('Session%0*d',2,nSessions(i));    
     %% Line matrix for each session
     % 10 cm line
-    lm1mat = lm.(sprintf('%s', session)).matrix(find(lm.(sprintf('%s', session)).matrix(:,1)== 1),:);
-    lm.(sprintf('%s', session)).line1.mat = lm1mat;
+    lmmat1 = lm.(sprintf('%s', session)).matrix(find(lm.(sprintf('%s', session)).matrix(:,1)== 1),:);
+    lm.(sprintf('%s', session)).line1.mat = lmmat1;
     % 20 cm line
-    lm2mat = lm.(sprintf('%s', session)).matrix(find(lm.(sprintf('%s', session)).matrix(:,1)== 2),:);
-    lm.(sprintf('%s', session)).line2.mat = lm2mat;
+    lmmat2 = lm.(sprintf('%s', session)).matrix(find(lm.(sprintf('%s', session)).matrix(:,1)== 2),:);
+    lm.(sprintf('%s', session)).line2.mat = lmmat2;
     % 30cm line
-    lm3mat = lm.(sprintf('%s', session)).matrix(find(lm.(sprintf('%s', session)).matrix(:,1)== 3),:);
-    lm.(sprintf('%s', session)).line3.mat = lm3mat;
+    lmmat3 = lm.(sprintf('%s', session)).matrix(find(lm.(sprintf('%s', session)).matrix(:,1)== 3),:);
+    lm.(sprintf('%s', session)).line3.mat = lmmat3;
     
     % Matrix for each shift per line
-    lm.(sprintf('%s', session)).line1.mid = lm1mat(find(lm1mat(:,2)== 0),:); %line 1 midpoint
-    lm.(sprintf('%s', session)).line2.mid = lm2mat(find(lm2mat(:,2)== 0),:); %line 2 midpoint 
-    lm.(sprintf('%s', session)).line3.mid = lm3mat(find(lm3mat(:,2)== 0),:); %line 3 midpoint 
+    lm.(sprintf('%s', session)).line1.mid = lmmat1(find(lmmat1(:,2)== 0),:); %line 1 midpoint
+    lm.(sprintf('%s', session)).line2.mid = lmmat2(find(lmmat2(:,2)== 0),:); %line 2 midpoint 
+    lm.(sprintf('%s', session)).line3.mid = lmmat3(find(lmmat3(:,2)== 0),:); %line 3 midpoint 
     % For all lines
     sessMat = lm.(sprintf('%s', session)).matrix; %entire session matrix
     lm.(sprintf('%s', session)).allshift.mid = sessMat(find(sessMat(:,2)== 0),:); %midpoint
@@ -103,19 +105,19 @@ for i = 1:length(nSessions)
         name = sprintf('%d', shift);
         % Line 1
         lm.(sprintf('%s', session)).line1.(sprintf('left%d', shift))...
-            = lm1mat(find(lm1mat(:,2)== 1 & lm1mat(:,3)== shiftmm),:); %left
+            = lmmat1(find(lmmat1(:,2)== 1 & lmmat1(:,3)== shiftmm),:); %left
         lm.(sprintf('%s', session)).line1.(sprintf('right%d', shift))...
-            = lm1mat(find(lm1mat(:,2)== 2 & lm1mat(:,3)== shiftmm),:); %right
+            = lmmat1(find(lmmat1(:,2)== 2 & lmmat1(:,3)== shiftmm),:); %right
         % Line 2
         lm.(sprintf('%s', session)).line2.(sprintf('left%d', shift))...
-            = lm2mat(find(lm2mat(:,2)== 1 & lm2mat(:,3)== shiftmm),:); %left
+            = lmmat2(find(lmmat2(:,2)== 1 & lmmat2(:,3)== shiftmm),:); %left
         lm.(sprintf('%s', session)).line2.(sprintf('right%d', shift))...
-            = lm2mat(find(lm2mat(:,2)== 2 & lm2mat(:,3)== shiftmm),:); %right
+            = lmmat2(find(lmmat2(:,2)== 2 & lmmat2(:,3)== shiftmm),:); %right
         % Line 3
         lm.(sprintf('%s', session)).line3.(sprintf('left%d', shift))...
-            = lm3mat(find(lm3mat(:,2)== 1 & lm3mat(:,3)== shiftmm),:); %left
+            = lmmat3(find(lmmat3(:,2)== 1 & lmmat3(:,3)== shiftmm),:); %left
         lm.(sprintf('%s', session)).line3.(sprintf('right%d', shift))...
-            = lm3mat(find(lm3mat(:,2)== 2 & lm3mat(:,3)== shiftmm),:); %right
+            = lmmat3(find(lmmat3(:,2)== 2 & lmmat3(:,3)== shiftmm),:); %right
         
         % All lines!
         lm.(sprintf('%s', session)).allshift.(sprintf('left%d', shift))...
@@ -223,7 +225,7 @@ lm.allsessions.per(6,2) = (sum(lm.allsessions.alllines.mid(:,4)==1)/...
     length(lm.allsessions.alllines.mid(:,4)))*100;
 
 % All other offsets
-for ii = 1:5
+for ii = 1:5 %number of offsets for left/right
     shift = ii*2; shiftmm = shift/10; %for naming
     name = sprintf('%d', shift);
     % Line 1
@@ -281,6 +283,16 @@ for ii = 1:5
         length(lm.allsessions.alllines.(sprintf('right%d', shift))(:,4)))*100; %left
 end
 
+%% Lapse rate for LM task 
+% calculating response error for the lines that are clearly longer on l/r
+% (10mm shift)
+errorL = (sum(lm.allsessions.alllines.left10(:,4)==2)/...
+    length(lm.allsessions.alllines.left10(:,4)))*100; %left 10mm shift, finding incorrect responses
+errorR = (sum(lm.allsessions.alllines.right10(:,4)==1)/...
+    length(lm.allsessions.alllines.right10(:,4)))*100; %right 10mm shift, finding incorrect responses
+lm.lapse = mean(errorL, errorR); %lapse rate calculated in percentage
+
+%% Plotting LM task
 
 %% Analyse LM data
 % Take percentage top-line longer responses for each shift in mm (of the
@@ -289,14 +301,61 @@ end
 for i = 1:length(nSessions)
     session = sprintf('Session%0*d',2,nSessions(i));
     % 10 cm line
-    lm2.(sprintf('%s', session)).line1mat = ...
-        lm2.(sprintf('%s', session)).matrix(find(lm2.(sprintf('%s', session)).matrix(:,1)== 1),:);
+    lm2mat1 = lm2.(sprintf('%s', session)).matrix(find(lm2.(sprintf('%s', session)).matrix(:,1)== 1),:);
+    lm2.(sprintf('%s', session)).line1.mat = lm2mat1;
     % 20 cm line
-    lm2.(sprintf('%s', session)).line2mat = ...
-        lm2.(sprintf('%s', session)).matrix(find(lm2.(sprintf('%s', session)).matrix(:,1)== 2),:);
+    lm2mat2 = lm2.(sprintf('%s', session)).matrix(find(lm2.(sprintf('%s', session)).matrix(:,1)== 2),:);
+    lm2.(sprintf('%s', session)).line2.mat = lm2mat2;
     % 30cm line
-    lm2.(sprintf('%s', session)).line3mat = ...
-        lm2.(sprintf('%s', session)).matrix(find(lm2.(sprintf('%s', session)).matrix(:,1)== 3),:);
+    lm2mat3 = lm2.(sprintf('%s', session)).matrix(find(lm2.(sprintf('%s', session)).matrix(:,1)== 3),:);
+    lm2.(sprintf('%s', session)).line3.mat = lm2mat3;
+    
+    % Matrix for each shift per line
+    lm2.(sprintf('%s', session)).line1.mid = lm2mat1(find(lm2mat1(:,2)== 0),:); %line 1 midpoint
+    lm2.(sprintf('%s', session)).line2.mid = lm2mat2(find(lm2mat2(:,2)== 0),:); %line 2 midpoint 
+    lm2.(sprintf('%s', session)).line3.mid = lm2mat3(find(lm2mat3(:,2)== 0),:); %line 3 midpoint 
+    % For all lines
+    sessMat = lm2.(sprintf('%s', session)).matrix; %entire session matrix
+    lm2.(sprintf('%s', session)).allshift.mid = sessMat(find(sessMat(:,2)== 0),:); %midpoint
+    %% Needs some figuring out
+    % stim.pos = 1 left shift on top line, stim.pos = 2, left shift on bottom line
+    % column two! is amount shifted left, column 4! is stim.pos
+    % Two lines (top/bottom), likelihood of saying the line that is shifted
+    % LEFT is the longest ... how to do this?
+   for ii = 1:5 %5 shifts per line
+        shift = ii*2; shiftmm = shift/10; %for naming
+        name = sprintf('%d', shift);
+        % Line 1
+        lm2.(sprintf('%s', session)).line1.(sprintf('left%d', shift))...
+            = lm2mat1(find(lm2mat1(:,4)== 1 & lm2mat1(:,3)== shiftmm),:); %left
+        lm2.(sprintf('%s', session)).line1.(sprintf('right%d', shift))...
+            = lm2mat1(find(lm2mat1(:,2)== 2 & lm2mat1(:,3)== shiftmm),:); %right
+        % Line 2
+        lm2.(sprintf('%s', session)).line2.(sprintf('left%d', shift))...
+            = lm2mat2(find(lm2mat2(:,2)== 1 & lm2mat2(:,3)== shiftmm),:); %left
+        lm2.(sprintf('%s', session)).line2.(sprintf('right%d', shift))...
+            = lm2mat2(find(lm2mat2(:,2)== 2 & lm2mat2(:,3)== shiftmm),:); %right
+        % Line 3
+        lm2.(sprintf('%s', session)).line3.(sprintf('left%d', shift))...
+            = lm2mat3(find(lm2mat3(:,2)== 1 & lm2mat3(:,3)== shiftmm),:); %left
+        lm2.(sprintf('%s', session)).line3.(sprintf('right%d', shift))...
+            = lm2mat3(find(lm2mat3(:,2)== 2 & lm2mat3(:,3)== shiftmm),:); %right
+        
+        % All lines!
+        lm2.(sprintf('%s', session)).allshift.(sprintf('left%d', shift))...
+            = sessMat(find(sessMat(:,2)== 1 & sessMat(:,3)== shiftmm),:); %left
+        lm2.(sprintf('%s', session)).allshift.(sprintf('right%d', shift))...
+            = sessMat(find(sessMat(:,2)== 2 & sessMat(:,3)== shiftmm),:); %left
+   end
+    
+   %% Find percentage 'left shifted line longer' for each line
+    % Vector
+    measurements = -10:2:10;
+    lm2.(sprintf('%s', session)).line1.per(:,1) = measurements'; %line 1
+    lm2.(sprintf('%s', session)).line2.per(:,1) = measurements'; %line 2
+    lm2.(sprintf('%s', session)).line3.per(:,1) = measurements'; %line 3
+    
 end
-
+%% Plotting LM2 task
+%% Lapse rate for LM2 task
 %% Close and save
