@@ -134,15 +134,28 @@ for i = 1:length(nSessions)
     % and then calculating percentage
     perMid = (sum(lm.(sprintf('%s', session)).line1.mid(:,4)==1)/...
         length(lm.(sprintf('%s', session)).line1.mid(:,4)))*100;
-    lm.(sprintf('%s', session)).line1.per(1,2) = perMid; %line 1
+    lm.(sprintf('%s', session)).line1.per(6,2) = perMid; %line 1
     perMid = (sum(lm.(sprintf('%s', session)).line2.mid(:,4)==1)/...
         length(lm.(sprintf('%s', session)).line2.mid(:,4)))*100;
-    lm.(sprintf('%s', session)).line2.per(1,2) = perMid; %line 2
+    lm.(sprintf('%s', session)).line2.per(6,2) = perMid; %line 2
     perMid = (sum(lm.(sprintf('%s', session)).line3.mid(:,4)==1)/...
         length(lm.(sprintf('%s', session)).line3.mid(:,4)))*100;
-    lm.(sprintf('%s', session)).line3.per(1,2) = perMid; %line 3
+    lm.(sprintf('%s', session)).line3.per(6,2) = perMid; %line 3
+    
+    % Percentage for offsets
+    for ii = 1:5
+        shift = ii*2; shiftmm = shift/10; %for naming
+        name = sprintf('%d', shift);
+        % Line 1
+        perL = (sum(lm.(sprintf('%s', session)).line1.(sprintf('left%d', shift))(:,4)==1)/...
+        length(lm.(sprintf('%s', session)).line1.(sprintf('left%d', shift))(:,4)))*100; %left
+        %lm.(sprintf('%s', session)).line1.per(
+        perR = (sum(lm.(sprintf('%s', session)).line1.(sprintf('right%d', shift))(:,4)==1)/...
+        length(lm.(sprintf('%s', session)).line1.(sprintf('right%d', shift))(:,4)))*100; %right
+        lm.(sprintf('%s', session)).line1.per(ii+6, 2) = perR;
+    end
 
-    % Percentage 'left side longer' for each session (collapsed across
+    %% Percentage 'left side longer' for each session (collapsed across
     % line)
     
 end
