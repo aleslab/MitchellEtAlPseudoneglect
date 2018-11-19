@@ -299,7 +299,7 @@ lm.lapse = mean(errorL, errorR); %lapse rate calculated in percentage
 %% Analyse LM data
 % Take percentage top-line longer responses for each shift in mm (of the
 % top line)
-% Grouping into line length
+% Group ing into line length
 for i = 1:length(nSessions)
     session = sprintf('Session%0*d',2,nSessions(i));
     % Adding column 8 of matrix to reflect actual response (11 - 1, top; 12
@@ -370,7 +370,7 @@ for i = 1:length(nSessions)
             = sessMat(find(sessMat(:,3)== shiftmm),:); %left
    end
     
-   %% Find percentage 'left shifted line longer' for each line
+   %% Find percentage likelihood left shifted line is perceived as longer
     % Vector
     measurements = -10:2:10;
     lm2.(sprintf('%s', session)).line1.per(:,1) = measurements'; %line 1
@@ -413,24 +413,24 @@ for i = 1:length(nSessions)
             % Line 1
             lm2.(sprintf('%s', session)).line1.(sprintf('left%d', shift))(j,9) = ...
                 isequal(lm2.(sprintf('%s', session)).line1.(sprintf('left%d', shift))(j,4),...
-            lm2.(sprintf('%s', session)).line1.(sprintf('left%d', shift))(j,8)); %left
+            lm2.(sprintf('%s', session)).line1.(sprintf('left%d', shift))(j,8)); %left, is equal
             lm2.(sprintf('%s', session)).line1.(sprintf('right%d', shift))(j,9) = ...
-                isequal(lm2.(sprintf('%s', session)).line1.(sprintf('right%d', shift))(j,4),...
-            lm2.(sprintf('%s', session)).line1.(sprintf('right%d', shift))(j,8)); %right
+                ne(lm2.(sprintf('%s', session)).line1.(sprintf('right%d', shift))(j,4),...
+            lm2.(sprintf('%s', session)).line1.(sprintf('right%d', shift))(j,8)); %right, is NOT equal (don't expect response to match RHS shifted line) 
             % Line 2
             lm2.(sprintf('%s', session)).line2.(sprintf('left%d', shift))(j,9) = ...
                 isequal(lm2.(sprintf('%s', session)).line2.(sprintf('left%d', shift))(j,4),...
-            lm2.(sprintf('%s', session)).line2.(sprintf('left%d', shift))(j,8)); %left
+            lm2.(sprintf('%s', session)).line2.(sprintf('left%d', shift))(j,8)); %left, is equal
             lm2.(sprintf('%s', session)).line2.(sprintf('right%d', shift))(j,9) = ...
                 isequal(lm2.(sprintf('%s', session)).line2.(sprintf('right%d', shift))(j,4),...
-            lm2.(sprintf('%s', session)).line2.(sprintf('right%d', shift))(j,8)); %right
+            lm2.(sprintf('%s', session)).line2.(sprintf('right%d', shift))(j,8)); %right, is NOT equal 
             % Line 3
             lm2.(sprintf('%s', session)).line3.(sprintf('left%d', shift))(j,9) = ...
                 isequal(lm2.(sprintf('%s', session)).line3.(sprintf('left%d', shift))(j,4),...
-            lm2.(sprintf('%s', session)).line3.(sprintf('left%d', shift))(j,8)); %left
+            lm2.(sprintf('%s', session)).line3.(sprintf('left%d', shift))(j,8)); %left, is equal
             lm2.(sprintf('%s', session)).line3.(sprintf('right%d', shift))(j,9) = ...
-                isequal(lm2.(sprintf('%s', session)).line3.(sprintf('right%d', shift))(j,4),...
-            lm2.(sprintf('%s', session)).line3.(sprintf('right%d', shift))(j,8)); %right
+                ne(lm2.(sprintf('%s', session)).line3.(sprintf('right%d', shift))(j,4),...
+            lm2.(sprintf('%s', session)).line3.(sprintf('right%d', shift))(j,8)); %right, is not equal
         end
     end
 
