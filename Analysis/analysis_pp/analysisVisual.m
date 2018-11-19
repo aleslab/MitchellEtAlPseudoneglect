@@ -78,6 +78,56 @@ allError = [mlb.line1err(1), mlb.line2err(1), mlb.line3err(1)];
 mlb.meanTotError = mean(allError);
 
 %% Plotting MLB task
+% Plot across all sessions
+% Matrices for session plotting, each line
+mlb.sessionVals.line1(1,:) = avL1; mlb.sessionVals.line1(2,:) = stdL1; %values for sessions
+mlb.sessionVals.line2(1,:) = avL2; mlb.sessionVals.line2(2,:) = stdL2;
+mlb.sessionVals.line3(1,:) = avL3; mlb.sessionVals.line3(2,:) = stdL3;
+% All sessions
+for i = 1:length(nSessions)
+    sess(i,:) = [avL1(1,i), avL2(1,i), avL3(1,i)];
+end
+mlb.sessionVals.all(1,:) = [mean(sess(1,:)), mean(sess(2,:)),...
+    mean(sess(3,:)), mean(sess(4,:))];
+mlb.sessionVals.all(2,:) = [std(sess(1,:)), std(sess(2,:)),...
+    std(sess(3,:)), std(sess(4,:))];
+
+% Plotting line 1
+figure(1)
+bar(mlb.sessionVals.line1(1,:))
+hold on
+errorbar(mlb.sessionVals.line1(1,:), mlb.sessionVals.line1(2,:), 'k')
+xlabel('Sessions'); ylabel('Bisection error (cm)');
+title('MLB 10cm line');
+saveas(figure(1), sprintf('%s_MLBline1.jpg', ppID));
+
+% Plotting line 2
+figure(2)
+bar(mlb.sessionVals.line2(1,:))
+hold on
+errorbar(mlb.sessionVals.line2(1,:), mlb.sessionVals.line2(2,:), 'k')
+xlabel('Sessions'); ylabel('Bisection error (cm)');
+title('MLB 20cm line');
+saveas(figure(2), sprintf('%s_MLBline2.jpg', ppID));
+
+% Plotting line 3
+figure(3)
+bar(mlb.sessionVals.line3(1,:))
+hold on
+errorbar(mlb.sessionVals.line3(1,:), mlb.sessionVals.line3(2,:), 'k')
+xlabel('Sessions'); ylabel('Bisection error (cm)');
+title('MLB 30cm line');
+saveas(figure(3), sprintf('%s_MLBline3.jpg', ppID));
+
+% Plotting average of all lines
+figure(4)
+bar(mlb.sessionVals.all(1,:))
+hold on
+errorbar(mlb.sessionVals.all(1,:), mlb.sessionVals.all(2,:), 'k')
+ylim([-3 3]);
+xlabel('Sessions'); ylabel('Bisection error (cm)');
+title('MLB all');
+saveas(figure(4), sprintf('%s_MLBall.jpg', ppID));
 
 %% Analyse LM data 
 % Take percentage left-side longer responses for each shift in mm
@@ -292,7 +342,8 @@ errorL = (sum(lm.allsessions.alllines.left10(:,4)==2)/...
     length(lm.allsessions.alllines.left10(:,4)))*100; %left 10mm shift, finding incorrect responses
 errorR = (sum(lm.allsessions.alllines.right10(:,4)==1)/...
     length(lm.allsessions.alllines.right10(:,4)))*100; %right 10mm shift, finding incorrect responses
-lm.lapse = mean(errorL, errorR); %lapse rate calculated in percentage
+errors = [errorL, errorR];
+lm.lapse = mean(errors); %lapse rate calculated in percentage
 
 %% Plotting LM task
 
