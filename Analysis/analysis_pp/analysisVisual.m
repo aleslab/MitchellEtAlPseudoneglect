@@ -11,14 +11,20 @@ clear all
 
 %% Variables
 ppID = input('Participant ID? ', 's'); %for use when navigating files
-matfilename = sprintf('MLB_analysis%s.mat', ppID);
+matfilename = sprintf('%s_visualanalysis.mat', ppID);
 nSessions = 1:4; %vector number of sessions each participant does
 % Directory
 dirBias = ('C:\Users\Experimenter\Documents\Experiments2018\Bias'); %subject to change depending on where you analyse
-dirPP = [dirBias filesep ppID filesep]; %participant directory
+dirPP = [dirBias filesep ppID]; %participant directory
+% Making new anaysis folder for saving
+cd(dirPP)
+mkdir Analysis;
+dirAna = [dirPP filesep 'Analysis' filesep];
+cd(dirAna)
+mkdir Visual
+dirVis = [dirAna 'Visual' filesep];
 
 % Load data for all trials
-cd(dirPP)
 for i = 1:length(nSessions)
     session = sprintf('Session%0*d',2,nSessions(i));
     dirSess = [dirPP filesep session filesep]; %current session pathway
@@ -78,6 +84,7 @@ allError = [mlb.line1err(1), mlb.line2err(1), mlb.line3err(1)];
 mlb.meanTotError = mean(allError);
 
 %% Plotting MLB task
+cd(dirVis); %navigating to analysis folder to save plots to
 % Plot across all sessions
 % Matrices for session plotting, each line
 mlb.sessionVals.line1(1,:) = avL1; mlb.sessionVals.line1(2,:) = stdL1; %values for sessions
@@ -124,16 +131,30 @@ figure(4)
 bar(mlb.sessionVals.all(1,:))
 hold on
 errorbar(mlb.sessionVals.all(1,:), mlb.sessionVals.all(2,:), 'k')
-ylim([-3 3]);
+ylim([-2 2]);
 xlabel('Sessions'); ylabel('Bisection error (cm)');
-title('MLB all');
-saveas(figure(4), sprintf('%s_MLBall.jpg', ppID));
-%% Add the all lines plot here
+title('MLB all sessions');
+saveas(figure(4), sprintf('%s_MLBsess.jpg', ppID));
+
+% Plotting averages of all sessions
+lines(1,:) = [mlb.line1err(1), mlb.line2err(1), mlb.line3err(1)];
+lines(2,:) = [mlb.line1err(2), mlb.line2err(2), mlb.line3err(2)];
+figure(5)
+bar(lines(1,:))
+hold on
+errorbar(lines(1,:), lines(2,:), 'k');
+ylim([-2 2]);
+xlabel('Lines'); ylabel('Bisection error (cm)');
+title('MLB all lines');
+saveas(figure(5), sprintf('%s_MLBlines.jpg', ppID));
+
+
 %% Analyse LM data 
 % Take percentage left-side longer responses for each shift in mm
 % Grouping into line length
 for i = 1:length(nSessions)
-    session = sprintf('Session%0*d',2,nSessions(i));    
+    session = sprintf('Session%0*d',2,nSessions(i));
+    dirSess = [dirPP filesep session filesep]; %current session pathway
     %% Line matrix for each session
     % 10 cm line
     lmmat1 = lm.(sprintf('%s', session)).matrix(find(lm.(sprintf('%s', session)).matrix(:,1)== 1),:);
@@ -347,6 +368,7 @@ errors = [errorL, errorR];
 lm.lapse = mean(errors); %lapse rate calculated in percentage
 
 %% Plotting LM task
+cd(dirVis); %analysis directory for saving figures
 % Plot percent left side longer for each session
 % For each line 
 asym = lm.Session01.line1.per(:,1); %for labelling
@@ -425,6 +447,7 @@ saveas(figure(10), sprintf('%s_LMallsess_raw.jpg', ppID));
 % Group ing into line length
 for i = 1:length(nSessions)
     session = sprintf('Session%0*d',2,nSessions(i));
+    dirSess = [dirPP filesep session filesep]; %current session pathway
     % Adding column 8 of matrix to reflect actual response (11 - 1, top; 12
     % - 2, bottom)
     lm2response = lm2.(sprintf('%s', session)).response';
@@ -561,3 +584,5 @@ end
 %% Plotting LM2 task
 %% Lapse rate for LM2 task
 %% Close and save
+close all
+save(matfilename, 'mlb', 'lm', 'lm2');
