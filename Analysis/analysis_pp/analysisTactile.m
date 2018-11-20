@@ -17,8 +17,8 @@ cd(dirPP)
 mkdir Analysis;
 dirAna = [dirPP filesep 'Analysis' filesep];
 cd(dirAna)
-mkdir Visual
-dirVis = [dirAna 'Visual' filesep];
+mkdir Tactile
+dirVis = [dirAna 'Tactile' filesep];
 
 trb = struct;
 tr2 = struct;
@@ -31,25 +31,45 @@ for i = 1:length(nSessions)
 
     %% TRB task
     [Data,Text] = xlsread('TrialMatrix_TRB'); %importing trial information for landmark tasks
-    trb.(sprintf('%s', session)).data.size = Data(:, ismember(Text(1,:), 'size'));
-    trb.(sprintf('%s', session)).data.side = Data(:, ismember(Text(1,:), 'shift')); %2deg left = 1, middle = 0, 2deg right = 2
-    trb.(sprintf('%s', session)).data.response = Data(:, ismember(Text(1,:), 'response')); %in mm, relative to length of line
+    size = Data(:, ismember(Text(1,:), 'size'));
+    side = Data(:, ismember(Text(1,:), 'shift')); %2deg left = 1, middle = 0, 2deg right = 2
+    response = Data(:, ismember(Text(1,:), 'response')); %in mm, relative to length of line
     % Finding error 
-    trb.(sprintf('%s', session)).data.size = data.size*100; %finding actual line length in mm to calculate error
-    trb.(sprintf('%s', session)).data.error = data.response - data.size/2; %calculating data error in mm
+    size_mm = size*100; %finding actual line length in mm to calculate error
+    error = response - size_mm/2; %calculating data error in mm
+    trb.(sprintf('%s', session)).data.error = error;
     % data matrix for later analyses
-    trb.(sprintf('%s', session)).data.matrix = [data.size, data.side, data.response, data.error];
-    trb.(sprintf('%s', session)).error(1) = nanmean(data.error); %average results in mm
-    trb.(sprintf('%s', session)).error(2) = nanstd(data.error);
+    trb.(sprintf('%s', session)).data.matrix = [size, side, response, error];
+    trb.(sprintf('%s', session)).error(1) = nanmean(error); %average results in mm
+    trb.(sprintf('%s', session)).error(2) = nanstd(error);
     
     %% TR2 task
     [Data,Text] = xlsread('TrialMatrix_TR2'); %importing trial information for landmark tasks
-    tr2.(sprintf('%s', session)).data.size = Data(:, ismember(Text(1,:), 'size'));
-    tr2.(sprintf('%s', session)).data.shift = Data(:, ismember(Text(1,:), 'shift')); %shift in mm (0,2,4,6,8,1(=10))
-    tr2.(sprintf('%s', session)).data.line = Data(:, ismember(Text(1,:), 'line')); %indicating the line that should be shifted left (the other right, 1 = top, 2 = bottom)
-    tr2.(sprintf('%s', session)).data.response = Data(:, ismember(Text(1,:), 'response')); %top line = 1, bottom line = 2
+    size = Data(:, ismember(Text(1,:), 'size'));
+    shift = Data(:, ismember(Text(1,:), 'shift')); %shift in mm (0,2,4,6,8,1(=10))
+    line = Data(:, ismember(Text(1,:), 'line')); %indicating the line that should be shifted left (the other right, 1 = top, 2 = bottom)
+    response = Data(:, ismember(Text(1,:), 'response')); %top line = 1, bottom line = 2
     % Making matrix
-    tr2.(sprintf('%s', session)).data.matrix = [data.size, data.shift, data.line, data.response];
+    tr2.(sprintf('%s', session)).data.matrix = [size, shift, line, response];
 end
 
+%% TRB analysis
+% Grouping into line length
+for i = 1:length(nSessions)
+    session = sprintf('Session%0*d',2,nSessions(i));
+    cd(dirSess); %directing to current session folder
+    % 10 cm line
+    trb.(sprintf('%s', session)).line1mat = ...
+        trb.(sprintf('%s', session)).matrix(find(trb.(sprintf('%s', session)).matrix(:,1)== 1),:);
+    % 20 cm line
+    trb.(sprintf('%s', session)).line2mat = ...
+        trb.(sprintf('%s', session)).matrix(find(trb.(sprintf('%s', session)).matrix(:,1)== 2),:);
+    % 30cm line
+    trb.(sprintf('%s', session)).line3mat = ...
+        trb.(sprintf('%s', session)).matrix(find(trb.(sprintf('%s', session)).matrix(:,1)== 3),:);
+end
+%% TRB plots
+%% TR2 analysis
+%% TR2 plots
+%% Close and save
 
