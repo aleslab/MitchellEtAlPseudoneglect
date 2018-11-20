@@ -128,7 +128,7 @@ ylim([-3 3]);
 xlabel('Sessions'); ylabel('Bisection error (cm)');
 title('MLB all');
 saveas(figure(4), sprintf('%s_MLBall.jpg', ppID));
-
+%% Add the all lines plot here
 %% Analyse LM data 
 % Take percentage left-side longer responses for each shift in mm
 % Grouping into line length
@@ -247,6 +247,7 @@ for i = 1:length(nSessions)
         lm.(sprintf('%s', session)).per(ii+6,2) = perSR;        
     end
 end
+
 % Data across all sessions
 % Matrices of shifts for each line length
 % Middle bisection
@@ -346,7 +347,78 @@ errors = [errorL, errorR];
 lm.lapse = mean(errors); %lapse rate calculated in percentage
 
 %% Plotting LM task
+% Plot percent left side longer for each session
+% For each line 
+asym = lm.Session01.line1.per(:,1); %for labelling
+for i = 1:3 %number of lines
+    line = sprintf('line%d', i);
+    figure(i+5) 
+    plot(asym, lm.Session01.(sprintf('%s', line)).per(:,2));
+    hold on
+    plot(asym, lm.Session02.(sprintf('%s', line)).per(:,2));
+    hold on
+    plot(asym, lm.Session03.(sprintf('%s', line)).per(:,2));
+    hold on
+    plot(asym, lm.Session04.(sprintf('%s', line)).per(:,2));
+    % Adding the shifts as x-axis tick labels
+    ax = gca;
+    set(ax, 'Xtick', asym);
+    xlim([min(asym) max(asym)]); ylim([0 100]);
+    % Adding horizontal line at y = 50
+    ymid = max(ylim)/2;
+    hold on
+    plot(xlim, [1,1]*ymid, '--k')
+    % Naming
+    legend('Sess1', 'Sess2', 'Sess3', 'Sess4');
+    ylabel('Left-side perceived as longer (%)');
+    xlabel('Stimulus asymmetry (mm)');
+    saveas(figure(i+4), sprintf('%s_LM%s_raw.jpg', ppID, line));
+end
 
+% For all lines
+figure(9)
+plot(asym, lm.Session01.per(:,2));
+hold on
+plot(asym, lm.Session02.per(:,2));
+hold on
+plot(asym, lm.Session03.per(:,2));
+hold on
+plot(asym, lm.Session04.per(:,2));
+% Adding the shifts as x-axis tick labels
+ax = gca;
+set(ax, 'Xtick', asym);
+xlim([min(asym) max(asym)]); ylim([0 100]);
+% Adding horizontal line at y = 50
+ymid = max(ylim)/2;
+hold on
+plot(xlim, [1,1]*ymid, '--k')
+% Naming
+legend('Sess1', 'Sess2', 'Sess3', 'Sess4');
+ylabel('Left-side perceived as longer (%)');
+xlabel('Stimulus asymmetry (mm)');
+saveas(figure(9), sprintf('%s_LMalllines_raw.jpg', ppID));
+
+% For all sessions
+figure(10)
+plot(asym, lm.allsessions.line1.per(:,2));
+hold on
+plot(asym, lm.allsessions.line2.per(:,2));
+hold on
+plot(asym, lm.allsessions.line3.per(:,2));
+% Adding the shifts as x-axis tick labels
+ax = gca;
+set(ax, 'Xtick', asym);
+xlim([min(asym) max(asym)]); ylim([0 100]);
+% Adding horizontal line at y = 50
+ymid = max(ylim)/2;
+hold on
+plot(xlim, [1,1]*ymid, '--k')
+% Naming
+legend('10cm line', '20cm line', '30cm line');
+ylabel('Left-side perceived as longer (%)');
+xlabel('Stimulus asymmetry (mm)');
+saveas(figure(10), sprintf('%s_LMallsess_raw.jpg', ppID));
+    
 %% Analyse LM data
 % Take percentage top-line longer responses for each shift in mm (of the
 % top line)
