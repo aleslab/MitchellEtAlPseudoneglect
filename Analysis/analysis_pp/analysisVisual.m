@@ -434,8 +434,11 @@ legend('10cm line', '20cm line', '30cm line');
 ylabel('Left-side perceived as longer (%)');
 xlabel('Stimulus asymmetry (mm)');
 saveas(figure(10), sprintf('%s_LMallsess_raw.jpg', ppID));
+
+%% Adding psychometric functions to here
+% Use the demo and have a look at Abi's code
     
-%% Analyse LM data
+%% Analyse LM2 data
 % Take percentage top-line longer responses for each shift in mm (of the
 % top line)
 % Group ing into line length
