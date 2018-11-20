@@ -1,12 +1,5 @@
 %% A.G. Mitchell 22.10.18
-%% Imports MLB data from each session for analysis
-% This is the analysis script run on each participant
-% Takes the average error from each session and calculates total
-% participant bias
-% Also important to maintain mean biases in each session for comparison in
-% the second (across time) hypothesis
-% Places data in a format readable for the overall analysis
-
+%% Visual analysis
 clear all
 
 %% Variables
@@ -52,6 +45,7 @@ end
 % Grouping into line length
 for i = 1:length(nSessions)
     session = sprintf('Session%0*d',2,nSessions(i));
+    cd(dirSess); %directing to current session folder
     % 10 cm line
     mlb.(sprintf('%s', session)).line1mat = ...
         mlb.(sprintf('%s', session)).matrix(find(mlb.(sprintf('%s', session)).matrix(:,1)== 1),:);
@@ -154,7 +148,7 @@ saveas(figure(5), sprintf('%s_MLBlines.jpg', ppID));
 % Grouping into line length
 for i = 1:length(nSessions)
     session = sprintf('Session%0*d',2,nSessions(i));
-    dirSess = [dirPP filesep session filesep]; %current session pathway
+    cd(dirSess); %directing to current session folder
     %% Line matrix for each session
     % 10 cm line
     lmmat1 = lm.(sprintf('%s', session)).matrix(find(lm.(sprintf('%s', session)).matrix(:,1)== 1),:);
@@ -447,7 +441,7 @@ saveas(figure(10), sprintf('%s_LMallsess_raw.jpg', ppID));
 % Group ing into line length
 for i = 1:length(nSessions)
     session = sprintf('Session%0*d',2,nSessions(i));
-    dirSess = [dirPP filesep session filesep]; %current session pathway
+    cd(dirSess); %directing to current session folder
     % Adding column 8 of matrix to reflect actual response (11 - 1, top; 12
     % - 2, bottom)
     lm2response = lm2.(sprintf('%s', session)).response';
