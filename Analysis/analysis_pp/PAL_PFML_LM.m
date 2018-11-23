@@ -63,8 +63,8 @@ paramsFree = [1 0 0 0];  %1: free parameter, 0: fixed parameter
 %Parameter grid defining parameter space through which to perform a
 %brute-force search for values to be used as initial guesses in iterative
 %parameter search.
-searchGrid.alpha = linspace(min(StimLevels), max(StimLevels), 101);
-searchGrid.beta = linspace(-1,1,101); %unsure about this, need to ask Justin - changes don't seem to affect curve but feel important
+searchGrid.alpha = logspace(min(StimLevels), max(StimLevels), 101);
+searchGrid.beta = logspace(0,3,101); %unsure about this, need to ask Justin - changes don't seem to affect curve but feel important
 searchGrid.gamma = 0;  %50% cause 2AFC
 searchGrid.lambda = lm.lapse;  %this is lapse rate for the participant, calculated here
 
