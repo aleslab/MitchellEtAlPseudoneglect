@@ -151,7 +151,11 @@ figure('name','Maximum Likelihood Psychometric Function Fitting');
 axes
 hold on
 plot(StimLevelsFineGrain,ProportionCorrectModel,'-','color',[0 .7 0],'linewidth',4);
-plot(StimLevels,ProportionCorrectObserved,'k.','markersize',40);
+ 
+%plot(StimLevels,ProportionCorrectObserved,'k.','markersize',40);
+observedHandle = plot2afc(StimLevels,NumPos,OutOfNum);
+set(observedHandle,'color','k','linewidth',2)
+
 set(gca, 'fontsize',16);
 set(gca, 'Xtick',StimLevels);
 axis([min(StimLevels) max(StimLevels) 0 1]);
