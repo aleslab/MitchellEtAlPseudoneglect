@@ -38,28 +38,26 @@ dirVis = [dirAna 'Visual' filesep];
 cd(dirVis)
 load(matfilename)
 
-message = 'Parametric Bootstrap (1) or Non-Parametric Bootstrap? (2): ';
-ParOrNonPar = input(message);
+%% Variables for curve fitting
+ParOrNonPar = 2; %non-parametric design
 nSims = 1000; %number of sims for all bootstraps and goodness of fit
 lm.lapse = lm.lapse/100; %proportion correct, not percentage
+paramsFree = [1 1 0 0];  %1: free parameter, 0: fixed parameter
 
-% Stimulus intensities, this is the 'x-axis' of the plot (aka. IV)
-StimLevels = lm.allsessions.per(:,1)'; %stimulus asymmetry
-
-% Number of 'right-side longer' responses for each stim level
-NumPos = lm.allsessions.per(:,2)';             
-
-% Number of trials at each entry of 'StimLevels'
-% Percentage so out of 100
-OutOfNum = [60 60 60 60 60 120 60 60 60 60 60];
-
-%Use the Logistic function
+%Use the Cumulative normal function
 PF = @PAL_CumulativeNormal;  %Alternatives: PAL_Gumbel, PAL_Weibull,
                      %PAL_Quick, PAL_logQuick,
                      %PAL_CumulativeNormal, PAL_HyperbolicSecant
 
-%Threshold and Slope are free parameters, guess and lapse rate are fixed
-paramsFree = [1 1 0 0];  %1: free parameter, 0: fixed parameter
+%% All sessions and all lines
+% Stimulus intensities, this is the 'x-axis' of the plot (aka. IV)
+StimLevels = lm.allsessions.res(:,1)'; %stimulus asymmetry
+% Number of 'right-side longer' responses for each stim level
+NumPos = lm.allsessions.res(:,3)';             
+% Number of trials at each entry of 'StimLevels'
+% Percentage so out of 100
+OutOfNum = lm.allsessions.res(:,2)';
+
  
 %Parameter grid defining parameter space through which to perform a
 %brute-force search for values to be used as initial guesses in iterative
@@ -157,17 +155,17 @@ ProportionCorrectModel = PF(paramsValues,StimLevelsFineGrain);
 figure('name','Maximum Likelihood Psychometric Function Fitting');
 axes
 hold on
-plot(StimLevelsFineGrain,ProportionCorrectModel,'-','color',[0 .7 0],'linewidth',4);
+plot(StimLevelsFineGrain,ProportionCorrectModel,'-','color',[0 .7 .2],'linewidth',2);
  
 %plot(StimLevels,ProportionCorrectObserved,'k.','markersize',40);
 observedHandle = plot2afc(StimLevels,NumPos,OutOfNum);
-set(observedHandle,'color','k','linewidth',2)
+set(observedHandle,'color','k','linewidth',1.5)
 
-set(gca, 'fontsize',16);
+set(gca, 'fontsize',14);
 set(gca, 'Xtick',StimLevels);
 axis([min(StimLevels) max(StimLevels) 0 1]);
 xlabel('Stimulus Intensity');
-ylabel('proportion correct');
+ylabel('Proportion responded right-side longer');
 
 
 toc

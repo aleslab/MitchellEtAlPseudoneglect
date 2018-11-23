@@ -4,9 +4,9 @@ clear all
 
 %% File paths
 nParticipants = [1:17];
-%for p = 1:length(nParticipants)
-    %ppID = sprintf('P%0*d',2,nParticipants(p)); %for use when navigating files
-    ppID = input('Participant ID? ', 's'); %for use when navigating files, debugging version
+for p = 1:length(nParticipants)
+    ppID = sprintf('P%0*d',2,nParticipants(p)); %for use when navigating files
+    %ppID = input('Participant ID? ', 's'); %for use when navigating files, debugging version
 
     matfilename = sprintf('%s_visualanalysis.mat', ppID);
     nSessions = 1:4; %vector number of sessions each participant does
@@ -198,164 +198,168 @@ nParticipants = [1:17];
         end
 
         %% Find percentage 'right side longer' for each line
+        % Structure of results file: [stim aysmmetry, ntrials per cond, n right-side longer per cond, % per cond]
         % Vector
         measurements = -10:2:10; %data to go along the x-axis, stimulus asymmetries
-        lm.(sprintf('%s', session)).line1.res(:,1) = measurements'; %line 1
-        lm.(sprintf('%s', session)).line2.res(:,1) = measurements'; %line 2
-        lm.(sprintf('%s', session)).line3.res(:,1) = measurements'; %line 3
         % Finding the number of responses where left side is longer, summing
         % and then calculating percentage
-        perMid = (sum(lm.(sprintf('%s', session)).line1.mid(:,4)==2) ... 
-        /length(lm.(sprintf('%s', session)).line1.mid(:,4)))*100;
-        lm.(sprintf('%s', session)).line1.res(6,2) = perMid; %line 1
-        perMid = (sum(lm.(sprintf('%s', session)).line2.mid(:,4)==2) ... 
-        /length(lm.(sprintf('%s', session)).line2.mid(:,4)))*100;
-        lm.(sprintf('%s', session)).line2.res(6,2) = perMid; %line 2
-        perMid = (sum(lm.(sprintf('%s', session)).line3.mid(:,4)==2) ... 
-        /length(lm.(sprintf('%s', session)).line3.mid(:,4)))*100;
-        lm.(sprintf('%s', session)).line3.res(6,2) = perMid; %line 3
-        % Finding total number of trials per
-        %% reached here
-
-        % Percentage for offsets
-        % Vector of values to add left shift into correct location
         k = 1:5; k = flipud(k');
-        for ii = 1:5
-            shift = ii*2; shiftmm = shift/10; %for naming
-            name = sprintf('%d', shift);
-            % Line 1
-            perL = (sum(lm.(sprintf('%s', session)).line1.(sprintf('left%d', shift))(:,4)==2));
-            %/length(lm.(sprintf('%s', session)).line1.(sprintf('left%d', shift))(:,4)))*100; %left
-            lm.(sprintf('%s', session)).line1.per(k(ii), 2) = perL;
-            perR = (sum(lm.(sprintf('%s', session)).line1.(sprintf('right%d', shift))(:,4)==2));
-            %/length(lm.(sprintf('%s', session)).line1.(sprintf('right%d', shift))(:,4)))*100; %right
-            lm.(sprintf('%s', session)).line1.per(ii+6, 2) = perR;
+        for j = 1:3 %number of lines
+            line = sprintf('line%d', j);
+            % getting important variables
+            lm.(sprintf('%s', session)).(sprintf('%s', line)).res(:,1) = measurements'; %stimulus asymmetry
+            % Midpoint
+            nTrials = length(lm.(sprintf('%s', session)).(sprintf('%s', line)).mid(:,4)); %number of trials for  the condition
+            nRight = sum(lm.(sprintf('%s', session)).(sprintf('%s', line)).mid(:,4)==2); %number of trials they responded that the right side is longer
+            percentR = (nRight/nTrials)*100;
+            % adding them to key matrix (just middle)
+            lm.(sprintf('%s', session)).(sprintf('%s', line)).res(6,2) = nTrials;
+            lm.(sprintf('%s', session)).(sprintf('%s', line)).res(6,3) = nRight;
+            lm.(sprintf('%s', session)).(sprintf('%s', line)).res(6,4) = percentR;
 
-            %Line 2
-            perL = (sum(lm.(sprintf('%s', session)).line2.(sprintf('left%d', shift))(:,4)==2));
-          %/length(lm.(sprintf('%s', session)).line2.(sprintf('left%d', shift))(:,4)))*100; %left
-            lm.(sprintf('%s', session)).line2.per(k(ii), 2) = perL;
-            perR = (sum(lm.(sprintf('%s', session)).line2.(sprintf('right%d', shift))(:,4)==2));
-            %/length(lm.(sprintf('%s', session)).line2.(sprintf('right%d', shift))(:,4)))*100; %right
-            lm.(sprintf('%s', session)).line2.per(ii+6, 2) = perR;
-
-            %Line 3
-            perL = (sum(lm.(sprintf('%s', session)).line3.(sprintf('left%d', shift))(:,4)==2));
-            %/length(lm.(sprintf('%s', session)).line3.(sprintf('left%d', shift))(:,4)))*100; %left
-            lm.(sprintf('%s', session)).line3.per(k(ii), 2) = perL;
-            perR = (sum(lm.(sprintf('%s', session)).line3.(sprintf('right%d', shift))(:,4)==2));
-            %/length(lm.(sprintf('%s', session)).line3.(sprintf('right%d', shift))(:,4)))*100; %right
-            lm.(sprintf('%s', session)).line3.per(ii+6, 2) = perR;       
+            % For L/R shifts
+            for ii = 1:5
+                shift = ii*2; shiftmm = shift/10; %for naming
+                name = sprintf('%d', shift);
+                % Getting key values, left shift
+                nTrialsL = length(lm.(sprintf('%s', session)).(sprintf('%s', line)).(sprintf('left%d', shift))(:,4)); %number of trials for  the condition
+                nRightL = sum(lm.(sprintf('%s', session)).(sprintf('%s', line)).(sprintf('left%d', shift))(:,4)==2); %number of trials they responded that the right side is longer
+                percentRL = (nRightL/nTrialsL)*100;
+                % Getting key values, right shift
+                nTrialsR = length(lm.(sprintf('%s', session)).(sprintf('%s', line)).(sprintf('right%d', shift))(:,4)); %number of trials for  the condition
+                nRightR = sum(lm.(sprintf('%s', session)).(sprintf('%s', line)).(sprintf('right%d', shift))(:,4)==2); %number of trials they responded that the right side is longer
+                percentRR = (nRightR/nTrialsR)*100;
+                % Adding to matrix, left shift
+                lm.(sprintf('%s', session)).(sprintf('%s', line)).res(k(ii),2) = nTrialsL;
+                lm.(sprintf('%s', session)).(sprintf('%s', line)).res(k(ii),3) = nRightL;
+            	lm.(sprintf('%s', session)).(sprintf('%s', line)).res(k(ii),4) = percentRL;
+                % Adding to matrix, left shift
+                lm.(sprintf('%s', session)).(sprintf('%s', line)).res(ii+6,2) = nTrialsR;
+                lm.(sprintf('%s', session)).(sprintf('%s', line)).res(ii+6,3) = nRightR;
+            	lm.(sprintf('%s', session)).(sprintf('%s', line)).res(ii+6,4) = percentRR;    
+            end
         end
 
         %% Percentage 'right side longer' for each session (collapsed across line)
-        lm.(sprintf('%s', session)).per(:,1) = measurements';
-        % Percenttrage for mid bisected trials for all lines
-        perSmid = (sum(lm.(sprintf('%s', session)).allshift.mid(:,4)==2));
-        %/length(lm.(sprintf('%s', session)).allshift.mid(:,4)))*100;
-        lm.(sprintf('%s', session)).per(6,2) = perSmid;
+        lm.(sprintf('%s', session)).res(:,1) = measurements';
+        nTrials = length(lm.(sprintf('%s', session)).allshift.mid(:,4)); %number of trials for  the condition
+        nRight = sum(lm.(sprintf('%s', session)).allshift.mid(:,4)==2); %number of trials they responded that the right side is longer
+        percentR = (nRight/nTrials)*100;
+        % Adding to matrix
+        lm.(sprintf('%s', session)).res(6,2) = nTrials;
+        lm.(sprintf('%s', session)).res(6,3) = nRight;
+        lm.(sprintf('%s', session)).res(6,4) = percentR;
 
         % For all shifts
         for ii = 1:5
             shift = ii*2; shiftmm = shift/10; %for naming
             name = sprintf('%d', shift);
 
-            perSL = (sum(lm.(sprintf('%s', session)).allshift.(sprintf('left%d', shift))(:,4)==2));
-            %/length(lm.(sprintf('%s', session)).allshift.(sprintf('left%d', shift))(:,4)))*100; %left
-            lm.(sprintf('%s', session)).per(k(ii),2) = perSL;
-            perSR = (sum(lm.(sprintf('%s', session)).allshift.(sprintf('right%d', shift))(:,4)==2));
-            %/length(lm.(sprintf('%s', session)).allshift.(sprintf('right%d', shift))(:,4)))*100; %right
-            lm.(sprintf('%s', session)).per(ii+6,2) = perSR;        
+            % Getting key values, left shift
+            nTrialsL = length(lm.(sprintf('%s', session)).allshift.(sprintf('left%d', shift))(:,4)); %number of trials for  the condition
+            nRightL = sum(lm.(sprintf('%s', session)).allshift.(sprintf('left%d', shift))(:,4)==2); %number of trials they responded that the right side is longer
+            percentRL = (nRightL/nTrialsL)*100;
+            % Getting key values, right shift
+            nTrialsR = length(lm.(sprintf('%s', session)).allshift.(sprintf('right%d', shift))(:,4)); %number of trials for  the condition
+            nRightR = sum(lm.(sprintf('%s', session)).allshift.(sprintf('right%d', shift))(:,4)==2); %number of trials they responded that the right side is longer
+            percentRR = (nRightR/nTrialsR)*100;
+            % Adding to matrix, left shift
+            lm.(sprintf('%s', session)).res(k(ii),2) = nTrialsL;
+            lm.(sprintf('%s', session)).res(k(ii),3) = nRightL;
+            lm.(sprintf('%s', session)).res(k(ii),4) = percentRL;
+            % Adding to matrix, left shift
+            lm.(sprintf('%s', session)).res(ii+6,2) = nTrialsR;
+            lm.(sprintf('%s', session)).res(ii+6,3) = nRightR;
+            lm.(sprintf('%s', session)).res(ii+6,4) = percentRR;      
         end
     end
 
     % Data across all sessions
     % Matrices of shifts for each line length
-    % Middle bisection
-    lm.allsessions.line1.mid = [lm.Session01.line1.mid; lm.Session02.line1.mid;...
-        lm.Session03.line1.mid; lm.Session04.line1.mid]; %line1
-    lm.allsessions.line2.mid = [lm.Session01.line2.mid; lm.Session02.line2.mid;...
-        lm.Session03.line2.mid; lm.Session04.line2.mid]; %line2
-    lm.allsessions.line3.mid = [lm.Session01.line3.mid; lm.Session02.line3.mid;...
-        lm.Session03.line3.mid; lm.Session04.line3.mid]; %line3
-    lm.allsessions.alllines.mid = [lm.allsessions.line1.mid; lm.allsessions.line2.mid; lm.allsessions.line3.mid]; %all lines
-
-    % Percentage for the middle
-    % Line 1
-    lm.allsessions.line1.per(:,1) = measurements';
-    lm.allsessions.line1.per(6,2) = (sum(lm.allsessions.line1.mid(:,4)==2));
-    %/length(lm.allsessions.line1.mid(:,4)))*100;
-    % Line 2
-    lm.allsessions.line2.per(:,1) = measurements';
-    lm.allsessions.line2.per(6,2) = (sum(lm.allsessions.line2.mid(:,4)==2));
-    %/length(lm.allsessions.line2.mid(:,4)))*100;
-    % Line 3
-    lm.allsessions.line3.per(:,1) = measurements';
-    lm.allsessions.line3.per(6,2) = (sum(lm.allsessions.line3.mid(:,4)==2));
-    %/length(lm.allsessions.line3.mid(:,4)))*100;
-    % All
-    lm.allsessions.per(:,1) = measurements';
-    lm.allsessions.per(6,2) = (sum(lm.allsessions.alllines.mid(:,4)==2));
-    %/length(lm.allsessions.alllines.mid(:,4)))*100;
-
-    % All other offsets
-    for ii = 1:5 %number of offsets for left/right
-        shift = ii*2; shiftmm = shift/10; %for naming
-        name = sprintf('%d', shift);
-        % Line 1
-        % Matrices
-        lm.allsessions.line1.(sprintf('left%d', shift)) = [lm.Session01.line1.(sprintf('left%d', shift)); ...
-            lm.Session02.line1.(sprintf('left%d', shift)); lm.Session03.line1.(sprintf('left%d', shift)); ...
-            lm.Session04.line1.(sprintf('left%d', shift))]; %left
-        lm.allsessions.line1.(sprintf('right%d', shift)) = [lm.Session01.line1.(sprintf('right%d', shift)); ...
-            lm.Session02.line1.(sprintf('right%d', shift)); lm.Session03.line1.(sprintf('right%d', shift)); ...
-            lm.Session04.line1.(sprintf('right%d', shift))]; %right
-        % Percentages
-        lm.allsessions.line1.per(k(ii),2) = (sum(lm.allsessions.line1.(sprintf('left%d', shift))(:,4)==2));
-        %/length(lm.allsessions.line1.(sprintf('left%d', shift))(:,4)))*100; %left
-        lm.allsessions.line1.per(ii+6,2) = (sum(lm.allsessions.line1.(sprintf('right%d', shift))(:,4)==2));
-        %/length(lm.allsessions.line1.(sprintf('right%d', shift))(:,4)))*100; %right
-
-        % Line 2
-        % Matrices
-        lm.allsessions.line2.(sprintf('left%d', shift)) = [lm.Session01.line2.(sprintf('left%d', shift)); ...
-            lm.Session02.line2.(sprintf('left%d', shift)); lm.Session03.line2.(sprintf('left%d', shift)); ...
-            lm.Session04.line2.(sprintf('left%d', shift))]; %left
-        lm.allsessions.line2.(sprintf('right%d', shift)) = [lm.Session01.line2.(sprintf('right%d', shift)); ...
-            lm.Session02.line2.(sprintf('right%d', shift)); lm.Session03.line2.(sprintf('right%d', shift)); ...
-            lm.Session04.line2.(sprintf('right%d', shift))]; %right
-        % Percentages
-        lm.allsessions.line2.per(k(ii),2) = (sum(lm.allsessions.line2.(sprintf('left%d', shift))(:,4)==2));
-        %/length(lm.allsessions.line2.(sprintf('left%d', shift))(:,4)))*100; %left
-        lm.allsessions.line2.per(ii+6,2) = (sum(lm.allsessions.line2.(sprintf('right%d', shift))(:,4)==2));
-        %/length(lm.allsessions.line2.(sprintf('right%d', shift))(:,4)))*100; %right
-
-        % Line 3
-        % Matrices
-        lm.allsessions.line3.(sprintf('left%d', shift)) = [lm.Session01.line3.(sprintf('left%d', shift)); ...
-            lm.Session02.line3.(sprintf('left%d', shift)); lm.Session03.line3.(sprintf('left%d', shift)); ...
-            lm.Session04.line3.(sprintf('left%d', shift))]; %left
-        lm.allsessions.line3.(sprintf('right%d', shift)) = [lm.Session01.line3.(sprintf('right%d', shift)); ...
-            lm.Session02.line3.(sprintf('right%d', shift)); lm.Session03.line3.(sprintf('right%d', shift)); ...
-            lm.Session04.line3.(sprintf('right%d', shift))]; %right
-        % Percentages
-        lm.allsessions.line3.per(k(ii),2) = (sum(lm.allsessions.line3.(sprintf('left%d', shift))(:,4)==2));
-        %/length(lm.allsessions.line3.(sprintf('left%d', shift))(:,4)))*100; %left
-        lm.allsessions.line3.per(ii+6,2) = (sum(lm.allsessions.line3.(sprintf('right%d', shift))(:,4)==2));
-        %/ength(lm.allsessions.line3.(sprintf('right%d', shift))(:,4)))*100; %right
-
-        % All lines
-        % Matrices
-        lm.allsessions.alllines.(sprintf('left%d', shift)) = [lm.allsessions.line1.(sprintf('left%d', shift));...
-            lm.allsessions.line2.(sprintf('left%d', shift)); lm.allsessions.line3.(sprintf('left%d', shift))]; %left
-        lm.allsessions.alllines.(sprintf('right%d', shift)) = [lm.allsessions.line1.(sprintf('right%d', shift));...
-            lm.allsessions.line2.(sprintf('right%d', shift)); lm.allsessions.line3.(sprintf('right%d', shift))]; %right
-        % Percentages
-        lm.allsessions.per(k(ii),2) = (sum(lm.allsessions.alllines.(sprintf('left%d', shift))(:,4)==2));
-        %/length(lm.allsessions.alllines.(sprintf('left%d', shift))(:,4)))*100; %left
-        lm.allsessions.per(ii+6,2) = (sum(lm.allsessions.alllines.(sprintf('right%d', shift))(:,4)==2));
-        %/length(lm.allsessions.alllines.(sprintf('right%d', shift))(:,4)))*100; %left
+    for j = 1:3
+        line = sprintf('line%d', j);
+        % midpoint
+        lm.allsessions.(sprintf('%s', line)).mid = [lm.Session01.(sprintf('%s', line)).mid; ...
+            lm.Session02.(sprintf('%s', line)).mid; lm.Session03.(sprintf('%s', line)).mid; ...
+            lm.Session04.(sprintf('%s', line)).mid]; % getting all session data for all lines  
+        lm.allsessions.(sprintf('%s', line)).res(:,1) = measurements'; 
+        % Getting important numbers
+        nTrials = length(lm.allsessions.(sprintf('%s', line)).mid(:,4)); %number of trials for  the condition
+        nRight = sum(lm.allsessions.(sprintf('%s', line)).mid(:,4)==2); %number of trials they responded that the right side is longer
+        percentR = (nRight/nTrials)*100;
+        lm.allsessions.(sprintf('%s', line)).res(6,2) = nTrials;
+        lm.allsessions.(sprintf('%s', line)).res(6,3) = nRight;
+        lm.allsessions.(sprintf('%s', line)).res(6,4) = percentR;
+        
+        for ii = 1:5
+            shift = ii*2; shiftmm = shift/10; %for naming
+            name = sprintf('%d', shift);
+            % All session line matrices
+            lm.allsessions.(sprintf('%s', line)).(sprintf('left%d', shift)) = [lm.Session01.(sprintf('%s', line)).(sprintf('left%d', shift)); ...
+                lm.Session02.(sprintf('%s', line)).(sprintf('left%d', shift)); lm.Session03.(sprintf('%s', line)).(sprintf('left%d', shift)); ...
+                lm.Session04.line1.(sprintf('left%d', shift))]; %left
+            lm.allsessions.(sprintf('%s', line)).(sprintf('right%d', shift)) = [lm.Session01.(sprintf('%s', line)).(sprintf('right%d', shift)); ...
+                lm.Session02.(sprintf('%s', line)).(sprintf('right%d', shift)); lm.Session03.(sprintf('%s', line)).(sprintf('right%d', shift)); ...
+                lm.Session04.(sprintf('%s', line)).(sprintf('right%d', shift))]; %right
+            % Key values, left
+            nTrialsL = length(lm.allsessions.(sprintf('%s', line)).(sprintf('left%d', shift))(:,4)); %number of trials for  the condition
+            nRightL = sum(lm.allsessions.(sprintf('%s', line)).(sprintf('left%d', shift))(:,4)==2); %number of trials they responded that the right side is longer
+            percentRL = (nRightL/nTrialsL)*100;
+            % Key values, right
+            nTrialsR = length(lm.allsessions.(sprintf('%s', line)).(sprintf('right%d', shift))(:,4)); %number of trials for  the condition
+            nRightR = sum(lm.allsessions.(sprintf('%s', line)).(sprintf('right%d', shift))(:,4)==2); %number of trials they responded that the right side is longer
+            percentRR = (nRightR/nTrialsR)*100;
+            % Matrix left
+            lm.allsessions.(sprintf('%s', line)).res(k(ii),2) = nTrialsL;
+            lm.allsessions.(sprintf('%s', line)).res(k(ii),3) = nRightL;
+            lm.allsessions.(sprintf('%s', line)).res(k(ii),4) = percentRL;
+            % Matrix right
+            lm.allsessions.(sprintf('%s', line)).res(ii+6,2) = nTrialsR;
+            lm.allsessions.(sprintf('%s', line)).res(ii+6,3) = nRightR;
+            lm.allsessions.(sprintf('%s', line)).res(ii+6,4) = percentRR;
+        end
     end
+    
+%% All sessions, all lines    
+lm.allsessions.alllines.mid = [lm.allsessions.line1.mid; lm.allsessions.line2.mid;...
+     lm.allsessions.line3.mid]; %all lines
+ 
+% All lines
+lm.allsessions.res(:,1) = measurements';
+nTrials = length(lm.allsessions.alllines.mid(:,4)); %number of trials for  the condition
+nRight = sum(lm.allsessions.alllines.mid(:,4)==2); %number of trials they responded that the right side is longer
+percentR = (nRight/nTrials)*100;
+lm.allsessions.res(6,2) = nTrials;
+lm.allsessions.res(6,3) = nRight;
+lm.allsessions.res(6,4) = percentR;
+
+% All other offsets
+for ii = 1:5 %number of offsets for left/right
+    shift = ii*2; shiftmm = shift/10; %for naming
+    name = sprintf('%d', shift);
+    % All lines
+    % Matrices
+    lm.allsessions.alllines.(sprintf('left%d', shift)) = [lm.allsessions.line1.(sprintf('left%d', shift));...
+        lm.allsessions.line2.(sprintf('left%d', shift)); lm.allsessions.line3.(sprintf('left%d', shift))]; %left
+    lm.allsessions.alllines.(sprintf('right%d', shift)) = [lm.allsessions.line1.(sprintf('right%d', shift));...
+        lm.allsessions.line2.(sprintf('right%d', shift)); lm.allsessions.line3.(sprintf('right%d', shift))]; %right
+    % Key values, left
+    nTrialsL = length(lm.allsessions.alllines.(sprintf('left%d', shift))(:,4)); %number of trials for  the condition
+    nRightL = sum(lm.allsessions.alllines.(sprintf('left%d', shift))(:,4)==2); %number of trials they responded that the right side is longer
+    percentRL = (nRightL/nTrialsL)*100;
+    % Key values, right
+    nTrialsR = length(lm.allsessions.alllines.(sprintf('right%d', shift))(:,4)); %number of trials for  the condition
+    nRightR = sum(lm.allsessions.alllines.(sprintf('right%d', shift))(:,4)==2); %number of trials they responded that the right side is longer
+    percentRR = (nRightR/nTrialsR)*100;
+    % Matrix left
+    lm.allsessions.res(k(ii),2) = nTrialsL;
+    lm.allsessions.res(k(ii),3) = nRightL;
+    lm.allsessions.res(k(ii),4) = percentRL;
+    % Matrix right
+    lm.allsessions.res(ii+6,2) = nTrialsR;
+    lm.allsessions.res(ii+6,3) = nRightR;
+    lm.allsessions.res(ii+6,4) = percentRR;
+end
 
     %% Lapse rate for LM task 
     % calculating response error for the lines that are clearly longer on l/r
@@ -371,17 +375,17 @@ nParticipants = [1:17];
     cd(dirVis); %analysis directory for saving figures
     % Plot percent left side longer for each session
     % For each line 
-    asym = lm.Session01.line1.per(:,1); %for labelling
+    asym = lm.Session01.line1.res(:,1); %for labelling
     for i = 1:3 %number of lines
         line = sprintf('line%d', i);
         figure(i+5) 
-        plot(asym, lm.Session01.(sprintf('%s', line)).per(:,2));
+        plot(asym, lm.Session01.(sprintf('%s', line)).res(:,4));
         hold on
-        plot(asym, lm.Session02.(sprintf('%s', line)).per(:,2));
+        plot(asym, lm.Session02.(sprintf('%s', line)).res(:,4));
         hold on
-        plot(asym, lm.Session03.(sprintf('%s', line)).per(:,2));
+        plot(asym, lm.Session03.(sprintf('%s', line)).res(:,4));
         hold on
-        plot(asym, lm.Session04.(sprintf('%s', line)).per(:,2));
+        plot(asym, lm.Session04.(sprintf('%s', line)).res(:,4));
         % Adding the shifts as x-axis tick labels
         ax = gca;
         set(ax, 'Xtick', asym);
@@ -399,13 +403,13 @@ nParticipants = [1:17];
 
     % For all lines
     figure(9)
-    plot(asym, lm.Session01.per(:,2));
+    plot(asym, lm.Session01.res(:,4));
     hold on
-    plot(asym, lm.Session02.per(:,2));
+    plot(asym, lm.Session02.res(:,4));
     hold on
-    plot(asym, lm.Session03.per(:,2));
+    plot(asym, lm.Session03.res(:,4));
     hold on
-    plot(asym, lm.Session04.per(:,2));
+    plot(asym, lm.Session04.res(:,4));
     % Adding the shifts as x-axis tick labels
     ax = gca;
     set(ax, 'Xtick', asym);
@@ -422,11 +426,11 @@ nParticipants = [1:17];
 
     % For all sessions
     figure(10)
-    plot(asym, lm.allsessions.line1.per(:,2));
+    plot(asym, lm.allsessions.line1.res(:,4));
     hold on
-    plot(asym, lm.allsessions.line2.per(:,2));
+    plot(asym, lm.allsessions.line2.res(:,4));
     hold on
-    plot(asym, lm.allsessions.line3.per(:,2));
+    plot(asym, lm.allsessions.line3.res(:,4));
     % Adding the shifts as x-axis tick labels
     ax = gca;
     set(ax, 'Xtick', asym);
@@ -590,4 +594,4 @@ nParticipants = [1:17];
     close all
     cd(dirVis)
     save(matfilename, 'mlb', 'lm', 'lm2');
-%end
+end
