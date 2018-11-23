@@ -58,13 +58,6 @@ NumPos = lm.allsessions.res(:,3)';
 % Percentage so out of 100
 OutOfNum = lm.allsessions.res(:,2)';
 
- 
-%Parameter grid defining parameter space through which to perform a
-%brute-force search for values to be used as initial guesses in iterative
-%parameter search.
-searchGrid.alpha = linspace(min(StimLevels), max(StimLevels), 101);
-searchGrid.beta = linspace(0,30/max(StimLevels),101); %slope
-
 fitLapseRate = false;
 
 %For this set of stim values the guess rate is equal to the lapse rate.  
@@ -84,8 +77,13 @@ else %Don't fit lapse rate and fix it to a value
     paramsFree = [1 1 0 0];
 end
 
+%Parameter grid defining parameter space through which to perform a
+%brute-force search for values to be used as initial guesses in iterative
+%parameter search.
+searchGrid.alpha = linspace(min(StimLevels), max(StimLevels), 101);
+searchGrid.beta = linspace(0,30/max(StimLevels),101); %slope
 
-%Perform fit
+%% Perform fit - Cumulative Normal
 disp('Fitting function.....');
 [paramsValues LL exitflag] = PAL_PFML_Fit(StimLevels,NumPos, ...
     OutOfNum,searchGrid,paramsFree,PF,...
@@ -165,7 +163,26 @@ set(gca, 'fontsize',14);
 set(gca, 'Xtick',StimLevels);
 axis([min(StimLevels) max(StimLevels) 0 1]);
 xlabel('Stimulus Intensity');
-ylabel('Proportion responded right-side longer');
+ylabel('Proportion right-side longer');
 
+% Getting the information that we need at 50% 
+stim50Right = PAL_CumulativeNormal(paramsValues, 0.5, 'Inverse');
+slope50thresh = PAL_CumulativeNormal(paramsValues, stim50Right, 'Derivative');
+
+for iBoot = 1:nSims
+    boot50thresh(iBoot) = PAL_CumulativeNormal(paramsSim(iBoot,:), 0.5, 'Inverse');
+    bootSlope50thresh(iBoot)= PAL_CumulativeNormal(paramsSim(iBoot,:), boot50thresh(iBoot), 'Derivative');
+end
+% Getting the standard error for the psychometric data
+thresholdSE = std(boot50thresh);
+slopeSE = std(bootSlope50thresh);
+
+% Getting confidence intervals for the function
+sortedThresholdSim = sort(boot50thresh);
+sortedSlopeSim = sort(bootSlope50thresh);
+thresholdCI = [sortedThresholdSim(25) sortedThresholdSim(nSims-25)];
+slopeCI = [sortedSlopeSim(25) sortedSlopeSim(nSims-25)];
+
+% Adding these functions to the data
 
 toc
