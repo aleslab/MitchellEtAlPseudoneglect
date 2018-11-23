@@ -1,6 +1,5 @@
 function [errorbarHandle] = plot2afc( x, nCorrect, nTrials )
 %plot2afc plots 2afc data with 95% confidence intervals
-%[errorbarHandle] = plot2afc( x, nCorrect, nTrials )
 %   Detailed explanation goes here
 
 percentCorrect = nCorrect./nTrials;
@@ -11,4 +10,3 @@ errorbarHandle=errorbar(x,percentCorrect,lowerCi,upperCi,'o','markersize',10);
 box(gca,'off');  
 
 end
-

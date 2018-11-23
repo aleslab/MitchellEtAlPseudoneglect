@@ -41,16 +41,17 @@ load(matfilename)
 message = 'Parametric Bootstrap (1) or Non-Parametric Bootstrap? (2): ';
 ParOrNonPar = input(message);
 nSims = 1000; %number of sims for all bootstraps and goodness of fit
+lm.lapse = lm.lapse/100; %proportion correct, not percentage
 
-%Stimulus intensities, this is the 'x-axis' of the plot (aka. IV)
+% Stimulus intensities, this is the 'x-axis' of the plot (aka. IV)
 StimLevels = lm.allsessions.per(:,1)'; %stimulus asymmetry
 
-% Percentage of 'left-side longer' responses for each stim level
+% Number of 'right-side longer' responses for each stim level
 NumPos = lm.allsessions.per(:,2)';             
 
 % Number of trials at each entry of 'StimLevels'
 % Percentage so out of 100
-OutOfNum = (zeros(1, length(StimLevels))) + 100;
+OutOfNum = [60 60 60 60 60 120 60 60 60 60 60];
 
 %Use the Logistic function
 PF = @PAL_CumulativeNormal;  %Alternatives: PAL_Gumbel, PAL_Weibull,
@@ -58,29 +59,47 @@ PF = @PAL_CumulativeNormal;  %Alternatives: PAL_Gumbel, PAL_Weibull,
                      %PAL_CumulativeNormal, PAL_HyperbolicSecant
 
 %Threshold and Slope are free parameters, guess and lapse rate are fixed
-paramsFree = [1 0 0 0];  %1: free parameter, 0: fixed parameter
+paramsFree = [1 1 0 0];  %1: free parameter, 0: fixed parameter
  
 %Parameter grid defining parameter space through which to perform a
 %brute-force search for values to be used as initial guesses in iterative
 %parameter search.
-searchGrid.alpha = logspace(min(StimLevels), max(StimLevels), 101);
-searchGrid.beta = logspace(0,3,101); %unsure about this, need to ask Justin - changes don't seem to affect curve but feel important
-searchGrid.gamma = 0;  %50% cause 2AFC
-searchGrid.lambda = lm.lapse;  %this is lapse rate for the participant, calculated here
+searchGrid.alpha = linspace(min(StimLevels), max(StimLevels), 101);
+searchGrid.beta = linspace(0,30/max(StimLevels),101); %slope
+
+fitLapseRate = false;
+
+%For this set of stim values the guess rate is equal to the lapse rate.  
+%This can be kept true for this data. 
+gammaEqLambda = true;
+
+%This is just to show how it would be done.
+%Really for lapse estimation to work well should do it with a multiple fit procedure.
+if fitLapseRate %Try and fit the lapse rate. 
+    %Fit lapse rate:
+    searchGrid.gamma = [0:.005:.1];     %type help PAL_PFML_Fit for more information
+    searchGrid.lambda = [0:.005:.1];
+    paramsFree = [1 1 1 1];  %1: free parameter, 0: fixed parameter
+else %Don't fit lapse rate and fix it to a value
+    searchGrid.gamma = lm.lapse;  %This is the lapse rate for negative stim %values
+    searchGrid.lambda = lm.lapse;  %this is lapse rate for the participant, calculated here
+    paramsFree = [1 1 0 0];
+end
+
 
 %Perform fit
 disp('Fitting function.....');
 [paramsValues LL exitflag] = PAL_PFML_Fit(StimLevels,NumPos, ...
-    OutOfNum,searchGrid,paramsFree,PF);
+    OutOfNum,searchGrid,paramsFree,PF,...
+    'lapseLimits',[0 1],'gammaEQlambda',gammaEqLambda)
 
 disp('done:')
 message = sprintf('Threshold estimate: %6.4f',paramsValues(1));
 disp(message);
 message = sprintf('Slope estimate: %6.4f\r',paramsValues(2));
 disp(message);
-             
 
-disp('Determining standard errors.....');
+disp('Determining standard errors.....');        
 
 if ParOrNonPar == 1
     [SD paramsSim LLSim converged] = PAL_PFML_BootstrapParametric(...
@@ -91,6 +110,13 @@ else
         StimLevels, NumPos, OutOfNum, [], paramsFree, nSims, PF,...
         'searchGrid',searchGrid);
 end
+
+disp('done:');
+message = sprintf('Standard error of Threshold: %6.4f',SD(1));
+disp(message);
+message = sprintf('Standard error of Slope: %6.4f\r',SD(2));
+disp(message);
+
 
 disp('done:');
 message = sprintf('Standard error of Threshold: %6.4f',SD(1));
@@ -132,11 +158,16 @@ figure('name','Maximum Likelihood Psychometric Function Fitting');
 axes
 hold on
 plot(StimLevelsFineGrain,ProportionCorrectModel,'-','color',[0 .7 0],'linewidth',4);
-plot(StimLevels,ProportionCorrectObserved,'k.','markersize',40);
+ 
+%plot(StimLevels,ProportionCorrectObserved,'k.','markersize',40);
+observedHandle = plot2afc(StimLevels,NumPos,OutOfNum);
+set(observedHandle,'color','k','linewidth',2)
+
 set(gca, 'fontsize',16);
 set(gca, 'Xtick',StimLevels);
 axis([min(StimLevels) max(StimLevels) 0 1]);
 xlabel('Stimulus Intensity');
 ylabel('proportion correct');
+
 
 toc
