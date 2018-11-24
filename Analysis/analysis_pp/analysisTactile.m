@@ -59,6 +59,7 @@ for p = 1:length(nParticipants)
     for i = 1:length(nSessions)
         session = sprintf('Session%0*d',2,nSessions(i));
         cd(dirSess); %directing to current session folder
+        length1 = 100; length2 = 200; length3 = 300; %length of lines in mm
         % 10 cm line
         trb.(sprintf('%s', session)).line1mat = ...
             trb.(sprintf('%s', session)).matrix(find(trb.(sprintf('%s', session)).matrix(:,1)== 1),:);
@@ -79,78 +80,105 @@ for p = 1:length(nParticipants)
         avL3(i) = nanmean(trb.(sprintf('%s', session)).line3mat(:,4)); %30 cm line
         stdL3(i) = nanstd(trb.(sprintf('%s', session)).line3mat(:,4));
         trb.(sprintf('%s', session)).error.line3 = [avL3(i), stdL3(i)];
+        
+        % Calculating data as proportion of the line (in mm) to standardise
+        % for analysis
+        propL1 = ((trb.(sprintf('%s', session)).line1mat(:,4))*10)/(length1); %error in mm, as a proportion of half the line length (the error is signed)
+        propL2 = ((trb.(sprintf('%s', session)).line2mat(:,4))*10)/(length2);
+        propL3 = ((trb.(sprintf('%s', session)).line3mat(:,4))*10)/(length3);
+        trb.(sprintf('%s', session)).line1mat(:,5) = propL1; %adding to matrix
+        trb.(sprintf('%s', session)).line2mat(:,5) = propL2;
+        trb.(sprintf('%s', session)).line3mat(:,5) = propL3;
+        
+        % Taking the mean and std of the proportion error
+        avpropL1(i) = nanmean(trb.(sprintf('%s', session)).line1mat(:,5)); %10 cm line
+        stdpropL1(i) = nanstd(trb.(sprintf('%s', session)).line1mat(:,5));
+        trb.(sprintf('%s', session)).proportionError.line1 = [avpropL1(i), stdpropL1(i)];
+        avpropL2(i) = nanmean(trb.(sprintf('%s', session)).line2mat(:,5)); %20 cm line
+        stdpropL2(i) = nanstd(trb.(sprintf('%s', session)).line2mat(:,5));
+        trb.(sprintf('%s', session)).proportionError.line2 = [avpropL2(i), stdpropL2(i)];
+        avpropL3(i) = nanmean(trb.(sprintf('%s', session)).line3mat(:,5)); %30 cm line
+        stdpropL3(i) = nanstd(trb.(sprintf('%s', session)).line3mat(:,5));
+        trb.(sprintf('%s', session)).proportionError.line3 = [avpropL3(i), stdpropL3(i)];     
     end
 
     %% Average error across sessions/lines
     % For each line length
-    trb.line1err = [mean(avL1), std(avL1)];
-    trb.line2err = [mean(avL2), std(avL2)];
-    trb.line3err = [mean(avL3), std(avL3)];
+    trb.line1.err = [mean(avL1), std(avL1)];
+    trb.line2.err = [mean(avL2), std(avL2)];
+    trb.line3.err = [mean(avL3), std(avL3)];
     % Total error and std across sessions
-    allError = [trb.line1err(1), trb.line2err(1), trb.line3err(1)];
+    allError = [trb.line1.err(1), trb.line2.err(1), trb.line3.err(1)];
     trb.meanTotError = mean(allError);
+    % Proportion of line error
+    trb.line1.properr = [mean(avpropL1), std(avpropL1)];
+    trb.line2.properr = [mean(avpropL2), std(avpropL2)];
+    trb.line3.properr = [mean(avpropL3), std(avpropL3)];
+    % Total proportion error and std across sessions
+    allPropErr = [trb.line1.properr(1), trb.line2.properr(1), trb.line3.properr(1)];
+    trb.meanTotPropError = mean(allError);
+    
     % Matrices for session plotting, each line
-    trb.sessionVals.line1(1,:) = avL1; trb.sessionVals.line1(2,:) = stdL1; %values for sessions
-    trb.sessionVals.line2(1,:) = avL2; trb.sessionVals.line2(2,:) = stdL2;
-    trb.sessionVals.line3(1,:) = avL3; trb.sessionVals.line3(2,:) = stdL3;
+    trb.sessionVals.line1.err(1,:) = avL1; trb.sessionVals.line1.err(2,:) = stdL1; %values for sessions
+    trb.sessionVals.line2.err(1,:) = avL2; trb.sessionVals.line2.err(2,:) = stdL2;
+    trb.sessionVals.line3.err(1,:) = avL3; trb.sessionVals.line3.err(2,:) = stdL3;
 
     % All sessions
     for i = 1:length(nSessions)
         sess(i,:) = [avL1(1,i), avL2(1,i), avL3(1,i)];
     end
-    trb.sessionVals.all(1,:) = [mean(sess(1,:)), mean(sess(2,:)),...
+    trb.sessionVals.all.err(1,:) = [mean(sess(1,:)), mean(sess(2,:)),...
         mean(sess(3,:)), mean(sess(4,:))];
-    trb.sessionVals.all(2,:) = [std(sess(1,:)), std(sess(2,:)),...
+    trb.sessionVals.all.err(2,:) = [std(sess(1,:)), std(sess(2,:)),...
+        std(sess(3,:)), std(sess(4,:))];
+    
+    % Doing the same for proportion error across all sessions
+    trb.sessionVals.line1.properr(1,:) = avpropL1; trb.sessionVals.line1.properr(2,:) = stdpropL1; %values for sessions
+    trb.sessionVals.line2.properr(1,:) = avpropL2; trb.sessionVals.line2.properr(2,:) = stdpropL2;
+    trb.sessionVals.line3.properr(1,:) = avpropL3; trb.sessionVals.line3.properr(2,:) = stdpropL3;
+    % All sessions
+    for i = 1:length(nSessions)
+        sess(i,:) = [avpropL1(1,i), avpropL2(1,i), avpropL3(1,i)];
+    end
+    trb.sessionVals.all.properr(1,:) = [mean(sess(1,:)), mean(sess(2,:)),...
+        mean(sess(3,:)), mean(sess(4,:))];
+    trb.sessionVals.all.properr(2,:) = [std(sess(1,:)), std(sess(2,:)),...
         std(sess(3,:)), std(sess(4,:))];
 
     %% TRB plots
     cd(dirTact); %navigating to analysis directory to save plots
-    % Plotting line 1
-    figure(1)
-    bar(trb.sessionVals.line1(1,:))
-    hold on
-    errorbar(trb.sessionVals.line1(1,:), trb.sessionVals.line1(2,:), 'k')
-    xlabel('Sessions'); ylabel('Bisection error (cm)');
-    title('trb 10cm line');
-    saveas(figure(1), sprintf('%s_TRBline1.jpg', ppID));
-
-    % Plotting line 2
-    figure(2)
-    bar(trb.sessionVals.line2(1,:))
-    hold on
-    errorbar(trb.sessionVals.line2(1,:), trb.sessionVals.line2(2,:), 'k')
-    xlabel('Sessions'); ylabel('Bisection error (cm)');
-    title('trb 20cm line');
-    saveas(figure(2), sprintf('%s_TRBline2.jpg', ppID));
-
-    % Plotting line 3
-    figure(3)
-    bar(trb.sessionVals.line3(1,:))
-    hold on
-    errorbar(trb.sessionVals.line3(1,:), trb.sessionVals.line3(2,:), 'k')
-    xlabel('Sessions'); ylabel('Bisection error (cm)');
-    title('trb 30cm line');
-    saveas(figure(3), sprintf('%s_TRBline3.jpg', ppID));
+    for j = 1:3
+        line = sprintf('line%d', j);
+        % Plotting each line
+        figure(j)
+        bar(trb.sessionVals.(sprintf('%s', line)).properr(1,:))
+        hold on
+        errorbar(trb.sessionVals.(sprintf('%s', line)).properr(1,:), trb.sessionVals.(sprintf('%s', line)).properr(2,:), 'k')
+        xlabel('Sessions'); ylabel('Proportion bisection error');
+        title(sprintf('TRB %s', line));
+        saveas(figure(j), sprintf('%s_TRB%s.jpg', ppID, line));
+    end
+   
 
     % Plotting average of all lines
     figure(4)
-    bar(trb.sessionVals.all(1,:))
+    bar(trb.sessionVals.all.properr(1,:))
     hold on
-    errorbar(trb.sessionVals.all(1,:), trb.sessionVals.all(2,:), 'k')
-    ylim([-3 3]);
-    xlabel('Sessions'); ylabel('Bisection error (cm)');
+    errorbar(trb.sessionVals.all.properr(1,:), trb.sessionVals.all.properr(2,:), 'k')
+    ylim([-0.3 0.3]);
+    xlabel('Sessions'); ylabel('Proportion bisection error');
     title('trb all sessions');
     saveas(figure(4), sprintf('%s_TRBsess.jpg', ppID));
 
     % Plotting averages of all sessions
-    lines(1,:) = [trb.line1err(1), trb.line2err(1), trb.line3err(1)];
-    lines(2,:) = [trb.line1err(2), trb.line2err(2), trb.line3err(2)];
+    lines(1,:) = [trb.line1.properr(1), trb.line2.properr(1), trb.line3.properr(1)];
+    lines(2,:) = [trb.line1.properr(2), trb.line2.properr(2), trb.line3.properr(2)];
     figure(5)
     bar(lines(1,:))
     hold on
     errorbar(lines(1,:), lines(2,:), 'k');
-    ylim([-3 3]);
-    xlabel('Lines'); ylabel('Bisection error (cm)');
+    ylim([-0.3 0.3]);
+    xlabel('Lines'); ylabel('Proportion bisection error');
     title('trb all lines');
     saveas(figure(5), sprintf('%s_TRBlines.jpg', ppID));
 
