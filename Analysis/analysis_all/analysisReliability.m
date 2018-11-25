@@ -14,18 +14,34 @@ nParticipants = 1:17;
 for p = 1:length(nParticipants)
     ppID = sprintf('P%0*d',2,nParticipants(p)); %for use when navigating files
     % Variables 
-    AllData = struct;
+    allData = struct;
     nSessions = 1:4;
+    visualFilename = sprintf('%s_visualanalysis.mat', ppID);
+    tactileFilename = sprintf('%s_tactileanalysis.mat', ppID);
     % Directories
     % Directory
     dirBias = ('C:\Users\Experimenter\Documents\Experiments2018\Bias'); %subject to change depending on where you analyse
     dirPP = [dirBias filesep ppID]; %participant directory
     dirAna = [dirPP filesep 'Analysis' filesep];
     dirVis = [dirAna 'Visual' filesep];
+    dirTact = [dirAna 'Tactile' filesep];
     dirAnaAll = [dirBias filesep 'Analysis']; %directory for all analysis - here is where data should be saved from this file
+    
+    % Loading files for each participant visual and tactile data analysis
+    cd(dirVis)
+    load(visualFilename)
+    cd(dirTact)
+    load(tactileFilename)
     
     for i = 1:length(nSessions)
         cd(dirPP)
         session = sprintf('Session%0*d',2,nSessions(i));
+        
+        % Saving data to matrix - one participant per row
+        % LM task
+        allData.(sprintf('%s', session)).LM.PSE(i) = lm.pfits.(sprintf('%s', session)).stim50right; %PSE at 50% for each participant
+        allData.(sprintf('%s', session)).LM.CIs(i,:) = lm.pfits.(sprintf('%s', session)).threshCI;
+        % MLB task
+        allData.(sprintf('%s', session)).MLB.error(i) = mlb
     end
 end

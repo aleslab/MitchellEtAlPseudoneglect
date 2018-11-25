@@ -8,7 +8,7 @@ for p = 1:length(nParticipants)
     ppID = sprintf('P%0*d',2,nParticipants(p)); %for use when navigating files
     %ppID = input('Participant ID? ', 's'); %for use when navigating files, debugging version
 
-    matfilename = sprintf('%s_visualanalysis.mat', ppID);
+    matfilename = sprintf('%s_visualanalysisStart.mat', ppID);
     nSessions = 1:4; %vector number of sessions each participant does
     % Directory
     dirBias = ('C:\Users\Experimenter\Documents\Experiments2018\Bias'); %subject to change depending on where you analyse
