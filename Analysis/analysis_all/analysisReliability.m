@@ -42,6 +42,10 @@ for p = 1:length(nParticipants)
         % LM task
         allData.(sprintf('%s', session)).lm.PSE(p,:) = lm.pfits.(sprintf('%s', session)).stim50right; %PSE at 50% for each participant
         allData.(sprintf('%s', session)).lm.CIs(p,:) = lm.pfits.(sprintf('%s', session)).threshCI;
+        % Calculating SD from confidence intervals
+        CIs = lm.pfits.(sprintf('%s', session)).threshCI;
+        lmSD = sqrt(length(nParticipants))*(CIs(2)-CIs(1))/3.92;
+        allData.(sprintf('%s', session)).lm.SDs(p,:) = lmSD;
         
         % MLB task
         allData.(sprintf('%s', session)).mlb.error(p,:) = mlb.(sprintf('%s', session)).error.mean(1);
@@ -75,11 +79,42 @@ for p = 1:length(nParticipants)
         allData.(sprintf('%s', session)).trb.proportionErrorStd(p,:) = std(propError);
         
         %% Saving data for  all sessions
+        % Landmarks
         sessionlm =  allData.(sprintf('%s', session)).lm.PSE(p,1);
+        sessionlmCI = allData.(sprintf('%s', session)).lm.CIs(p,:);
+        sessionlmSD = allData.(sprintf('%s', session)).lm.SDs(p,1);
         allData.sessions.lmPSE(p,i) = sessionlm;
+        allData.sessions.CIlow(p,i) = sessionlmCI(1);
+        allData.sessions.CIhigh(p,i) = sessionlmCI(2);
+        allData.sessions.lmStd(p,i) = sessionlmSD;
+        % Manual line bisection
         sessionmlb = allData.(sprintf('%s', session)).mlb.proportionError(p,1);
+        sessionmlbSD = allData.(sprintf('%s', session)).mlb.proportionErrorStd(p,1);
         allData.sessions.mlbProp(p,i) = sessionmlb;
+        allData.sessions.mlbStd(p,i) = sessionmlbSD;
+        % Tactile rod bisection
         sessiontrb = allData.(sprintf('%s', session)).trb.proportionError(p,1);
+        sessiontrbSD = allData.(sprintf('%s', session)).trb.proportionErrorStd(p,1);
         allData.sessions.trbProp(p,i) = sessiontrb;
+        allData.sessions.trbStd(p,i) = sessiontrbSD;
     end
+    
+    %% Saving data for all modalities
+    % Modalities matrix: lm, mlb, trb; sd matrix the same
+    % SD for LM calculated through confidence intervals
+    % Landmarks
+    modlm = mean(allData.sessions.lmPSE(p,:));
+    modlmSD = std(allData.sessions.lmPSE(p,:));
+    allData.modalities.data(p,1) = modlm; allData.modalities.sds(p,1) = modlmSD;
+    % Manual line bisection
+    modmlb = mean(allData.sessions.mlbProp(p,:));
+    modmlbSD = std(allData.sessions.mlbProp(p,:));
+    allData.modalities.data(p,2) = modmlb; allData.modalities.sds(p,2) = modmlbSD;
+    % Tactile rod bisection
+    modtrb = mean(allData.sessions.trbProp(p,:));
+    modtrbSD = std(allData.sessions.trbProp(p,:));
+    allData.modalities.data(p,3) = modtrb; allData.modalities.sds(p,3) = modtrbSD;
 end
+
+%% Next step: removing outliers from the analysis
+% P11 I'm looking at you!
