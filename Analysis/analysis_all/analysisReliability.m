@@ -11,10 +11,10 @@
 
 %% Loading data for each session
 nParticipants = 1:17;
+allData = struct;
 for p = 1:length(nParticipants)
     ppID = sprintf('P%0*d',2,nParticipants(p)); %for use when navigating files
     % Variables 
-    allData = struct;
     nSessions = 1:4;
     visualFilename = sprintf('%s_visualanalysis.mat', ppID);
     tactileFilename = sprintf('%s_tactileanalysis.mat', ppID);
@@ -33,15 +33,53 @@ for p = 1:length(nParticipants)
     cd(dirTact)
     load(tactileFilename)
     
+    %% Making structures and matrices for analysis
     for i = 1:length(nSessions)
         cd(dirPP)
         session = sprintf('Session%0*d',2,nSessions(i));
         
         % Saving data to matrix - one participant per row
         % LM task
-        allData.(sprintf('%s', session)).LM.PSE(i) = lm.pfits.(sprintf('%s', session)).stim50right; %PSE at 50% for each participant
-        allData.(sprintf('%s', session)).LM.CIs(i,:) = lm.pfits.(sprintf('%s', session)).threshCI;
+        allData.(sprintf('%s', session)).lm.PSE(p,:) = lm.pfits.(sprintf('%s', session)).stim50right; %PSE at 50% for each participant
+        allData.(sprintf('%s', session)).lm.CIs(p,:) = lm.pfits.(sprintf('%s', session)).threshCI;
+        
         % MLB task
-        allData.(sprintf('%s', session)).MLB.error(i) = mlb
+        allData.(sprintf('%s', session)).mlb.error(p,:) = mlb.(sprintf('%s', session)).error.mean(1);
+        allData.(sprintf('%s', session)).mlb.errorstd(p,:) = mlb.(sprintf('%s', session)).error.mean(2);
+        % Averaging line proportion error (cause I didn't do this
+        % previously)...
+        propError = [mlb.(sprintf('%s', session)).proportionError.line1(1), mlb.(sprintf('%s', session)).proportionError.line2(1),...
+            mlb.(sprintf('%s', session)).proportionError.line3(1)];
+        mlb.(sprintf('%s', session)).proportionError.mean(1) = mean(propError);
+        mlb.(sprintf('%s', session)).proportionError.mean(2) = std(propError);
+        % Saving to the alldata structure
+        allData.(sprintf('%s', session)).mlb.proportionError(p,:) = mean(propError);
+        allData.(sprintf('%s', session)).mlb.proportionErrorStd(p,:) = std(propError);
+        
+        % Same for TRB
+        error = [trb.(sprintf('%s', session)).error.line1(1), trb.(sprintf('%s', session)).error.line2(1),...
+            trb.(sprintf('%s', session)).error.line3(1)];
+        trb.(sprintf('%s', session)).error.mean(1) = mean(error);
+        trb.(sprintf('%s', session)).error.mean(2) = std(error);
+        % Saving to all data structure
+        allData.(sprintf('%s', session)).trb.error(p,:) = trb.(sprintf('%s', session)).error.mean(1);
+        allData.(sprintf('%s', session)).trb.errorstd(p,:) = trb.(sprintf('%s', session)).error.mean(2);
+        % Averaging line proportion error (cause I didn't do this
+        % previously)...
+        propError = [trb.(sprintf('%s', session)).proportionError.line1(1), trb.(sprintf('%s', session)).proportionError.line2(1),...
+            trb.(sprintf('%s', session)).proportionError.line3(1)];
+        trb.(sprintf('%s', session)).proportionError.mean(1) = mean(propError);
+        trb.(sprintf('%s', session)).proportionError.mean(2) = std(propError);
+        % Saving to the alldata structure
+        allData.(sprintf('%s', session)).trb.proportionError(p,:) = mean(propError);
+        allData.(sprintf('%s', session)).trb.proportionErrorStd(p,:) = std(propError);
+        
+        %% Saving data for  all sessions
+        sessionlm =  allData.(sprintf('%s', session)).lm.PSE(p,1);
+        allData.sessions.lmPSE(p,i) = sessionlm;
+        sessionmlb = allData.(sprintf('%s', session)).mlb.proportionError(p,1);
+        allData.sessions.mlbProp(p,i) = sessionmlb;
+        sessiontrb = allData.(sprintf('%s', session)).trb.proportionError(p,1);
+        allData.sessions.trbProp(p,i) = sessiontrb;
     end
 end
