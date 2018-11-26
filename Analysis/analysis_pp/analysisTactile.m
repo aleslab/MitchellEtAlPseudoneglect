@@ -40,6 +40,12 @@ for p = 1:length(nParticipants)
         size_mm = size*100; %finding actual line length in mm to calculate error
         error = response - size_mm/2; %calculating data error in mm
         error = error/10; %error in cm
+        % removing outlier trials from the experiment
+        averror = nanmean(error);
+        sderror = nanstd(error);
+        error(find(error > (averror+2.5*sderror))) = NaN;
+        error(find(error < (averror-2.5*sderror))) = NaN;
+
         trb.(sprintf('%s', session)).data.error = error;
         % data matrix for later analyses
         trb.(sprintf('%s', session)).matrix = [size, side, response, error];

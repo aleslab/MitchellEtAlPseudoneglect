@@ -12,6 +12,7 @@
 %% Loading data for each session
 nParticipants = 1:17;
 allData = struct;
+matfilename = ('ReliabilityAnalysis.mat');
 for p = 1:length(nParticipants)
     ppID = sprintf('P%0*d',2,nParticipants(p)); %for use when navigating files
     % Variables 
@@ -116,5 +117,102 @@ for p = 1:length(nParticipants)
     allData.modalities.data(p,3) = modtrb; allData.modalities.sds(p,3) = modtrbSD;
 end
 
-%% Next step: removing outliers from the analysis
-% P11 I'm looking at you!
+%% Removing outliers from the analysis
+% Any outliers identified through MATLAB - more than three scaled mean
+% absolute deviations away
+% Landmarks
+outlierLM = isoutlier(allData.sessions.lmPSE);
+outlierSumLM = sum(outlierLM,2); %sums the number of outliers across all participants
+% If the sum of outliers is >2, remove participant from the analysis
+removeLM = find(outlierSumLM > 2); %identifies paticipants that need removing
+
+% Manual line bisection
+outlierMLB = isoutlier(allData.sessions.mlbProp);
+outlierSumMLB = sum(outlierMLB,2); %sums the number of outliers across all participants
+% If the sum of outliers is >2, remove participant from the analysis
+removeMLB = find(outlierSumMLB > 2); %identifies paticipants that need removing
+
+% Tactile rod bisection
+outlierTRB = isoutlier(allData.sessions.trbProp);
+outlierSumTRB = sum(outlierTRB,2); %sums the number of outliers across all participants
+% If the sum of outliers is >2, remove participant from the analysis
+removeTRB = find(outlierSumTRB > 2); %identifies paticipants that need removing
+
+removeAll = [removeLM; removeMLB; removeTRB]; 
+removeAll = sort(removeAll); %sorting so in participant order
+
+% Removing the participants found to be outliers
+% Modalities and sessions
+for r = 1:length(removeAll)
+    % Identifying the outlier
+    allData.sessions.lmPSE(removeAll(r),:) = NaN;
+    allData.sessions.lmCIlow(removeAll(r),:) = NaN;
+    allData.sessions.lmCIhigh(removeAll(r),:) = NaN;
+    allData.sessions.lmStd(removeAll(r),:) = NaN;
+    allData.sessions.mlbProp(removeAll(r),:) = NaN;
+    allData.sessions.mlbPropStd(removeAll(r),:) = NaN;
+    allData.sessions.trbProp(removeAll(r),:) = NaN;
+    allData.sessions.trbPropStd(removeAll(r),:) = NaN;
+    
+    % Modalities across sessions
+    allData.modalities.data(removeAll(r),:) = NaN;
+    allData.modalities.sds(removeAll(r),:) = NaN;
+end
+% Removing outlier from matrix - modalities and sessions
+allData.sessions.lmPSE = allData.sessions.lmPSE(find(allData.sessions.lmPSE(:,1) > 0.00001 | ...
+    allData.sessions.lmPSE(:,1) < 0.00001),:);
+allData.sessions.lmCIhigh= allData.sessions.lmCIhigh(find(allData.sessions.lmCIhigh(:,1) > 0.00001 | ...
+    allData.sessions.lmCIhigh(:,1) < 0.00001),:);
+allData.sessions.lmCIlow= allData.sessions.lmCIlow(find(allData.sessions.lmCIlow(:,1) > 0.00001 | ...
+    allData.sessions.lmCIlow(:,1) < 0.00001),:);
+allData.sessions.lmStd= allData.sessions.lmStd(find(allData.sessions.lmStd(:,1) > 0.00001 | ...
+    allData.sessions.lmStd(:,1) < 0.00001),:);
+allData.sessions.mlbProp= allData.sessions.mlbProp(find(allData.sessions.mlbProp(:,1) > 0.00001 | ...
+    allData.sessions.mlbProp(:,1) < 0.00001),:);
+allData.sessions.mlbPropStd= allData.sessions.mlbPropStd(find(allData.sessions.mlbPropStd(:,1) > 0.00001 | ...
+    allData.sessions.mlbPropStd(:,1) < 0.00001),:);
+allData.sessions.trbProp= allData.sessions.trbProp(find(allData.sessions.trbProp(:,1) > 0.00001 | ...
+    allData.sessions.trbProp(:,1) < 0.00001),:);
+allData.sessions.trbPropStd= allData.sessions.trbPropStd(find(allData.sessions.trbPropStd(:,1) > 0.00001 | ...
+    allData.sessions.trbPropStd(:,1) < 0.00001),:);
+
+% Modalities across sessions
+allData.modalities.data = allData.modalities.data(find(allData.modalities.data(:,1) > 0.00001 | ...
+    allData.modalities.data(:,1) < 0.00001),:);
+allData.modalities.sds = allData.modalities.sds(find(allData.modalities.sds(:,1) > 0.00001 | ...
+    allData.modalities.sds(:,1) < 0.00001),:);
+
+%% Calculating group means
+% General rule of thumb: 1st column = mean, 2nd column - sd
+% Across sessions
+% Mean for each
+allData.sessions.means.lmPSE = mean(allData.sessions.lmPSE);
+allData.sessions.means.mlbProp = mean(allData.sessions.mlbProp);
+allData.sessions.means.trbProp = mean(allData.sessions.trbProp);
+% Std for each
+allData.sessions.sds.lmPSE = std(allData.sessions.lmPSE);
+allData.sessions.sds.mlbProp = std(allData.sessions.mlbProp);
+allData.sessions.sds.trbProp = std(allData.sessions.trbProp);
+
+% Total for each modality
+allData.means.lmPSE(1) = mean(allData.sessions.means.lmPSE);
+allData.means.lmPSE(2) = std(allData.sessions.means.lmPSE);
+allData.means.mlbProp(1) = mean(allData.sessions.means.mlbProp);
+allData.means.mlbProp(2) = std(allData.sessions.means.mlbProp);
+allData.means.trbProp(1) = mean(allData.sessions.means.trbProp);
+allData.means.trbProp(2) = std(allData.sessions.means.trbProp);
+
+%Total
+allData.means.tot(1) = mean([allData.means.lmPSE(1), allData.means.mlbProp(1), ...
+    allData.means.trbProp(1)]);
+allData.means.tot(2) = std([allData.means.lmPSE(1), allData.means.mlbProp(1), ...
+    allData.means.trbProp(1)]);
+
+%% Modalities plot
+%% Sessions plot
+%% Cronbach's alpha and other stats...
+
+%% save and close
+close all
+cd(dirAnaAll)
+save(matfilename, 'allData');
