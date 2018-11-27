@@ -115,6 +115,11 @@ for p = 1:length(nParticipants)
     modtrb = mean(allData.sessions.trbProp(p,:));
     modtrbSD = std(allData.sessions.trbProp(p,:));
     allData.modalities.data(p,3) = modtrb; allData.modalities.sds(p,3) = modtrbSD;
+    
+    %% Mean for all PP
+    % column 1 means, column 2 SDs
+    allData.means.allPP(p,1) = mean([modlm, modmlb, modtrb]);
+    allData.means.allPP(p,2) = std([modlm, modmlb, modtrb]);
 end
 
 %% Removing outliers from the analysis
@@ -157,30 +162,37 @@ for r = 1:length(removeAll)
     % Modalities across sessions
     allData.modalities.data(removeAll(r),:) = NaN;
     allData.modalities.sds(removeAll(r),:) = NaN;
+    
+    % All means
+    allData.means.allPP(removeAll(r),:) = NaN;
 end
 % Removing outlier from matrix - modalities and sessions
 allData.sessions.lmPSE = allData.sessions.lmPSE(find(allData.sessions.lmPSE(:,1) > 0.00001 | ...
     allData.sessions.lmPSE(:,1) < 0.00001),:);
-allData.sessions.lmCIhigh= allData.sessions.lmCIhigh(find(allData.sessions.lmCIhigh(:,1) > 0.00001 | ...
-    allData.sessions.lmCIhigh(:,1) < 0.00001),:);
-allData.sessions.lmCIlow= allData.sessions.lmCIlow(find(allData.sessions.lmCIlow(:,1) > 0.00001 | ...
-    allData.sessions.lmCIlow(:,1) < 0.00001),:);
+allData.sessions.CIhigh= allData.sessions.CIhigh(find(allData.sessions.CIhigh(:,1) > 0.00001 | ...
+    allData.sessions.CIhigh(:,1) < 0.00001),:);
+allData.sessions.CIlow= allData.sessions.CIlow(find(allData.sessions.CIlow(:,1) > 0.00001 | ...
+    allData.sessions.CIlow(:,1) < 0.00001),:);
 allData.sessions.lmStd= allData.sessions.lmStd(find(allData.sessions.lmStd(:,1) > 0.00001 | ...
     allData.sessions.lmStd(:,1) < 0.00001),:);
 allData.sessions.mlbProp= allData.sessions.mlbProp(find(allData.sessions.mlbProp(:,1) > 0.00001 | ...
     allData.sessions.mlbProp(:,1) < 0.00001),:);
-allData.sessions.mlbPropStd= allData.sessions.mlbPropStd(find(allData.sessions.mlbPropStd(:,1) > 0.00001 | ...
-    allData.sessions.mlbPropStd(:,1) < 0.00001),:);
+allData.sessions.mlbStd= allData.sessions.mlbStd(find(allData.sessions.mlbStd(:,1) > 0.00001 | ...
+    allData.sessions.mlbStd(:,1) < 0.00001),:);
 allData.sessions.trbProp= allData.sessions.trbProp(find(allData.sessions.trbProp(:,1) > 0.00001 | ...
     allData.sessions.trbProp(:,1) < 0.00001),:);
-allData.sessions.trbPropStd= allData.sessions.trbPropStd(find(allData.sessions.trbPropStd(:,1) > 0.00001 | ...
-    allData.sessions.trbPropStd(:,1) < 0.00001),:);
+allData.sessions.trbStd= allData.sessions.trbStd(find(allData.sessions.trbStd(:,1) > 0.00001 | ...
+    allData.sessions.trbStd(:,1) < 0.00001),:);
 
 % Modalities across sessions
 allData.modalities.data = allData.modalities.data(find(allData.modalities.data(:,1) > 0.00001 | ...
     allData.modalities.data(:,1) < 0.00001),:);
 allData.modalities.sds = allData.modalities.sds(find(allData.modalities.sds(:,1) > 0.00001 | ...
     allData.modalities.sds(:,1) < 0.00001),:);
+
+% All means
+allData.means.allPP = allData.means.allPP(find(allData.means.allPP(:,1) > 0.00001 | ...
+    allData.means.allPP(:,1) < 0.00001),:);
 
 %% Calculating group means
 % General rule of thumb: 1st column = mean, 2nd column - sd
@@ -208,11 +220,49 @@ allData.means.tot(1) = mean([allData.means.lmPSE(1), allData.means.mlbProp(1), .
 allData.means.tot(2) = std([allData.means.lmPSE(1), allData.means.mlbProp(1), ...
     allData.means.trbProp(1)]);
 
+%% Data plots
+results = struct;
+results.observers = 1:length(allData.means.allPP); %getting total number of observers
+
 %% Modalities plot
+% The idea for this plot was taken from the Dakin (2018, Vision Res) papert
+% figure 2a
+% Plot for mean bias in all participants
+% First - need to order by bias (left -> right)
+% Need to place all data in the same matrix to do this, then sort entire
+% matrix by mean bias
+results.plotting.modalities(:,1) = results.observers;
+results.plotting.modalities(:,2) = allData.means.allPP(:,1); %mean all data
+results.plotting.modalities(:,3) = allData.modalities.data(:,1); %lm
+results.plotting.modalities(:,4) = allData.modalities.data(:,2); %mlb
+results.plotting.modalities(:,5) = allData.modalities.data(:,3); %trb
+% Sorting the matrix by mean bias
+results.plotting.modalities = sortrows(results.plotting.modalities, 2);
+results.plotting.modalities(:,6) = results.observers; %observers not sorted by mean bias for use with plotting - organisation of data
+
+% Making initial mean error (all modalities) plot
+figure()
+scatter(results.plotting.modalities(:,6), results.plotting.modalities(:,2));
+%set(gca, 'Xtick', results.plotting.modalities(:,1));
+% need to 'prettyfy', add correct labels, add group info, change axes, standard deviation, midline bar
+
 %% Sessions plot
+
 %% Cronbach's alpha and other stats...
+type = 'C-k'; %type of ICC used - 2-k, 2-way fixed effects
+% Analysing reliability across sessions
+[results.sessions.lm.r, results.sessions.lm.bound(1), results.sessions.lm.bound(2), results.sessions.lm.F,...
+    results.sessions.lm.df(1), results.sessions.lm.df(2), results.sessions.lm.p] = ICC(allData.sessions.lmPSE, type);
+[results.sessions.mlb.r, results.sessions.mlb.bound(1), results.sessions.mlb.bound(2), results.sessions.mlb.F,...
+    results.sessions.mlb.df(1), results.sessions.mlb.df(2), results.sessions.mlb.p] = ICC(allData.sessions.mlbProp, type);
+[results.sessions.trb.r, results.sessions.trb.bound(1), results.sessions.trb.bound(2), results.sessions.trb.F,...
+    results.sessions.trb.df(1), results.sessions.trb.df(2), results.sessions.trb.p] = ICC(allData.sessions.trbProp, type);
+
+% Reliability across modalities
+[results.modalities.all.r, results.modalities.all.bound(1), results.modalities.all. bound(2), results.modalities.all.F,...
+    results.modalities.all.df(1), results.modalities.all.df(2), results.modalities.all.p] = ICC(allData.modalities.data, type);
 
 %% save and close
 close all
 cd(dirAnaAll)
-save(matfilename, 'allData');
+save(matfilename, 'allData', 'results');
