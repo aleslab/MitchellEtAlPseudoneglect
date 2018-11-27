@@ -281,7 +281,7 @@ results.plotting.transformedMean(2) = std([results.plotting.lmmean(1), allData.m
 results.plotting.transformedMeanAll(:,1) = mean([results.plotting.transformedlm, allData.modalities.data(:,2),...
     allData.modalities.data(:,3)],2);
 results.plotting.transformedMeanAll(:,2) = std([results.plotting.transformedlm, allData.modalities.data(:,2),...
-    allData.modalities.data(:,3)],2);
+    allData.modalities.data(:,3)],0,2);
 % First - need to order by bias (left -> right)
 % Need to place all data in the same matrix to do this, then sort entire
 % matrix by mean bias
@@ -298,11 +298,12 @@ results.plotting.modalities(:,6) = results.observers; %observers not sorted by m
 SDpt5 = results.plotting.transformedMean(2)*0.5;
 SD2 = results.plotting.transformedMean(2)*2;
 
+cd(dirAnaAll);
 % Making initial mean error (all modalities) plot
 figure()
 scatter(results.plotting.modalities(:,6), results.plotting.modalities(:,2), ...
     'filled', '^'); % mean task data
-ylim([-3 3]);
+ylim([-0.1 0.1]);
 line('XData', [0 length(results.observers)], 'YData', [0, 0], 'LineStyle', '-', ...
     'LineWidth', 0.5, 'Color', 'k'); %midpoint
 % Adding SD shaded area
@@ -310,7 +311,46 @@ ax = gca;
 xVal = [ax.XLim(1):ax.XLim(end)];
 shadedVal = zeros(length(xVal),1); %making the same length so can plot shaded error bar around 0
 hold on
+createShadedRegion(xVal, shadedVal, (shadedVal - SDpt5), (shadedVal + SDpt5),':','color', [0.1 0.1 0.1]);
+hold on
+createShadedRegion(xVal, shadedVal, (shadedVal - SD2), (shadedVal + SD2),':','color', [0.5 0.5 0.5]);
+% Making it prettier
+set(ax, 'FontSize', 12);
+set(ax, 'XTick', results.observers);
+xlabel('Observers'); ylabel('Bias as a proportion of line length');
+figFileName = strcat('meanBias', '.pdf');
+saveas(gcf, figFileName);
 
+% Making plot to show bias in all modalities
+figure()
+scatter(results.plotting.modalities(:,6), results.plotting.modalities(:,2), ...
+    'filled', '^'); % mean task data
+hold on
+scatter(results.plotting.modalities(:,6), results.plotting.modalities(:,3), ...
+    'filled', 'o'); % landmark task data
+hold on
+scatter(results.plotting.modalities(:,6), results.plotting.modalities(:,4), ...
+    'filled', 'o'); % mlb task data
+hold on
+scatter(results.plotting.modalities(:,6), results.plotting.modalities(:,5), ...
+    'filled', 'o'); % trb task data
+ylim([-0.1 0.1]);
+line('XData', [0 length(results.observers)], 'YData', [0, 0], 'LineStyle', '-', ...
+    'LineWidth', 0.5, 'Color', 'k'); %midpoint
+% Adding SD shaded area
+ax = gca;
+xVal = [ax.XLim(1):ax.XLim(end)];
+shadedVal = zeros(length(xVal),1); %making the same length so can plot shaded error bar around 0
+hold on
+createShadedRegion(xVal, shadedVal, (shadedVal - SDpt5), (shadedVal + SDpt5),':','color', [0.1 0.1 0.1]);
+hold on
+createShadedRegion(xVal, shadedVal, (shadedVal - SD2), (shadedVal + SD2),':','color', [0.5 0.5 0.5]);
+% Making it prettier
+set(ax, 'FontSize', 12);
+set(ax, 'XTick', results.observers);
+xlabel('Observers'); ylabel('Bias as a proportion of line length');
+figFileName = strcat('meanBias', '.pdf');
+saveas(gcf, figFileName);
 
 %set(gca, 'Xtick', results.plotting.modalities(:,1));
 % need to 'prettyfy', add correct labels, add group info, change axes, standard deviation, midline bar
@@ -328,6 +368,7 @@ type = 'C-k'; %type of ICC used - 2-k, 2-way fixed effects
     results.sessions.trb.df(1), results.sessions.trb.df(2), results.sessions.trb.p] = ICC(allData.sessions.trbProp, type);
 
 % Reliability across modalities
+modalitiesData = [results.plotting.transformedlm, allData.modalities.data(:,2),  allData.modalities.data(:,3)];
 [results.modalities.all.r, results.modalities.all.bound(1), results.modalities.all. bound(2), results.modalities.all.F,...
     results.modalities.all.df(1), results.modalities.all.df(2), results.modalities.all.p] = ICC(allData.modalities.data, type);
 
