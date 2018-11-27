@@ -41,12 +41,19 @@ for p = 1:length(nParticipants)
         
         % Saving data to matrix - one participant per row
         % LM task
-        allData.(sprintf('%s', session)).lm.PSE(p,:) = lm.pfits.(sprintf('%s', session)).stim50right; %PSE at 50% for each participant
-        allData.(sprintf('%s', session)).lm.CIs(p,:) = lm.pfits.(sprintf('%s', session)).threshCI;
+        lmPSEdata = lm.pfits.(sprintf('%s', session)).stim50right; %PSE at 50% for each participant
+        % Changing the sign of the landmarks PSE data to fit with more
+        % negative more left' - as the more negative here shows that the
+        % right side is viewed as longer. So now data will provide value of
+        % how much longer does the participant view the biased side
+        signChange = -(lmPSEdata);
+        allData.(sprintf('%s', session)).lm.PSE(p,:) = signChange;
+        allData.(sprintf('%s', session)).lm.CIs(p,:) = lm.pfits.(sprintf('%s', session)).threshCI; %adding CIs
         % Calculating SD from confidence intervals
         CIs = lm.pfits.(sprintf('%s', session)).threshCI;
         lmSD = sqrt(length(nParticipants))*(CIs(2)-CIs(1))/3.92;
         allData.(sprintf('%s', session)).lm.SDs(p,:) = lmSD;
+
         
         % MLB task
         allData.(sprintf('%s', session)).mlb.error(p,:) = mlb.(sprintf('%s', session)).error.mean(1);
@@ -240,9 +247,27 @@ results.plotting.modalities(:,5) = allData.modalities.data(:,3); %trb
 results.plotting.modalities = sortrows(results.plotting.modalities, 2);
 results.plotting.modalities(:,6) = results.observers; %observers not sorted by mean bias for use with plotting - organisation of data
 
+% standard deviation values for shading
+SDpt5 = allData.means.tot(2)*0.5;
+SD2 = allData.means.tot(2)*2;
+
 % Making initial mean error (all modalities) plot
 figure()
-scatter(results.plotting.modalities(:,6), results.plotting.modalities(:,2));
+scatter(results.plotting.modalities(:,6), results.plotting.modalities(:,2), ...
+    'filled', '^'); % mean task data
+ylim([-3 3]);
+line('XData', [0 length(results.observers)], 'YData', [0, 0], 'LineStyle', '-', ...
+    'LineWidth', 0.5, 'Color', 'k'); %midpoint
+% Adding SD shaded area
+ax = gca;
+xVal = [ax.XLim(1):ax.XLim(end)];
+shadedVal = zeros(length(xVal),1); %making the same length so can plot shaded error bar around 0
+hold on
+s1 = plot(xVal, shadedVal - SDpt5, 'color', [0.3 0.3 0.3]);
+s(1) = shadedErrorBar(xVal, shadedVal, {@mean, @(xVal) SDpt5}, '-', 'color', [0.3 0.3 0.3], 0);
+hold on
+s(2) = plot(xVal, shadedVal + SDpt5, 'color', [0.3 0.3 0.3]);
+
 %set(gca, 'Xtick', results.plotting.modalities(:,1));
 % need to 'prettyfy', add correct labels, add group info, change axes, standard deviation, midline bar
 
