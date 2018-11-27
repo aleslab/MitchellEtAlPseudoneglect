@@ -123,6 +123,7 @@ for p = 1:length(nParticipants)
     modtrbSD = std(allData.sessions.trbProp(p,:));
     allData.modalities.data(p,3) = modtrb; allData.modalities.sds(p,3) = modtrbSD;
     
+    
     %% Mean for all PP
     % column 1 means, column 2 SDs
     allData.means.allPP(p,1) = mean([modlm, modmlb, modtrb]);
@@ -227,6 +228,40 @@ allData.means.tot(1) = mean([allData.means.lmPSE(1), allData.means.mlbProp(1), .
 allData.means.tot(2) = std([allData.means.lmPSE(1), allData.means.mlbProp(1), ...
     allData.means.trbProp(1)]);
 
+% To compare across modalities all data needs to be roughly equal and
+% normalised 
+% Creating z-scores of all data for analysis and plotting
+for p = 1:length(allData.means.allPP)
+    modlmZ = (allData.sessions.lmPSE(p,:) - allData.means.lmPSE(1))/allData.means.lmPSE(2);
+    modmlbZ = (allData.sessions.mlbProp(p,:) - allData.means.mlbProp(1))/allData.means.mlbProp(2);
+    modtrbZ = (allData.sessions.trbProp(p,:) - allData.means.trbProp(1))/allData.means.trbProp(2);
+    
+    allData.modalities.zscore(p,1) = mean(modlmZ);
+    allData.modalities.zscoreSD(p,1) = std(modlmZ);
+    allData.modalities.zscore(p,2) = mean(modmlbZ);
+    allData.modalities.zscoreSD(p,2) = std(modmlbZ);
+    allData.modalities.zscore(p,3) = mean(modtrbZ);
+    allData.modalities.zscoreSD(p,3) = std(modtrbZ);
+    
+    % Mean all PP, zscore
+    allData.means.zscore.allPP(p,1) = mean([modlmZ, modmlbZ, modtrbZ]);
+    allData.means.zscore.allPP(p,2) = std([modlmZ, modmlbZ, modtrbZ]);
+end
+
+% Total for each modality
+allData.means.zscore.lm(1) = mean(allData.modalities.zscore(:,1));
+allData.means.zscore.lm(2) = std(allData.modalities.zscore(:,1));
+allData.means.zscore.mlb(1) = mean(allData.modalities.zscore(:,2));
+allData.means.zscore.mlb(2) = std(allData.modalities.zscore(:,2));
+allData.means.zscore.trb(1) = mean(allData.modalities.zscore(:,3));
+allData.means.zscore.trb(2) = std(allData.modalities.zscore(:,3));
+
+%Total
+allData.means.zscore.tot(1) = mean([allData.means.zscore.lm(1), allData.means.zscore.mlb(1), ...
+    allData.means.zscore.trb(1)]);
+allData.means.zscore.tot(2) = std([allData.means.zscore.lm(1), allData.means.zscore.mlb(1), ...
+    allData.means.zscore.trb(1)]);
+
 %% Data plots
 results = struct;
 results.observers = 1:length(allData.means.allPP); %getting total number of observers
@@ -235,12 +270,24 @@ results.observers = 1:length(allData.means.allPP); %getting total number of obse
 % The idea for this plot was taken from the Dakin (2018, Vision Res) papert
 % figure 2a
 % Plot for mean bias in all participants
+% First - need to get lm data on the same scale as the mlb + trb data so...
+results.plotting.transformedlm = (allData.modalities.data(:,1)/100);
+results.plotting.lmmean(1) = mean(results.plotting.transformedlm); 
+results.plotting.lmmean(2) = std(results.plotting.transformedlm); 
+results.plotting.transformedMean(1) = mean([results.plotting.lmmean(1), allData.means.mlbProp(1), ...
+    allData.means.trbProp(1)]);
+results.plotting.transformedMean(2) = std([results.plotting.lmmean(1), allData.means.mlbProp(1), ...
+    allData.means.trbProp(1)]);
+results.plotting.transformedMeanAll(:,1) = mean([results.plotting.transformedlm, allData.modalities.data(:,2),...
+    allData.modalities.data(:,3)],2);
+results.plotting.transformedMeanAll(:,2) = std([results.plotting.transformedlm, allData.modalities.data(:,2),...
+    allData.modalities.data(:,3)],2);
 % First - need to order by bias (left -> right)
 % Need to place all data in the same matrix to do this, then sort entire
 % matrix by mean bias
 results.plotting.modalities(:,1) = results.observers;
-results.plotting.modalities(:,2) = allData.means.allPP(:,1); %mean all data
-results.plotting.modalities(:,3) = allData.modalities.data(:,1); %lm
+results.plotting.modalities(:,2) = results.plotting.transformedMeanAll(:,1); %mean all data
+results.plotting.modalities(:,3) = results.plotting.transformedlm; %lm
 results.plotting.modalities(:,4) = allData.modalities.data(:,2); %mlb
 results.plotting.modalities(:,5) = allData.modalities.data(:,3); %trb
 % Sorting the matrix by mean bias
@@ -248,8 +295,8 @@ results.plotting.modalities = sortrows(results.plotting.modalities, 2);
 results.plotting.modalities(:,6) = results.observers; %observers not sorted by mean bias for use with plotting - organisation of data
 
 % standard deviation values for shading
-SDpt5 = allData.means.tot(2)*0.5;
-SD2 = allData.means.tot(2)*2;
+SDpt5 = results.plotting.transformedMean(2)*0.5;
+SD2 = results.plotting.transformedMean(2)*2;
 
 % Making initial mean error (all modalities) plot
 figure()
@@ -263,10 +310,7 @@ ax = gca;
 xVal = [ax.XLim(1):ax.XLim(end)];
 shadedVal = zeros(length(xVal),1); %making the same length so can plot shaded error bar around 0
 hold on
-s1 = plot(xVal, shadedVal - SDpt5, 'color', [0.3 0.3 0.3]);
-s(1) = shadedErrorBar(xVal, shadedVal, {@mean, @(xVal) SDpt5}, '-', 'color', [0.3 0.3 0.3], 0);
-hold on
-s(2) = plot(xVal, shadedVal + SDpt5, 'color', [0.3 0.3 0.3]);
+
 
 %set(gca, 'Xtick', results.plotting.modalities(:,1));
 % need to 'prettyfy', add correct labels, add group info, change axes, standard deviation, midline bar
