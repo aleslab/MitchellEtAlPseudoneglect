@@ -142,6 +142,14 @@ for p = 1:length(nParticipants)
     allData.means.allPP(p,2) = std([modlm, modmlb, modtrb]);
 end
 
+% Need sds across modalities for individual sessions
+for i = 1:length(nSessions)
+    session = sprintf('Session%0*d',2,nSessions(i));
+    sessInfo = [allData.(sprintf('%s', session)).lm.PSE, allData.(sprintf('%s', session)).mlb.error, ...
+        allData.(sprintf('%s', session)).trb.error];
+    allData.sessions.(sprintf('%sall', session))(:,1) = mean(sessInfo,2);
+    allData.sessions.(sprintf('%sall', session))(:,2) = std(sessInfo,0,2);
+end
 %% Removing outliers from the analysis
 % Any outliers identified through MATLAB - more than three scaled mean
 % absolute deviations away
@@ -168,6 +176,11 @@ for r = 1:length(remove)
     allData.sessions.trb(remove(r),:) = NaN;
     allData.sessions.trbStd(remove(r),:) = NaN;
     
+    % Modalities within sessions
+    for i = 1:length(nSessions)
+        allData.sessions.(sprintf('%sall', session))(remove(r),:) = NaN;
+    end
+    
     % Modalities across sessions
     allData.modalities.data(remove(r),:) = NaN;
     allData.modalities.sds(remove(r),:) = NaN;
@@ -192,6 +205,16 @@ allData.sessions.trb= allData.sessions.trb(find(allData.sessions.trb(:,1) > 0.00
     allData.sessions.trb(:,1) < 0.00001),:);
 allData.sessions.trbStd= allData.sessions.trbStd(find(allData.sessions.trbStd(:,1) > 0.00001 | ...
     allData.sessions.trbStd(:,1) < 0.00001),:);
+
+% Modalities within sessions
+allData.sessions.Session01all= allData.sessions.Session01all(find(allData.sessions.Session01all(:,1) > 0.00001 | ...
+    allData.sessions.Session01all(:,1) < 0.00001),:);
+allData.sessions.Session02all= allData.sessions.Session02all(find(allData.sessions.Session02all(:,1) > 0.00001 | ...
+    allData.sessions.Session02all(:,1) < 0.00001),:);
+allData.sessions.Session03all= allData.sessions.Session03all(find(allData.sessions.Session03all(:,1) > 0.00001 | ...
+    allData.sessions.Session03all(:,1) < 0.00001),:);
+allData.sessions.Session04all= allData.sessions.Session04all(find(allData.sessions.Session04all(:,1) > 0.00001 | ...
+    allData.sessions.Session04all(:,1) < 0.00001),:);
 
 % Modalities across sessions
 allData.modalities.data = allData.modalities.data(find(allData.modalities.data(:,1) > 0.00001 | ...
@@ -389,7 +412,6 @@ pdfFileName = strcat('biasSessions_lm', '.pdf');
 pngFileName = strcat('biasSessions_lm', '.png');
 
 figure('units', 'centimeters', 'Position', [5 3 18 12])
-hold on
 scatter(results.plotting.sessions.lm(:,8), results.plotting.sessions.lm(:,3), ...
     'filled', 'o', 'MarkerFaceColor', [0 0.2 0]); % landmark task data
 hold on
@@ -437,21 +459,72 @@ saveas(gcf, pngFileName);
 %% Plotting modality mean across all sessions
 % Going to try this 2 ways
 % First - bias y axis, session xaxis, modalities separate
-xValues = 1:length(nSessions);
-figure()
-scatter(xValues, allData.sessions.means.lmPSE, 'o', 'MarkerFaceColor', [0 0.8 0.1]); %lm data
+xValues = 1:(length(nSessions));
+sessSD1 = std(allData.sessions.Session01all(:,2));
+sessSD2 = std(allData.sessions.Session02all(:,2));
+sessSD3 = std(allData.sessions.Session03all(:,2));
+sessSD4 = std(allData.sessions.Session04all(:,2));
+errorBars = [sessSD1, sessSD2, sessSD3, sessSD4];
+allData.sessions.means.all = mean([allData.sessions.means.lmPSE; allData.sessions.means.mlb; ...
+    allData.sessions.means.trb]);
+
+pdfFileName = strcat('biasSessions_bySess', '.pdf');
+pngFileName = strcat('biasSessions_bySess', '.png');
+
+figure('units', 'centimeters', 'Position', [5 3 12 10])
+s1 = scatter(xValues, allData.sessions.means.lmPSE, 'o', 'MarkerFaceColor', [0 0.8 0.1]); %lm data
+set(s1, 'SizeData', 60);
 hold on
-scatter(xValues, allData.sessions.means.mlb, 'filled', 'o', 'MarkerFaceColor', [0.2 0.1 0.7]);
+s2 = scatter(xValues, allData.sessions.means.mlb, 'filled', 'o', 'MarkerFaceColor', [0.2 0.1 0.7]);
+set(s2, 'SizeData', 60);
 hold on
-scatter(xValues, allData.sessions.means.trb, 'filled', '^', 'MarkerFaceColor', [0.5 0 0.5]);
-midpoint = line('XData', [0 length(xValues)], 'YData', [0, 0], 'LineStyle', '-', ...
-    'LineWidth', 0.5, 'Color', 'k'); %midpoint
+s3 = scatter(xValues, allData.sessions.means.trb, 'filled', '^', 'MarkerFaceColor', [0.5 0 0.5]);
+set(s3, 'SizeData', 60);
+midpoint = line('XData', [0 length(xValues)], 'YData', [0, 0], 'LineStyle', '--', ...
+    'LineWidth', 0.5, 'Color', [0 0 0]); %midpoint
+hold on
+errorbar(xValues, allData.sessions.means.all, errorBars, 'LineStyle', 'none', 'LineWidth', 0.7, 'Color', [0 0 0],...
+    'CapSize', 0);
 hold on
 dataMean = line('XData', [0 length(xValues)], 'YData', [allData.means.tot(1), allData.means.tot(1)], 'LineStyle', '-', ...
-    'LineWidth', 0.8, 'Color', [0.5 0.5 0.5]); % mean for all data
-ylim([-1 1]);
+    'LineWidth', 1.5, 'Color', [0.5 0.5 0.5]); % mean for all data
+ylim([-2 2]);
+ax = gca;
+set(ax, 'FontSize', 12);
+set(ax, 'XTick', xValues);
+xlabel('Sessions'); ylabel('Bias (mm)');
+saveas(gcf, pdfFileName);
+saveas(gcf, pngFileName);
+
 
 % Second - bias y axis, modality xaxis, session separate
+pdfFileName = strcat('biasSessions_byMod', '.pdf');
+pngFileName = strcat('biasSessions_byMod', '.png');
+
+figure('units', 'centimeters', 'Position', [5 3 12 10])
+s1 = scatter(xValues, allData.sessions.means.lmPSE, 'o', 'MarkerFaceColor', [0 0.8 0.1]); %lm data
+set(s1, 'SizeData', 60);
+hold on
+s2 = scatter(xValues, allData.sessions.means.mlb, 'filled', 'o', 'MarkerFaceColor', [0.2 0.1 0.7]);
+set(s2, 'SizeData', 60);
+hold on
+s3 = scatter(xValues, allData.sessions.means.trb, 'filled', '^', 'MarkerFaceColor', [0.5 0 0.5]);
+set(s3, 'SizeData', 60);
+midpoint = line('XData', [0 length(xValues)], 'YData', [0, 0], 'LineStyle', '--', ...
+    'LineWidth', 0.5, 'Color', [0 0 0]); %midpoint
+hold on
+errorbar(xValues, allData.sessions.means.all, errorBars, 'LineStyle', 'none', 'LineWidth', 0.7, 'Color', [0 0 0],...
+    'CapSize', 0);
+hold on
+dataMean = line('XData', [0 length(xValues)], 'YData', [allData.means.tot(1), allData.means.tot(1)], 'LineStyle', '-', ...
+    'LineWidth', 1.5, 'Color', [0.5 0.5 0.5]); % mean for all data
+ylim([-2 2]);
+ax = gca;
+set(ax, 'FontSize', 12);
+set(ax, 'XTick', xValues);
+xlabel('Sessions'); ylabel('Bias (mm)');
+saveas(gcf, pdfFileName);
+saveas(gcf, pngFileName);
 
 %% Cronbach's alpha and other stats...
 type = 'C-k'; %type of ICC used - 2-k, 2-way fixed effects
