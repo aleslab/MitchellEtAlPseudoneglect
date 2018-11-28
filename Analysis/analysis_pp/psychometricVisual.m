@@ -26,6 +26,7 @@ nParticipants = [1:17];
 for p = 1:length(nParticipants)  
     ppID = sprintf('P%0*d',2,nParticipants(p));
     %ppID = input('Participant ID? ', 's'); %for use when navigating files
+    visfilename = sprintf('%s_visualanalysisStart.mat', ppID);
     matfilename = sprintf('%s_visualanalysis.mat', ppID);
     nSessions = 1:4; %vector number of sessions each participant does
     % Directory
@@ -39,7 +40,7 @@ for p = 1:length(nParticipants)
     mkdir Visual
     dirVis = [dirAna 'Visual' filesep];
     cd(dirVis)
-    load(matfilename)
+    load(visfilename)
 
     %% Variables for curve fitting
     ParOrNonPar = 2; %non-parametric design
@@ -264,7 +265,7 @@ for p = 1:length(nParticipants)
 
     close all
     cd(dirVis)
-    save(matfilename, 'lm', 'lm2');
+    save(matfilename, 'lm', 'lm2', 'mlb');
 
 end
 toc

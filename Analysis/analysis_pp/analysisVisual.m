@@ -8,7 +8,7 @@ for p = 1:length(nParticipants)
     ppID = sprintf('P%0*d',2,nParticipants(p)); %for use when navigating files
     %ppID = input('Participant ID? ', 's'); %for use when navigating files, debugging version
 
-    matfilename = sprintf('%s_visualanalysis.mat', ppID);
+    matfilename = sprintf('%s_visualanalysisStart.mat', ppID);
     nSessions = 1:4; %vector number of sessions each participant does
     % Directory
     dirBias = ('C:\Users\Experimenter\Documents\Experiments2018\Bias'); %subject to change depending on where you analyse
@@ -50,6 +50,7 @@ for p = 1:length(nParticipants)
     for i = 1:length(nSessions)
         session = sprintf('Session%0*d',2,nSessions(i));
         cd(dirSess); %directing to current session folder
+        length1 = 100; length2 = 200; length3 = 300; %length of lines in mm
         % 10 cm line
         mlb.(sprintf('%s', session)).line1mat = ...
             mlb.(sprintf('%s', session)).matrix(find(mlb.(sprintf('%s', session)).matrix(:,1)== 1),:);
@@ -70,78 +71,103 @@ for p = 1:length(nParticipants)
         avL3(i) = nanmean(mlb.(sprintf('%s', session)).line3mat(:,6)); %30 cm line
         stdL3(i) = nanstd(mlb.(sprintf('%s', session)).line3mat(:,6));
         mlb.(sprintf('%s', session)).error.line3 = [avL3(i), stdL3(i)];
+        
+        % Calculating data as proportion of the line (in mm) to standardise
+        % for analysis
+        propL1 = ((mlb.(sprintf('%s', session)).line1mat(:,6))*10)/(length1); %error in mm, as a proportion of half the line length (the error is signed)
+        propL2 = ((mlb.(sprintf('%s', session)).line2mat(:,6))*10)/(length2);
+        propL3 = ((mlb.(sprintf('%s', session)).line3mat(:,6))*10)/(length3);
+        mlb.(sprintf('%s', session)).line1mat(:,8) = propL1; %adding to matrix
+        mlb.(sprintf('%s', session)).line2mat(:,8) = propL2;
+        mlb.(sprintf('%s', session)).line3mat(:,8) = propL3;
+        
+        % Taking the mean and std of the proportion error
+        avpropL1(i) = nanmean(mlb.(sprintf('%s', session)).line1mat(:,8)); %10 cm line
+        stdpropL1(i) = nanstd(mlb.(sprintf('%s', session)).line1mat(:,8));
+        mlb.(sprintf('%s', session)).proportionError.line1 = [avpropL1(i), stdpropL1(i)];
+        avpropL2(i) = nanmean(mlb.(sprintf('%s', session)).line2mat(:,8)); %20 cm line
+        stdpropL2(i) = nanstd(mlb.(sprintf('%s', session)).line2mat(:,8));
+        mlb.(sprintf('%s', session)).proportionError.line2 = [avpropL2(i), stdpropL2(i)];
+        avpropL3(i) = nanmean(mlb.(sprintf('%s', session)).line3mat(:,8)); %30 cm line
+        stdpropL3(i) = nanstd(mlb.(sprintf('%s', session)).line3mat(:,8));
+        mlb.(sprintf('%s', session)).proportionError.line3 = [avpropL3(i), stdpropL3(i)];      
     end
 
     %% Average error across sessions
     % For each line length
-    mlb.line1err = [mean(avL1), std(avL1)];
-    mlb.line2err = [mean(avL2), std(avL2)];
-    mlb.line3err = [mean(avL3), std(avL3)];
+    mlb.line1.err = [mean(avL1), std(avL1)];
+    mlb.line2.err = [mean(avL2), std(avL2)];
+    mlb.line3.err = [mean(avL3), std(avL3)];
     % Total error and std across sessions
-    allError = [mlb.line1err(1), mlb.line2err(1), mlb.line3err(1)];
+    allError = [mlb.line1.err(1), mlb.line2.err(1), mlb.line3.err(1)];
     mlb.meanTotError = mean(allError);
-
+    % Proportion of line error
+    mlb.line1.properr = [mean(avpropL1), std(avpropL1)];
+    mlb.line2.properr = [mean(avpropL2), std(avpropL2)];
+    mlb.line3.properr = [mean(avpropL3), std(avpropL3)];
+    % Total proportion error and std across sessions
+    allPropErr = [mlb.line1.properr(1), mlb.line2.properr(1), mlb.line3.properr(1)];
+    mlb.meanTotPropError = mean(allError);
+    
     %% Plotting MLB task
     cd(dirVis); %navigating to analysis folder to save plots to
     % Plot across all sessions
     % Matrices for session plotting, each line
-    mlb.sessionVals.line1(1,:) = avL1; mlb.sessionVals.line1(2,:) = stdL1; %values for sessions
-    mlb.sessionVals.line2(1,:) = avL2; mlb.sessionVals.line2(2,:) = stdL2;
-    mlb.sessionVals.line3(1,:) = avL3; mlb.sessionVals.line3(2,:) = stdL3;
+    mlb.sessionVals.line1.err(1,:) = avL1; mlb.sessionVals.line1.err(2,:) = stdL1; %values for sessions
+    mlb.sessionVals.line2.err(1,:) = avL2; mlb.sessionVals.line2.err(2,:) = stdL2;
+    mlb.sessionVals.line3.err(1,:) = avL3; mlb.sessionVals.line3.err(2,:) = stdL3;
     % All sessions
     for i = 1:length(nSessions)
         sess(i,:) = [avL1(1,i), avL2(1,i), avL3(1,i)];
     end
-    mlb.sessionVals.all(1,:) = [mean(sess(1,:)), mean(sess(2,:)),...
+    mlb.sessionVals.all.err(1,:) = [mean(sess(1,:)), mean(sess(2,:)),...
         mean(sess(3,:)), mean(sess(4,:))];
-    mlb.sessionVals.all(2,:) = [std(sess(1,:)), std(sess(2,:)),...
+    mlb.sessionVals.all.err(2,:) = [std(sess(1,:)), std(sess(2,:)),...
+        std(sess(3,:)), std(sess(4,:))];
+    
+    % Doing the same for proportion error across all sessions
+    mlb.sessionVals.line1.properr(1,:) = avpropL1; mlb.sessionVals.line1.properr(2,:) = stdpropL1; %values for sessions
+    mlb.sessionVals.line2.properr(1,:) = avpropL2; mlb.sessionVals.line2.properr(2,:) = stdpropL2;
+    mlb.sessionVals.line3.properr(1,:) = avpropL3; mlb.sessionVals.line3.properr(2,:) = stdpropL3;
+    % All sessions
+    for i = 1:length(nSessions)
+        sess(i,:) = [avpropL1(1,i), avpropL2(1,i), avpropL3(1,i)];
+    end
+    mlb.sessionVals.all.properr(1,:) = [mean(sess(1,:)), mean(sess(2,:)),...
+        mean(sess(3,:)), mean(sess(4,:))];
+    mlb.sessionVals.all.properr(2,:) = [std(sess(1,:)), std(sess(2,:)),...
         std(sess(3,:)), std(sess(4,:))];
 
-    % Plotting line 1
-    figure(1)
-    bar(mlb.sessionVals.line1(1,:))
-    hold on
-    errorbar(mlb.sessionVals.line1(1,:), mlb.sessionVals.line1(2,:), 'k')
-    xlabel('Sessions'); ylabel('Bisection error (cm)');
-    title('MLB 10cm line');
-    saveas(figure(1), sprintf('%s_MLBline1.jpg', ppID));
-
-    % Plotting line 2
-    figure(2)
-    bar(mlb.sessionVals.line2(1,:))
-    hold on
-    errorbar(mlb.sessionVals.line2(1,:), mlb.sessionVals.line2(2,:), 'k')
-    xlabel('Sessions'); ylabel('Bisection error (cm)');
-    title('MLB 20cm line');
-    saveas(figure(2), sprintf('%s_MLBline2.jpg', ppID));
-
-    % Plotting line 3
-    figure(3)
-    bar(mlb.sessionVals.line3(1,:))
-    hold on
-    errorbar(mlb.sessionVals.line3(1,:), mlb.sessionVals.line3(2,:), 'k')
-    xlabel('Sessions'); ylabel('Bisection error (cm)');
-    title('MLB 30cm line');
-    saveas(figure(3), sprintf('%s_MLBline3.jpg', ppID));
+    for j = 1:3
+        line = sprintf('line%d', j);
+        % Plotting each line
+        figure(j)
+        bar(mlb.sessionVals.(sprintf('%s', line)).properr(1,:))
+        hold on
+        errorbar(mlb.sessionVals.(sprintf('%s', line)).properr(1,:), mlb.sessionVals.(sprintf('%s', line)).properr(2,:), 'k')
+        xlabel('Sessions'); ylabel('Proportion bisection error');
+        title(sprintf('MLB %s', line));
+        saveas(figure(j), sprintf('%s_MLB%s.jpg', ppID, line));
+    end
 
     % Plotting average of all lines
     figure(4)
-    bar(mlb.sessionVals.all(1,:))
+    bar(mlb.sessionVals.all.properr(1,:))
     hold on
-    errorbar(mlb.sessionVals.all(1,:), mlb.sessionVals.all(2,:), 'k')
-    ylim([-2 2]);
-    xlabel('Sessions'); ylabel('Bisection error (cm)');
+    errorbar(mlb.sessionVals.all.properr(1,:), mlb.sessionVals.all.properr(2,:), 'k')
+    ylim([-0.2 0.2]);
+    xlabel('Sessions'); ylabel('Proportion bisection error');
     title('MLB all sessions');
     saveas(figure(4), sprintf('%s_MLBsess.jpg', ppID));
 
     % Plotting averages of all sessions
-    lines(1,:) = [mlb.line1err(1), mlb.line2err(1), mlb.line3err(1)];
-    lines(2,:) = [mlb.line1err(2), mlb.line2err(2), mlb.line3err(2)];
+    lines(1,:) = [mlb.line1.properr(1), mlb.line2.properr(1), mlb.line3.properr(1)];
+    lines(2,:) = [mlb.line1.properr(2), mlb.line2.properr(2), mlb.line3.properr(2)];
     figure(5)
     bar(lines(1,:))
     hold on
     errorbar(lines(1,:), lines(2,:), 'k');
-    ylim([-2 2]);
+    ylim([-0.2 0.2]);
     xlabel('Lines'); ylabel('Bisection error (cm)');
     title('MLB all lines');
     saveas(figure(5), sprintf('%s_MLBlines.jpg', ppID));
