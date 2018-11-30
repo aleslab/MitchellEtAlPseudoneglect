@@ -10,7 +10,7 @@
 % data is consistent across sessions and modalities
 
 %% Loading data for each session
-nParticipants = 1:17;
+nParticipants = [1:17,21,22];
 allData = struct;
 matfilename = ('ReliabilityAnalysis.mat');
 for p = 1:length(nParticipants)
@@ -56,8 +56,8 @@ for p = 1:length(nParticipants)
 
         
         % MLB task
-        allData.(sprintf('%s', session)).mlb.error(p,:) = mlb.(sprintf('%s', session)).error.mean(1);
-        allData.(sprintf('%s', session)).mlb.errorstd(p,:) = mlb.(sprintf('%s', session)).error.mean(2);
+        allData.(sprintf('%s', session)).mlb.error(p,:) = (mlb.(sprintf('%s', session)).error.mean(1))*10; %converting back to mm
+        allData.(sprintf('%s', session)).mlb.errorstd(p,:) = (mlb.(sprintf('%s', session)).error.mean(2))*10; %converting back to mm
         % Averaging line proportion error (cause I didn't do this
         % previously)...
         propError = [mlb.(sprintf('%s', session)).proportionError.line1(1), mlb.(sprintf('%s', session)).proportionError.line2(1),...
@@ -71,8 +71,8 @@ for p = 1:length(nParticipants)
         % Same for TRB
         error = [trb.(sprintf('%s', session)).error.line1(1), trb.(sprintf('%s', session)).error.line2(1),...
             trb.(sprintf('%s', session)).error.line3(1)];
-        trb.(sprintf('%s', session)).error.mean(1) = mean(error);
-        trb.(sprintf('%s', session)).error.mean(2) = std(error);
+        trb.(sprintf('%s', session)).error.mean(1) = mean(error)*10; %converting back to mm;
+        trb.(sprintf('%s', session)).error.mean(2) = std(error)*10; %converting back to mm;
         % Saving to all data structure
         allData.(sprintf('%s', session)).trb.error(p,:) = trb.(sprintf('%s', session)).error.mean(1);
         allData.(sprintf('%s', session)).trb.errorstd(p,:) = trb.(sprintf('%s', session)).error.mean(2);
@@ -270,9 +270,12 @@ results.plotting.modalities(:,3) = allData.modalities.data(:,1); %lm
 results.plotting.modalities(:,4) = allData.modalities.data(:,2); %mlb
 results.plotting.modalities(:,5) = allData.modalities.data(:,3); %trb.
 results.plotting.modalities(:,6) = allData.means.allPP(:,2); %std all data (across modalities)
+% Getting confidence intervals for all tasks
+CIall = (allData.means.allPP(:,2)/sqrt(414))*1.97; %s chosen here because that's the number of trials completed for each task in 1 session
+results.plotting.modalities(:,7) = CIall;
 % Sorting the matrix by mean bias
 results.plotting.modalities = sortrows(results.plotting.modalities, 2);
-results.plotting.modalities(:,7) = results.observers; %observers not sorted by mean bias for use with plotting - organisation of data
+results.plotting.modalities(:,8) = results.observers; %observers not sorted by mean bias for use with plotting - organisation of data
 
 % standard deviation values for shading
 SDpt5 = allData.means.tot(2)*0.5;
@@ -282,9 +285,9 @@ SDall = results.plotting.modalities(:,6);
 cd(dirAnaAll);
 % Making initial mean error (all modalities) plot
 figure('units', 'centimeters', 'Position', [5 3 18 12])
-scatter(results.plotting.modalities(:,7), results.plotting.modalities(:,2), ...
+scatter(results.plotting.modalities(:,8), results.plotting.modalities(:,2), ...
     'filled', '^'); % mean task data
-ylim([-3 3]);
+ylim([-10 10]);
 line('XData', [0 length(results.observers)], 'YData', [0, 0], 'LineStyle', '-', ...
     'LineWidth', 0.5, 'Color', 'k'); %midpoint
 % Adding SD shaded area
@@ -297,7 +300,7 @@ hold on
 createShadedRegion(xVal, shadedVal, (shadedVal - SD2), (shadedVal + SD2),':','color', [0.5 0.5 0.5]);
 % Adding error bars to the mean data
 hold on
-errorbar(results.plotting.modalities(:,7), results.plotting.modalities(:,2), SDall, 'LineStyle', 'none',...
+errorbar(results.plotting.modalities(:,8), results.plotting.modalities(:,2), CIall, 'LineStyle', 'none',...
     'LineWidth', 0.7, 'Color', [0 0 0], 'CapSize', 0);
 % Making it prettier
 set(ax, 'FontSize', 12);
@@ -312,21 +315,21 @@ pngFileName = strcat('biasModalities', '.png');
 
 figure('units', 'centimeters', 'Position', [5 3 18 12])
 hold on
-m1 = scatter(results.plotting.modalities(:,7), results.plotting.modalities(:,3), ...
+m1 = scatter(results.plotting.modalities(:,8), results.plotting.modalities(:,3), ...
     'filled', 'o', 'MarkerFaceColor', [0 0.7 0.2]); % landmark task data
 hold on
-m2 = scatter(results.plotting.modalities(:,7), results.plotting.modalities(:,4), ...
+m2 = scatter(results.plotting.modalities(:,8), results.plotting.modalities(:,4), ...
     'filled', 'o', 'MarkerFaceColor', [0.2 0 0.7]); % mlb task data
 hold on
-m3 = scatter(results.plotting.modalities(:,7), results.plotting.modalities(:,5), ...
+m3 = scatter(results.plotting.modalities(:,8), results.plotting.modalities(:,5), ...
     'filled', 'o', 'MarkerFaceColor', [0.4 0 0.4]); % trb task data
 hold on
-errorbar(results.plotting.modalities(:,7), results.plotting.modalities(:,2), SDall, 'LineStyle', 'none',...
+errorbar(results.plotting.modalities(:,8), results.plotting.modalities(:,2), CIall, 'LineStyle', 'none',...
     'LineWidth', 0.7, 'Color', [0 0 0], 'CapSize', 0);
 hold on
-m4 = scatter(results.plotting.modalities(:,7), results.plotting.modalities(:,2), ...
+m4 = scatter(results.plotting.modalities(:,8), results.plotting.modalities(:,2), ...
     'filled', '^', 'MarkerFaceColor', [0.6 0.6 0.9], 'MarkerEdgeColor', [0 0 0.1]); % mean task data
-ylim([-3 3]);
+ylim([-10 10]);
 line('XData', [0 length(results.observers)], 'YData', [0, 0], 'LineStyle', '-', ...
     'LineWidth', 0.5, 'Color', 'k'); %midpoint
 % Adding SD shaded area
@@ -344,8 +347,8 @@ set(ax, 'XTick', results.observers);
 xlabel('Observers'); ylabel('Bias (mm)');
 legend([m1 m2 m3 m4], 'Landmarks', 'MLB', 'TRB', 'Mean', [120 280 0.2 0.1]);
 % Adding text to define bias grouping
-leftDim = [0.17 0.13 0.25 0.045];
-rightDim = [0.77 0.13 0.13 0.045]; midDim = [0.43 0.13 0.33 0.045];
+leftDim = [0.17 0.13 0.33 0.045];
+rightDim = [0.84 0.13 0.065 0.045]; midDim = [0.505 0.13 0.33 0.045];
 annotation('textbox', leftDim, 'String', 'Left', 'FontSize', 8); %'Color', [0.2 0.2 0.2]);
 annotation('textbox', rightDim, 'String', 'Right', 'FontSize', 8); %'Color', [0.7 0.7 0.7]);
 annotation('textbox', midDim, 'String', 'Unspecified', 'FontSize', 8);  %'Color', [0.45 0.45 0.45]);
@@ -366,6 +369,8 @@ results.plotting.sessions.lm(:,4) = allData.sessions.lmPSE(:,2); %session 2
 results.plotting.sessions.lm(:,5) = allData.sessions.lmPSE(:,3); %session 3
 results.plotting.sessions.lm(:,6) = allData.sessions.lmPSE(:,4); %session 4
 results.plotting.sessions.lm(:,7) = std(allData.sessions.lmPSE,0,2); %std of all sessions for lm
+% Extracting the CIs from the SDs
+results.plotting.sessions.ci
 % Sorting the matrix by mean bias
 results.plotting.sessions.lm = sortrows(results.plotting.sessions.lm, 2);
 results.plotting.sessions.lm(:,8) = results.observers; %observers not sorted by mean bias for use with plotting - organisation of data
@@ -479,7 +484,7 @@ errorbar(results.plotting.sessions.mlb(:,8), results.plotting.sessions.mlb(:,2),
 hold on
 mlb5 = scatter(results.plotting.sessions.mlb(:,8), results.plotting.sessions.mlb(:,2), ...
     'filled', '^', 'MarkerFaceColor', [0.8 0.8 1], 'MarkerEdgeColor', [0 0 0.1]); % mean task data
-ylim([-4 4]);
+ylim([-25 25]);
 line('XData', [0 length(results.observers)], 'YData', [0, 0], 'LineStyle', '-', ...
     'LineWidth', 0.5, 'Color', 'k'); %midpoint
 % Adding SD shaded area
@@ -496,10 +501,10 @@ set(ax, 'XTick', results.observers);
 xlabel('Observers'); ylabel('Bias (mm)');
 legend([mlb1, mlb2, mlb3, mlb4, mlb5], '1', '2', '3', '4', 'Mean', [110 270 0.2 0.1]);
 % Adding text to define bias grouping
-leftDim = [0.17 0.13 0.12 0.045];
-rightDim = [0.64 0.13 0.26 0.045]; midDim = [0.30 0.13 0.6 0.045];
+leftDim = [0.17 0.13 0.39 0.045];
+rightDim = [0.86 0.13 0.05 0.045]; midDim = [0.565 0.13 0.29 0.045];
 annotation('textbox', leftDim, 'String', 'Left', 'FontSize', 8); %'Color', [0.2 0.2 0.2]);
-%annotation('textbox', rightDim, 'String', 'Right', 'FontSize', 8); %'Color', [0.7 0.7 0.7]);
+annotation('textbox', rightDim, 'String', 'Right', 'FontSize', 8); %'Color', [0.7 0.7 0.7]);
 annotation('textbox', midDim, 'String', 'Unspecified', 'FontSize', 8);  %'Color', [0.45 0.45 0.45]);
 % saving as both pdf and png for ease
 saveas(gcf, pdfFileName);
@@ -528,7 +533,7 @@ errorbar(results.plotting.sessions.trb(:,8), results.plotting.sessions.trb(:,2),
 hold on
 trb5 = scatter(results.plotting.sessions.trb(:,8), results.plotting.sessions.trb(:,2), ...
     'filled', '^', 'MarkerFaceColor', [1 0.8 1], 'MarkerEdgeColor', [0.1 0 0.1]); % mean task data
-ylim([-4 4]);
+ylim([-25 25]);
 line('XData', [0 length(results.observers)], 'YData', [0, 0], 'LineStyle', '-', ...
     'LineWidth', 0.5, 'Color', 'k'); %midpoint
 % Adding SD shaded area
@@ -545,8 +550,8 @@ set(ax, 'XTick', results.observers);
 xlabel('Observers'); ylabel('Bias (mm)');
 legend([trb1, trb2, trb3, trb4, trb5], '1', '2', '3', '4', 'Mean', [110 270 0.2 0.1]);
 % Adding text to define bias grouping
-leftDim = [0.17 0.13 0.18 0.045];
-rightDim = [0.83 0.13 0.07 0.045]; midDim = [0.36 0.13 0.46 0.045];
+leftDim = [0.17 0.13 0.285 0.045];
+rightDim = [0.78 0.13 0.125 0.045]; midDim = [0.46 0.13 0.315 0.045];
 annotation('textbox', leftDim, 'String', 'Left', 'FontSize', 8); %'Color', [0.2 0.2 0.2]);
 annotation('textbox', rightDim, 'String', 'Right', 'FontSize', 8); %'Color', [0.7 0.7 0.7]);
 annotation('textbox', midDim, 'String', 'Unspecified', 'FontSize', 8);  %'Color', [0.45 0.45 0.45]);
@@ -589,7 +594,7 @@ errorbar(xValues, allData.sessions.means.all, errorBars, 'LineStyle', 'none', 'L
 hold on
 dataMean = line('XData', [0 length(xValues)], 'YData', [allData.means.tot(1), allData.means.tot(1)],...
     'LineStyle', '-', 'LineWidth', 1.5, 'Color', [0.5 0.5 0.5]); % mean for all data
-ylim([-2 2]);
+ylim([-8 8]);
 ax = gca;
 set(ax, 'FontSize', 12);
 xLabels = {'Session1', 'Session2', 'Session3', 'Session4'};
@@ -641,7 +646,7 @@ midpoint = line('XData', [0 length(xValues)], 'YData', [0, 0], 'LineStyle', '--'
 hold on
 dataMean = line('XData', [0 length(xValues)], 'YData', [allData.means.tot(1), allData.means.tot(1)], 'LineStyle', '-', ...
     'LineWidth', 1.5, 'Color', [0.5 0.5 0.5]); % mean for all data
-ylim([-1 1]);
+ylim([-6 6]);
 ax = gca;
 set(ax, 'FontSize', 12);
 xLabels = {'LM', 'MLB', 'TRB'};
