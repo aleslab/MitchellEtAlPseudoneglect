@@ -281,6 +281,7 @@ results.plotting.modalities(:,8) = results.observers; %observers not sorted by m
 SDpt5 = allData.means.tot(2)*0.5;
 SD2 = allData.means.tot(2)*2;
 SDall = results.plotting.modalities(:,6);
+CIall = results.plotting.modalities(:,7);
 
 cd(dirAnaAll);
 % Making initial mean error (all modalities) plot
