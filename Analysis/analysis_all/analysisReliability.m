@@ -328,12 +328,12 @@ m3 = scatter(results.plotting.modalities(:,8), results.plotting.modalities(:,5),
 set(m3, 'SizeData', 50);
 hold on
 errorbar(results.plotting.modalities(:,8), results.plotting.modalities(:,2), CIall, 'LineStyle', 'none',...
-    'LineWidth', 0.7, 'Color', [0 0 0], 'CapSize', 0);
+    'LineWidth', 1, 'Color', [0 0 0], 'CapSize', 0);
 hold on
 m4 = scatter(results.plotting.modalities(:,8), results.plotting.modalities(:,2), ...
     'filled', '^', 'MarkerFaceColor', [0.6 0.6 0.9], 'MarkerEdgeColor', [0 0 0.1]); % mean task data
-set(m4, 'SizeData', 50);
-ylim([-15 10]);
+set(m4, 'SizeData', 60);
+ylim([-10 10]);
 line('XData', [0 length(results.observers)], 'YData', [0, 0], 'LineStyle', '-', ...
     'LineWidth', 0.5, 'Color', 'k'); %midpoint
 % Adding SD shaded area
@@ -346,19 +346,21 @@ hold on
 createShadedRegion(xVal, shadedVal, (shadedVal - SD2), (shadedVal + SD2),':','color', [0.7 0.7 0.5]);
 % Adding error bars to the mean data
 % Making it prettier
-set(ax, 'FontSize', 12);
+set(ax, 'FontSize', 14);
 xLabels = num2str(results.plotting.modalities(:,1));
 xticks(ax, 1:length(results.plotting.modalities(:,1)));
 xticklabels(ax, xLabels);
 %set(ax, 'XTick', results.observers);
 xlabel('Observers'); ylabel('Bias (mm)');
-legend([m1 m2 m3 m4], 'Landmarks', 'MLB', 'TRB', 'Mean', [120 280 0.2 0.1]);
+mlgd = legend([m1 m2 m3 m4], 'Landmarks', 'MLB', 'TRB', 'Mean', [115 280 0.2 0.1]);
+legend boxoff
+mText = [mlgd, mlgd.ItemText]; set(mText, 'FontSize', 12);
 % Adding text to define bias grouping
 leftDim = [0.17 0.13 0.275 0.045];
 rightDim = [0.765 0.13 0.12 0.045]; midDim = [0.45 0.13 0.31 0.045];
-annotation('textbox', leftDim, 'String', 'Left', 'FontSize', 8); %'Color', [0.2 0.2 0.2]);
-annotation('textbox', rightDim, 'String', 'Right', 'FontSize', 8); %'Color', [0.7 0.7 0.7]);
-annotation('textbox', midDim, 'String', 'Unspecified', 'FontSize', 8);  %'Color', [0.45 0.45 0.45]);
+% annotation('textbox', leftDim, 'String', 'Left', 'FontSize', 8); %'Color', [0.2 0.2 0.2]);
+% annotation('textbox', rightDim, 'String', 'Right', 'FontSize', 8); %'Color', [0.7 0.7 0.7]);
+% annotation('textbox', midDim, 'String', 'Unspecified', 'FontSize', 8);  %'Color', [0.45 0.45 0.45]);
 % saving as both pdf and png for ease
 saveas(gcf, pdfFileName);
 saveas(gcf, pngFileName);
@@ -453,7 +455,7 @@ set(lm4, 'SizeData', 50);
 hold on
 lm5 = scatter(results.plotting.sessions.lm(:,9), results.plotting.sessions.lm(:,2), ...
     'filled', '^', 'MarkerFaceColor', [0.8 1 0.6], 'MarkerEdgeColor', [0 0.2 0]); % mean task data
-set(lm5, 'SizeData', 50);
+set(lm5, 'SizeData', 60);
 hold on
 errorbar(results.plotting.sessions.lm(:,9), results.plotting.sessions.lm(:,2), lmCI, 'LineStyle', 'none',...
     'LineWidth', 1, 'Color', [0 0 0], 'CapSize', 0);
@@ -469,19 +471,21 @@ createShadedRegion(xVal, shadedVal, (shadedVal - lmSDpt5), (shadedVal + lmSDpt5)
 hold on
 createShadedRegion(xVal, shadedVal, (shadedVal - lmSD2), (shadedVal + lmSD2),':','color', [0.7 0.7 0.5]);
 % Making it prettier
-set(ax, 'FontSize', 12);
+set(ax, 'FontSize', 14);
 xLabels = num2str(results.plotting.sessions.lm(:,1));
 xticks(ax, 1:length(results.plotting.sessions.lm(:,1)));
 xticklabels(ax, xLabels);
 xlabel('Observers'); ylabel('Bias (mm)');
-legend([lm1, lm2, lm3, lm4, lm5], '1', '2', '3', '4', 'Mean', [110 270 0.2 0.1]);
+lmlgd = legend([lm1, lm2, lm3, lm4, lm5], '1', '2', '3', '4', 'Mean', [105 262 0.2 0.1]);
+lmText = [lmlgd, lmlgd.ItemText]; set(lmText, 'FontSize', 12);
+legend boxoff
 % Adding text to define bias grouping
 leftDim = [0.17 0.13 0.235 0.045];
 rightDim = [0.575 0.13 0.29 0.045]; midDim = [0.41 0.13 0.16 0.045];
-annotation('textbox', leftDim, 'String', 'Left', 'FontSize', 8); %'Color', [0.2 0.2 0.2]);
-annotation('textbox', rightDim, 'String', 'Right', 'FontSize', 8); %'Color', [0.7 0.7 0.7]);
-annotation('textbox', midDim, 'String', 'Unspecified', 'FontSize', 8);  %'Color', [0.45 0.45 0.45]);
-% saving as both pdf and png for ease
+% annotation('textbox', leftDim, 'String', 'Left', 'FontSize', 8); %'Color', [0.2 0.2 0.2]);
+% annotation('textbox', rightDim, 'String', 'Right', 'FontSize', 8); %'Color', [0.7 0.7 0.7]);
+% annotation('textbox', midDim, 'String', 'Unspecified', 'FontSize', 8);  %'Color', [0.45 0.45 0.45]);
+% % saving as both pdf and png for ease
 saveas(gcf, pdfFileName);
 saveas(gcf, pngFileName);
 
@@ -508,14 +512,14 @@ set(mlb4, 'SizeData', 50);
 hold on
 mlb5 = scatter(results.plotting.sessions.mlb(:,9), results.plotting.sessions.mlb(:,2), ...
     'filled', '^', 'MarkerFaceColor', [0.8 0.8 1], 'MarkerEdgeColor', [0 0 0.1]); % mean task data
-set(mlb5, 'SizeData', 50);
+set(mlb5, 'SizeData', 60);
 ylim([-25 25]);
 line('XData', [0 length(results.observers)], 'YData', [0, 0], 'LineStyle', '-', ...
     'LineWidth', 0.5, 'Color', 'k'); %midpoint
 % Adding error bars to the mean data
 hold on
 errorbar(results.plotting.sessions.mlb(:,9), results.plotting.sessions.mlb(:,2), mlbCI, 'LineStyle', 'none',...
-    'LineWidth', 0.7, 'Color', [0 0 0], 'CapSize', 0);
+    'LineWidth', 1, 'Color', [0 0 0], 'CapSize', 0);
 % Adding SD shaded area
 ax = gca;
 xVal = [ax.XLim(1):ax.XLim(end)];
@@ -525,19 +529,21 @@ createShadedRegion(xVal, shadedVal, (shadedVal - mlbSDpt5), (shadedVal + mlbSDpt
 hold on
 createShadedRegion(xVal, shadedVal, (shadedVal - mlbSD2), (shadedVal + mlbSD2),':','color', [0.7 0.7 0.5]);
 % Making it prettier
-set(ax, 'FontSize', 12);
+set(ax, 'FontSize', 14);
 xLabels = num2str(results.plotting.sessions.mlb(:,1));
 xticks(ax, 1:length(results.plotting.sessions.mlb(:,1)));
 xticklabels(ax, xLabels);
 xlabel('Observers'); ylabel('Bias (mm)');
-legend([mlb1, mlb2, mlb3, mlb4, mlb5], '1', '2', '3', '4', 'Mean', [110 270 0.2 0.1]);
+mlblgd = legend([mlb1, mlb2, mlb3, mlb4, mlb5], '1', '2', '3', '4', 'Mean', [105 262 0.2 0.1]);
+mlbText = [mlblgd, mlblgd.ItemText]; set(mlbText, 'FontSize', 12);
+legend boxoff
 % Adding text to define bias grouping
 leftDim = [0.17 0.13 0.39 0.045];
 rightDim = [0.82 0.13 0.06 0.045]; midDim = [0.565 0.13 0.25 0.045];
-annotation('textbox', leftDim, 'String', 'Left', 'FontSize', 8); %'Color', [0.2 0.2 0.2]);
-annotation('textbox', rightDim, 'String', 'Right', 'FontSize', 8); %'Color', [0.7 0.7 0.7]);
-annotation('textbox', midDim, 'String', 'Unspecified', 'FontSize', 8);  %'Color', [0.45 0.45 0.45]);
-% saving as both pdf and png for ease
+% annotation('textbox', leftDim, 'String', 'Left', 'FontSize', 8); %'Color', [0.2 0.2 0.2]);
+% annotation('textbox', rightDim, 'String', 'Right', 'FontSize', 8); %'Color', [0.7 0.7 0.7]);
+% annotation('textbox', midDim, 'String', 'Unspecified', 'FontSize', 8);  %'Color', [0.45 0.45 0.45]);
+% % saving as both pdf and png for ease
 saveas(gcf, pdfFileName);
 saveas(gcf, pngFileName);
 
@@ -564,7 +570,7 @@ set(trb4, 'SizeData', 50);
 hold on
 trb5 = scatter(results.plotting.sessions.trb(:,9), results.plotting.sessions.trb(:,2), ...
     'filled', '^', 'MarkerFaceColor', [1 0.8 1], 'MarkerEdgeColor', [0.1 0 0.1]); % mean task data
-set(trb5, 'SizeData', 50);
+set(trb5, 'SizeData', 60);
 ylim([-25 25]);
 % Adding error bars to the mean data
 hold on
@@ -581,18 +587,20 @@ createShadedRegion(xVal, shadedVal, (shadedVal - trbSDpt5), (shadedVal + trbSDpt
 hold on
 createShadedRegion(xVal, shadedVal, (shadedVal - trbSD2), (shadedVal + trbSD2),':','color', [0.7 0.7 0.5]);
 % Making it prettier
-set(ax, 'FontSize', 12);
+set(ax, 'FontSize', 14);
 xLabels = num2str(results.plotting.sessions.trb(:,1));
 xticks(ax, 1:length(results.plotting.sessions.trb(:,1)));
 xticklabels(ax, xLabels);
 xlabel('Observers'); ylabel('Bias (mm)');
-legend([trb1, trb2, trb3, trb4, trb5], '1', '2', '3', '4', 'Mean', [110 270 0.2 0.1]);
+trblgd = legend([trb1, trb2, trb3, trb4, trb5], '1', '2', '3', '4', 'Mean', [105 262 0.2 0.1]);
+trbText = [trblgd, trblgd.ItemText]; set(trbText, 'FontSize', 12);
+legend boxoff
 % Adding text to define bias grouping
 leftDim = [0.17 0.13 0.27 0.045];
 rightDim = [0.68 0.13 0.195 0.045]; midDim = [0.445 0.13 0.23 0.045];
-annotation('textbox', leftDim, 'String', 'Left', 'FontSize', 8); %'Color', [0.2 0.2 0.2]);
-annotation('textbox', rightDim, 'String', 'Right', 'FontSize', 8); %'Color', [0.7 0.7 0.7]);
-annotation('textbox', midDim, 'String', 'Unspecified', 'FontSize', 8);  %'Color', [0.45 0.45 0.45]);
+% annotation('textbox', leftDim, 'String', 'Left', 'FontSize', 8); %'Color', [0.2 0.2 0.2]);
+% annotation('textbox', rightDim, 'String', 'Right', 'FontSize', 8); %'Color', [0.7 0.7 0.7]);
+% annotation('textbox', midDim, 'String', 'Unspecified', 'FontSize', 8);  %'Color', [0.45 0.45 0.45]);
 % saving as both pdf and png for ease
 saveas(gcf, pdfFileName);
 saveas(gcf, pngFileName);
@@ -601,10 +609,10 @@ saveas(gcf, pngFileName);
 % Going to try this 2 ways
 % First - bias y axis, session xaxis, modalities separate
 xValues = 1:(length(nSessions));
-sessSD1 = std(allData.sessions.Session01all(:,2));
-sessSD2 = std(allData.sessions.Session02all(:,2));
-sessSD3 = std(allData.sessions.Session03all(:,2));
-sessSD4 = std(allData.sessions.Session04all(:,2));
+sessSD1 = std(allData.modalities.means.Session01);
+sessSD2 = std(allData.modalities.means.Session02);
+sessSD3 = std(allData.modalities.means.Session03);
+sessSD4 = std(allData.modalities.means.Session04);
 sessCI1 = (sessSD1/sqrt(length(results.observers)))*2.11;
 sessCI2 = (sessSD2/sqrt(length(results.observers)))*2.11;
 sessCI3 = (sessSD3/sqrt(length(results.observers)))*2.11;
@@ -617,6 +625,12 @@ pdfFileName = strcat('biasSessions_bySess', '.pdf');
 pngFileName = strcat('biasSessions_bySess', '.png');
 
 figure('units', 'centimeters', 'Position', [5 3 12 10])
+dataMean = line('XData', [0 length(xValues)], 'YData', [allData.means.tot(1), allData.means.tot(1)],...
+    'LineStyle', '-', 'LineWidth', 2, 'Color', [0.7 0.7 0.7]); % mean for all data
+hold on
+errorbar(xValues, allData.sessions.means.all, errorBars, 'LineStyle', 'none', 'LineWidth', 1.5,...
+    'Color', [0.4 0.4 0.4], 'CapSize', 0);
+hold on
 s1 = scatter(xValues, allData.sessions.means.lmPSE, 'o', 'MarkerFaceColor', [0 0.8 0.1], ...
     'MarkerEdgeColor', [0 0.8 0.1]); %lm data
 set(s1, 'SizeData', 60);
@@ -630,20 +644,16 @@ s3 = scatter(xValues, allData.sessions.means.trb, 'filled', '^', 'MarkerFaceColo
 set(s3, 'SizeData', 60);
 midpoint = line('XData', [0 length(xValues)], 'YData', [0, 0], 'LineStyle', '--', ...
     'LineWidth', 0.5, 'Color', [0 0 0]); %midpoint
-hold on
-errorbar(xValues, allData.sessions.means.all, errorBars, 'LineStyle', 'none', 'LineWidth', 1,...
-    'Color', [0.4 0.4 0.4], 'CapSize', 0);
-hold on
-dataMean = line('XData', [0 length(xValues)], 'YData', [allData.means.tot(1), allData.means.tot(1)],...
-    'LineStyle', '-', 'LineWidth', 1.5, 'Color', [0.7 0.7 0.7]); % mean for all data
-ylim([-8 8]);
+ylim([-6 6]);
 ax = gca;
-set(ax, 'FontSize', 12);
-xLabels = {'Session1', 'Session2', 'Session3', 'Session4'};
+set(ax, 'FontSize', 14);
+xLabels = {'Sess01', 'Sess02', 'Sess03', 'Sess04'};
 xticks(ax, [1 2 3 4]);
 xticklabels(ax, xLabels);
 ylabel('Bias (mm)');
-legend('Landmarks', 'MLB', 'TRB', [256 235 0.1 0.3]);
+f3lgd = legend([s1 s2 s3], 'Landmarks', 'MLB', 'TRB', [260 240 0.1 0.3]);
+f3Text = [f3lgd, f3lgd.ItemText]; set(f3Text, 'FontSize', 12);
+legend boxoff
 saveas(gcf, pdfFileName);
 saveas(gcf, pngFileName);
 
@@ -666,38 +676,40 @@ pdfFileName = strcat('biasSessions_byMod', '.pdf');
 pngFileName = strcat('biasSessions_byMod', '.png');
 
 figureS = figure('units', 'centimeters', 'Position', [5 3 12 10])
-s1 = scatter(xValues, allData.modalities.means.Session01, '*', 'MarkerFaceColor', [0.1 0 0.1], ...
+dataMean = line('XData', [0 length(xValues)], 'YData', [allData.means.tot(1), allData.means.tot(1)], 'LineStyle', '-', ...
+    'LineWidth', 2, 'Color', [0.7 0.7 0.7;]); % mean for all data
+hold on
+s1 = scatter(xValues, allData.modalities.means.Session01, 'diamond', 'MarkerFaceColor', [0.1 0 0.1], ...
     'MarkerEdgeColor', [0.1 0 0.1]); %lm data
 set(s1, 'SizeData', 60);
 hold on
-errorbar(xValues, allData.modalities.means.all, allData.modalities.means.CIall, 'LineStyle', 'none', 'LineWidth', 1,...
+errorbar(xValues, allData.modalities.means.all, allData.modalities.means.CIall, 'LineStyle', 'none', 'LineWidth', 1.5,...
     'Color', [0.4 0.4 0.4], 'CapSize', 0);
 hold on
-s2 = scatter(xValues, allData.modalities.means.Session02, 'filled', 'o', 'MarkerFaceColor', [0.3 0 0.3], ...
+s2 = scatter(xValues, allData.modalities.means.Session02, 'filled', 'o', 'MarkerFaceColor', [0.4 0 0.4], ...
     'MarkerEdgeColor', [0.3 0 0.3]);
 set(s2, 'SizeData', 60);
 hold on
-s3 = scatter(xValues, allData.modalities.means.Session03, '^', 'MarkerFaceColor', [0.5 0 0.5], ...
+s3 = scatter(xValues, allData.modalities.means.Session03, '^', 'MarkerFaceColor', [0.7 0 0.7], ...
     'MarkerEdgeColor', [0.5 0 0.5]);
 set(s3, 'SizeData', 60);
 hold on
-s4 = scatter(xValues, allData.modalities.means.Session04, 'square', 'MarkerFaceColor', [0.9 0 0.9], ...
+s4 = scatter(xValues, allData.modalities.means.Session04, 'square', 'MarkerFaceColor', [0.9 0.2 0.9], ...
     'MarkerEdgeColor', [0.7 0 0.7]);
 set(s4, 'SizeData', 60);
 midpoint = line('XData', [0 length(xValues)], 'YData', [0, 0], 'LineStyle', '--', ...
     'LineWidth', 0.5, 'Color', [0 0 0]); %midpoint
-hold on
-dataMean = line('XData', [0 length(xValues)], 'YData', [allData.means.tot(1), allData.means.tot(1)], 'LineStyle', '-', ...
-    'LineWidth', 1.5, 'Color', [0.7 0.7 0.7;]); % mean for all data
 ylim([-6 6]);
 ax = gca;
-set(ax, 'FontSize', 12);
+set(ax, 'FontSize', 14);
 xLabels = {'LM', 'MLB', 'TRB'};
 xticks(ax, [1 2 3]);
 xticklabels(ax, xLabels);
 %xlabel('Modalities'); 
 ylabel('Bias (mm)');
-legend([s1, s2, s3, s4], '1', '2', '3', '4', [75 228 0.1 0.3]);
+f4lgd = legend([s1, s2, s3, s4], '1', '2', '3', '4', [70 225 0.1 0.3]);
+legend boxoff
+f4Text = [f4lgd, f4lgd.ItemText]; set(f4Text, 'FontSize', 12);
 saveas(gcf, pdfFileName);
 saveas(gcf, pngFileName);
 
