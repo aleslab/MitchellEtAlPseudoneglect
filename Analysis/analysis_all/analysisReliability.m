@@ -21,7 +21,7 @@ for p = 1:length(nParticipants)
     tactileFilename = sprintf('%s_tactileanalysis.mat', ppID);
     % Directories
     % Directory
-    dirBias = ('C:\Users\Experimenter\Documents\Experiments2018\Bias'); %subject to change depending on where you analyse
+    dirBias = ('M:\Experiments\Bias'); %subject to change depending on where you analyse
     dirPP = [dirBias filesep ppID]; %participant directory
     dirAna = [dirPP filesep 'Analysis' filesep];
     dirVis = [dirAna 'Visual' filesep];
