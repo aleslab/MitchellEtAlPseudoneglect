@@ -6,13 +6,13 @@
 clear all
 
 %% File paths
-nParticipants = [1:17,21,22];
+nParticipants = [1:19,21,22,24];
 for p = 1:length(nParticipants)
     ppID = sprintf('P%0*d',2,nParticipants(p)); %for use when navigating files
     matfilename = sprintf('%s_tactileanalysis.mat', ppID);
     nSessions = 1:4; %vector number of sessions each participant does
     % Directory
-    dirBias = ('C:\Users\Experimenter\Documents\Experiments2018\Bias'); %subject to change depending on where you analyse
+    dirBias = ('M:\Experiments\Bias'); %subject to change depending on where you analyse
     dirPP = [dirBias filesep ppID]; %participant directory
     % Making new anaysis folder for saving
     cd(dirPP)
