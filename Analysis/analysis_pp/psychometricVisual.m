@@ -54,7 +54,7 @@ for p = 1:length(nParticipants)
                          %PAL_CumulativeNormal, PAL_HyperbolicSecant
 
 
-    fitLapseRate = false;
+    fitLapseRate = true;
 
     %For this set of stim values the guess rate is equal to the lapse rate.  
     %This can be kept true for this data. 
@@ -91,9 +91,9 @@ for p = 1:length(nParticipants)
 
         % Perform fit - Cumulative Normal
         disp('Fitting function.....');
-        [paramsValues LL exitflag] = PAL_PFML_Fit(StimLevels,NumPos, ...
+        [paramsValues LL exitflag] = PAL_PFML_FitMultiple(StimLevels,NumPos, ...
         OutOfNum,searchGrid,paramsFree,PF,...
-        'lapseLimits',[0 1],'gammaEQlambda',gammaEqLambda)
+        'lapserates',[1 1 1 1; 1 1 -1 -1],'lapseFits', 'jAPLE', gammaEqLambda)
 
         % Getting standard error
         if ParOrNonPar == 1
