@@ -10,7 +10,7 @@
 % data is consistent across sessions and modalities
 
 %% Loading data for each session
-nParticipants = [1:17,21,22];
+nParticipants = [1:19,21,22,24];
 allData = struct;
 matfilename = ('ReliabilityAnalysis.mat');
 for p = 1:length(nParticipants)
@@ -21,7 +21,7 @@ for p = 1:length(nParticipants)
     tactileFilename = sprintf('%s_tactileanalysis.mat', ppID);
     % Directories
     % Directory
-    dirBias = ('M:\Experiments\Bias'); %subject to change depending on where you analyse
+    dirBias = ('C:\Users\Experimenter\Documents\Experiments2018\Bias'); %subject to change depending on where you analyse
     dirPP = [dirBias filesep ppID]; %participant directory
     dirAna = [dirPP filesep 'Analysis' filesep];
     dirVis = [dirAna 'Visual' filesep];
@@ -62,17 +62,17 @@ for p = 1:length(nParticipants)
         % previously)...
         propError = [mlb.(sprintf('%s', session)).proportionError.line1(1), mlb.(sprintf('%s', session)).proportionError.line2(1),...
             mlb.(sprintf('%s', session)).proportionError.line3(1)];
-        mlb.(sprintf('%s', session)).proportionError.mean(1) = mean(propError);
-        mlb.(sprintf('%s', session)).proportionError.mean(2) = std(propError);
+        mlb.(sprintf('%s', session)).proportionError.mean(1) = nanmean(propError);
+        mlb.(sprintf('%s', session)).proportionError.mean(2) = nanstd(propError);
         % Saving to the alldata structure
-        allData.(sprintf('%s', session)).mlb.proportionError(p,:) = mean(propError);
-        allData.(sprintf('%s', session)).mlb.proportionErrorStd(p,:) = std(propError);
+        allData.(sprintf('%s', session)).mlb.proportionError(p,:) = nanmean(propError);
+        allData.(sprintf('%s', session)).mlb.proportionErrorStd(p,:) = nanstd(propError);
         
         % Same for TRB
         error = [trb.(sprintf('%s', session)).error.line1(1), trb.(sprintf('%s', session)).error.line2(1),...
             trb.(sprintf('%s', session)).error.line3(1)];
-        trb.(sprintf('%s', session)).error.mean(1) = mean(error)*10; %converting back to mm;
-        trb.(sprintf('%s', session)).error.mean(2) = std(error)*10; %converting back to mm;
+        trb.(sprintf('%s', session)).error.mean(1) = nanmean(error)*10; %converting back to mm;
+        trb.(sprintf('%s', session)).error.mean(2) = nanstd(error)*10; %converting back to mm;
         % Saving to all data structure
         allData.(sprintf('%s', session)).trb.error(p,:) = trb.(sprintf('%s', session)).error.mean(1);
         allData.(sprintf('%s', session)).trb.errorstd(p,:) = trb.(sprintf('%s', session)).error.mean(2);
@@ -80,11 +80,11 @@ for p = 1:length(nParticipants)
         % previously)...
         propError = [trb.(sprintf('%s', session)).proportionError.line1(1), trb.(sprintf('%s', session)).proportionError.line2(1),...
             trb.(sprintf('%s', session)).proportionError.line3(1)];
-        trb.(sprintf('%s', session)).proportionError.mean(1) = mean(propError);
-        trb.(sprintf('%s', session)).proportionError.mean(2) = std(propError);
+        trb.(sprintf('%s', session)).proportionError.mean(1) = nanmean(propError);
+        trb.(sprintf('%s', session)).proportionError.mean(2) = nanstd(propError);
         % Saving to the alldata structure
-        allData.(sprintf('%s', session)).trb.proportionError(p,:) = mean(propError);
-        allData.(sprintf('%s', session)).trb.proportionErrorStd(p,:) = std(propError);
+        allData.(sprintf('%s', session)).trb.proportionError(p,:) = nanmean(propError);
+        allData.(sprintf('%s', session)).trb.proportionErrorStd(p,:) = nanstd(propError);
         
         %% Saving data for  all sessions
         % Landmarks
@@ -123,23 +123,23 @@ for p = 1:length(nParticipants)
     % Modalities matrix: lm, mlb, trb; sd matrix the same
     % SD for LM calculated through confidence intervals
     % Landmarks
-    modlm = mean(allData.sessions.lmPSE(p,:));
-    modlmSD = std(allData.sessions.lmPSE(p,:));
+    modlm = nanmean(allData.sessions.lmPSE(p,:));
+    modlmSD = nanstd(allData.sessions.lmPSE(p,:));
     allData.modalities.data(p,1) = modlm; allData.modalities.sds(p,1) = modlmSD;
     % Manual line bisection
-    modmlb = mean(allData.sessions.mlb(p,:));
-    modmlbSD = std(allData.sessions.mlbProp(p,:));
+    modmlb = nanmean(allData.sessions.mlb(p,:));
+    modmlbSD = nanstd(allData.sessions.mlbProp(p,:));
     allData.modalities.data(p,2) = modmlb; allData.modalities.sds(p,2) = modmlbSD;
     % Tactile rod bisection
-    modtrb = mean(allData.sessions.trb(p,:));
-    modtrbSD = std(allData.sessions.trb(p,:));
+    modtrb = nanmean(allData.sessions.trb(p,:));
+    modtrbSD = nanstd(allData.sessions.trb(p,:));
     allData.modalities.data(p,3) = modtrb; allData.modalities.sds(p,3) = modtrbSD;
     
     
     %% Mean for all PP
     % column 1 means, column 2 SDs
-    allData.means.allPP(p,1) = mean([modlm, modmlb, modtrb]);
-    allData.means.allPP(p,2) = std([modlm, modmlb, modtrb]);
+    allData.means.allPP(p,1) = nanmean([modlm, modmlb, modtrb]);
+    allData.means.allPP(p,2) = nanstd([modlm, modmlb, modtrb]);
 end
 
 % Need sds across modalities for individual sessions
@@ -147,8 +147,8 @@ for i = 1:length(nSessions)
     session = sprintf('Session%0*d',2,nSessions(i));
     sessInfo = [allData.(sprintf('%s', session)).lm.PSE, allData.(sprintf('%s', session)).mlb.error, ...
         allData.(sprintf('%s', session)).trb.error];
-    allData.sessions.(sprintf('%sall', session))(:,1) = mean(sessInfo,2);
-    allData.sessions.(sprintf('%sall', session))(:,2) = std(sessInfo,0,2);
+    allData.sessions.(sprintf('%sall', session))(:,1) = nanmean(sessInfo,2);
+    allData.sessions.(sprintf('%sall', session))(:,2) = nanstd(sessInfo,0,2);
 end
 %% Removing outliers from the analysis
 % Any outliers identified through MATLAB - more than three scaled mean
@@ -178,6 +178,7 @@ for r = 1:length(remove)
     
     % Modalities within sessions
     for i = 1:length(nSessions)
+        session = sprintf('Session%0*d',2,nSessions(i));
         allData.sessions.(sprintf('%sall', session))(remove(r),:) = NaN;
     end
     
@@ -189,42 +190,27 @@ for r = 1:length(remove)
     allData.means.allPP(remove(r),:) = NaN;
 end
 % Removing outlier from matrix - modalities and sessions
-allData.sessions.lmPSE = allData.sessions.lmPSE(find(allData.sessions.lmPSE(:,1) > 0.00001 | ...
-    allData.sessions.lmPSE(:,1) < 0.00001),:);
-allData.sessions.CIhigh= allData.sessions.CIhigh(find(allData.sessions.CIhigh(:,1) > 0.00001 | ...
-    allData.sessions.CIhigh(:,1) < 0.00001),:);
-allData.sessions.CIlow= allData.sessions.CIlow(find(allData.sessions.CIlow(:,1) > 0.00001 | ...
-    allData.sessions.CIlow(:,1) < 0.00001),:);
-allData.sessions.lmStd= allData.sessions.lmStd(find(allData.sessions.lmStd(:,1) > 0.00001 | ...
-    allData.sessions.lmStd(:,1) < 0.00001),:);
-allData.sessions.mlb= allData.sessions.mlb(find(allData.sessions.mlb(:,1) > 0.00001 | ...
-    allData.sessions.mlb(:,1) < 0.00001),:);
-allData.sessions.mlbStd= allData.sessions.mlbStd(find(allData.sessions.mlbStd(:,1) > 0.00001 | ...
-    allData.sessions.mlbStd(:,1) < 0.00001),:);
-allData.sessions.trb= allData.sessions.trb(find(allData.sessions.trb(:,1) > 0.00001 | ...
-    allData.sessions.trb(:,1) < 0.00001),:);
-allData.sessions.trbStd= allData.sessions.trbStd(find(allData.sessions.trbStd(:,1) > 0.00001 | ...
-    allData.sessions.trbStd(:,1) < 0.00001),:);
+allData.sessions.lmPSE = allData.sessions.lmPSE(isfinite(allData.sessions.lmPSE(:,1)),:);
+allData.sessions.CIhigh= allData.sessions.CIhigh(isfinite(allData.sessions.CIhigh(:,1)),:);
+allData.sessions.CIlow = allData.sessions.CIlow(isfinite(allData.sessions.CIlow(:,1)),:);
+allData.sessions.lmStd= allData.sessions.lmStd(isfinite(allData.sessions.lmStd(:,1)),:);
+allData.sessions.mlb= allData.sessions.mlb(isfinite(allData.sessions.mlb(:,1)),:);
+allData.sessions.mlbStd= allData.sessions.mlbStd(isfinite(allData.sessions.mlbStd(:,1)),:);
+allData.sessions.trb= allData.sessions.trb(isfinite(allData.sessions.trb(:,1)),:);
+allData.sessions.trbStd= allData.sessions.trb(isfinite(allData.sessions.trb(:,1)),:);
 
 % Modalities within sessions
-allData.sessions.Session01all= allData.sessions.Session01all(find(allData.sessions.Session01all(:,1) > 0.00001 | ...
-    allData.sessions.Session01all(:,1) < 0.00001),:);
-allData.sessions.Session02all= allData.sessions.Session02all(find(allData.sessions.Session02all(:,1) > 0.00001 | ...
-    allData.sessions.Session02all(:,1) < 0.00001),:);
-allData.sessions.Session03all= allData.sessions.Session03all(find(allData.sessions.Session03all(:,1) > 0.00001 | ...
-    allData.sessions.Session03all(:,1) < 0.00001),:);
-allData.sessions.Session04all= allData.sessions.Session04all(find(allData.sessions.Session04all(:,1) > 0.00001 | ...
-    allData.sessions.Session04all(:,1) < 0.00001),:);
+allData.sessions.Session01all= allData.sessions.Session01all(isfinite(allData.sessions.Session01all(:,1)),:);
+allData.sessions.Session02all= allData.sessions.Session02all(isfinite(allData.sessions.Session02all(:,1)),:);
+allData.sessions.Session03all= allData.sessions.Session03all(isfinite(allData.sessions.Session03all(:,1)),:);
+allData.sessions.Session04all= allData.sessions.Session04all(isfinite(allData.sessions.Session04all(:,1)),:);
 
 % Modalities across sessions
-allData.modalities.data = allData.modalities.data(find(allData.modalities.data(:,1) > 0.00001 | ...
-    allData.modalities.data(:,1) < 0.00001),:);
-allData.modalities.sds = allData.modalities.sds(find(allData.modalities.sds(:,1) > 0.00001 | ...
-    allData.modalities.sds(:,1) < 0.00001),:);
+allData.modalities.data = allData.modalities.data(isfinite(allData.modalities.data(:,1)),:);
+allData.modalities.sds = allData.modalities.sds(isfinite(allData.modalities.sds(:,1)),:);
 
 % All means
-allData.means.allPP = allData.means.allPP(find(allData.means.allPP(:,1) > 0.00001 | ...
-    allData.means.allPP(:,1) < 0.00001),:);
+allData.means.allPP = allData.means.allPP(isfinite(allData.means.allPP(:,1)),:);
 
 %% Calculating group means
 % General rule of thumb: 1st column = mean, 2nd column - sd
