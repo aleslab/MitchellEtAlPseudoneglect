@@ -102,17 +102,19 @@ for p = 1:length(nParticipants)
     
     %% Creating a plot
     % All sessions
+    asym = [-10:2:0]; 
+    % All sessions
     fig1name = sprintf('%slm2raw_Sessions', ppID);
     pdfFileName = strcat(fig1name, '.pdf');
-    figure()
-    plot(asym, lm2psych.Session01(:,2), 'LineWidth', 1);
-    hold on
-    plot(asym, lm2psych.Session02(:,2), 'LineWidth', 1);
-    hold on
-    plot(asym, lm2psych.Session03(:,2), 'LineWidth', 1);
-    hold on
-    plot(asym, lm2psych.Session04(:,2), 'LineWidth', 1);
+    for i = 1:length(nSessions)
+        session = sprintf('Session%0*d',2,nSessions(i));
+        sess = lm2psych.(sprintf('%s', session))(1:6,2);
+        figure(1)
+        plot(asym, sess, 'LineWidth', 1);
+        hold on
+    end 
     % Adding the shifts as x-axis tick labels
+    figure(1)
     ax = gca;
     set(ax, 'Xtick', asym);
     xlim([min(asym) max(asym)]); ylim([0 100]);
@@ -130,8 +132,8 @@ for p = 1:length(nParticipants)
     fig2name = sprintf('%slm2raw_meanSessions', ppID);
     pdfFileName = strcat(fig2name, '.pdf');
     
-    figure()
-    plot(asym, lm2psych.allSessions(:,2), 'LineWidth', 1);
+    figure(2)
+    plot(asym, lm2psych.allSessions(1:6,2), 'LineWidth', 1);
     % Adding the shifts as x-axis tick labels
     ax = gca;
     set(ax, 'Xtick', asym);
