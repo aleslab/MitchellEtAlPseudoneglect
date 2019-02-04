@@ -290,7 +290,7 @@ hold on
 errorbar(results.plotting.modalities(:,8), results.plotting.modalities(:,2), CIall, 'LineStyle', 'none',...
     'LineWidth', 0.7, 'Color', [0 0 0], 'CapSize', 0);
 % Making it prettier
-set(ax, 'FontSize', 12);
+set(ax, 'FontSize', 10);
 set(ax, 'XTick', results.observers);
 xlabel('Observers'); ylabel('Bias (mm)');
 pdfFileName = strcat('meanBias', '.pdf');
@@ -333,7 +333,7 @@ hold on
 createShadedRegion(xVal, shadedVal, (shadedVal - SD2), (shadedVal + SD2),':','color', [0.7 0.7 0.5]);
 % Adding error bars to the mean data
 % Making it prettier
-set(ax, 'FontSize', 14);
+set(ax, 'FontSize', 10);
 xLabels = num2str(results.plotting.modalities(:,1));
 xticks(ax, 1:length(results.plotting.modalities(:,1)));
 xticklabels(ax, xLabels);
@@ -341,7 +341,7 @@ xticklabels(ax, xLabels);
 xlabel('Observers'); ylabel('Bias (mm)');
 mlgd = legend([m1 m2 m3 m4], 'Landmarks', 'MLB', 'TRB', 'Mean', [115 280 0.2 0.1]);
 legend boxoff
-mText = [mlgd, mlgd.ItemText]; set(mText, 'FontSize', 12);
+mText = [mlgd, mlgd.ItemText]; set(mText, 'FontSize', 10);
 % Adding text to define bias grouping
 leftDim = [0.17 0.13 0.275 0.045];
 rightDim = [0.765 0.13 0.12 0.045]; midDim = [0.45 0.13 0.31 0.045];
@@ -653,13 +653,13 @@ createShadedRegion(xVal, shadedVal, (shadedVal - allSDpt5), (shadedVal + allSDpt
 hold on
 createShadedRegion(xVal, shadedVal, (shadedVal - allSD2), (shadedVal + allSD2),':','color', [0.7 0.7 0.5]);
 % Making it prettier
-set(ax, 'FontSize', 14);
+set(ax, 'FontSize', 10);
 xLabels = num2str(results.plotting.sessions.all(:,1));
 xticks(ax, 1:length(results.plotting.sessions.all(:,1)));
 xticklabels(ax, xLabels);
 xlabel('Observers'); ylabel('Bias (mm)');
-allLgd = legend([all1, all2, all3, all4, all5], '1', '2', '3', '4', 'Mean', [105 262 0.2 0.1]);
-allText = [allLgd, allLgd.ItemText]; set(allText, 'FontSize', 12);
+allLgd = legend([all1, all2, all3, all4, all5], '1', '2', '3', '4', 'Mean', [105 275 0.2 0.1]);
+allText = [allLgd, allLgd.ItemText]; set(allText, 'FontSize', 10);
 legend boxoff
 % Adding text to define bias grouping
 leftDim = [0.17 0.13 0.27 0.045];
@@ -712,13 +712,14 @@ midpoint = line('XData', [0 length(xValues)], 'YData', [0, 0], 'LineStyle', '--'
     'LineWidth', 0.5, 'Color', [0 0 0]); %midpoint
 ylim([-6 6]);
 ax = gca;
-set(ax, 'FontSize', 14);
-xLabels = {'Sess01', 'Sess02', 'Sess03', 'Sess04'};
+set(ax, 'FontSize', 10);
+xLabels = {'1', '2', '3', '4'};
 xticks(ax, [1 2 3 4]);
 xticklabels(ax, xLabels);
 ylabel('Bias (mm)');
-f3lgd = legend([s1 s2 s3], 'Landmarks', 'MLB', 'TRB', [260 240 0.1 0.3]);
-f3Text = [f3lgd, f3lgd.ItemText]; set(f3Text, 'FontSize', 12);
+xlabel('Sessions');
+f3lgd = legend([s1 s2 s3], 'Landmarks', 'MLB', 'TRB', [88 233 0.1 0.3]);
+f3Text = [f3lgd, f3lgd.ItemText]; set(f3Text, 'FontSize', 10);
 legend boxoff
 saveas(gcf, pdfFileName);
 saveas(gcf, pngFileName);
@@ -767,15 +768,15 @@ midpoint = line('XData', [0 length(xValues)], 'YData', [0, 0], 'LineStyle', '--'
     'LineWidth', 0.5, 'Color', [0 0 0]); %midpoint
 ylim([-6 6]);
 ax = gca;
-set(ax, 'FontSize', 14);
-xLabels = {'LM', 'MLB', 'TRB'};
+set(ax, 'FontSize', 10);
+xLabels = {'Landmarks', 'MLB', 'TRB'};
 xticks(ax, [1 2 3]);
 xticklabels(ax, xLabels);
 %xlabel('Modalities'); 
-ylabel('Bias (mm)');
+ylabel('Bias (mm)'); xlabel('Task');
 f4lgd = legend([s1, s2, s3, s4], '1', '2', '3', '4', [70 225 0.1 0.3]);
 legend boxoff
-f4Text = [f4lgd, f4lgd.ItemText]; set(f4Text, 'FontSize', 12);
+f4Text = [f4lgd, f4lgd.ItemText]; set(f4Text, 'FontSize', 10);
 saveas(gcf, pdfFileName);
 saveas(gcf, pngFileName);
 
