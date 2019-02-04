@@ -10,8 +10,8 @@ clear all;      %Clear all existing variables from memory
 
 tic
 % Load in participant data
-%nParticipants = [1:19,21,22,24];
-nParticipants = 3; %for testing
+nParticipants = [1:19,21,22,24];
+%nParticipants = 3; %for testing
 for p = 1:length(nParticipants)  
     ppID = sprintf('P%0*d',2,nParticipants(p));
     %ppID = input('Participant ID? ', 's'); %for use when navigating files
@@ -90,7 +90,60 @@ for p = 1:length(nParticipants)
         
         lm2psych.(sprintf('%s', session)) = lm2.(sprintf('%s', session)).allshift.per;
     end
+    
+    %average across all sessions
+    allSessions = [lm2psych.Session01(:,2), lm2psych.Session02(:,2), lm2psych.Session03(:,2),...
+        lm2psych.Session04(:,2)];
+    asym = lm2psych.Session01(:,1); %asymmtry for the x-axis
+    lm2psych.allSessions = [asym, mean(allSessions,2)]; % mean all sessions
+    
     %Saving
     cd(dirVis); save(matfilename, 'lm2psych');
+    
+    %% Creating a plot
+    % All sessions
+    fig1name = sprintf('%slm2raw_Sessions', ppID);
+    pdfFileName = strcat(fig1name, '.pdf');
+    figure()
+    plot(asym, lm2psych.Session01(:,2), 'LineWidth', 1);
+    hold on
+    plot(asym, lm2psych.Session02(:,2), 'LineWidth', 1);
+    hold on
+    plot(asym, lm2psych.Session03(:,2), 'LineWidth', 1);
+    hold on
+    plot(asym, lm2psych.Session04(:,2), 'LineWidth', 1);
+    % Adding the shifts as x-axis tick labels
+    ax = gca;
+    set(ax, 'Xtick', asym);
+    xlim([min(asym) max(asym)]); ylim([0 100]);
+    % Adding horizontal line at y = 50
+    ymid = max(ylim)/2;
+    hold on
+    plot(xlim, [1,1]*ymid, '--k')
+    % Naming
+    legend('Sess1', 'Sess2', 'Sess3', 'Sess4');
+    ylabel('Perceneage right shifted line perceived as longer');
+    xlabel('Stimulus asymmetry (mm)');
+    saveas(gcf, pdfFileName);
+    
+    % Average session
+    fig2name = sprintf('%slm2raw_meanSessions', ppID);
+    pdfFileName = strcat(fig2name, '.pdf');
+    
+    figure()
+    plot(asym, lm2psych.allSessions(:,2), 'LineWidth', 1);
+    % Adding the shifts as x-axis tick labels
+    ax = gca;
+    set(ax, 'Xtick', asym);
+    xlim([min(asym) max(asym)]); ylim([0 100]);
+    % Adding horizontal line at y = 50
+    ymid = max(ylim)/2;
+    hold on
+    plot(xlim, [1,1]*ymid, '--k')
+    ylabel('Perceneage right shifted line perceived as longer');
+    xlabel('Stimulus asymmetry (mm)');
+    saveas(gcf, pdfFileName);
+   
 %% Psychometric curve fitting
+close all
 end
