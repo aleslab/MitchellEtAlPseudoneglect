@@ -797,6 +797,27 @@ type = 'C-k'; %type of ICC used - 2-k, 2-way fixed effects
 [results.modalities.all.r, results.modalities.all.bound(1), results.modalities.all. bound(2), results.modalities.all.F,...
     results.modalities.all.df(1), results.modalities.all.df(2), results.modalities.all.p] = ICC(allData.modalities.data, type);
 
+%% Creating covariance matrices
+% Landmarks
+% Getting  matrix for all session data
+lmcovar = cov(allData.sessions.lmPSE); %creating covariance matrix
+lmcovarScaled = mat2gray(lmcovar, [4 0]);
+imwrite(lmcovarScaled, 'lmcovar', 'PNG'); %writing to an image
+lmcovarImg = imread('lmcovar'); %reading the image back in, so it's in img format
+% Plotting matrix
+figure(1)
+figlm = imshow(lmcovarImg,'InitialMagnification', 'fit');
+ax = gca;
+set(ax, 'FontSize', 10);
+xLabels = {'Session 1', 'Session 2', 'Session 3', 'Session 4'};
+xticks(ax, [1 2 3 4]);
+xticklabels(ax, xLabels);
+title('Landmarks')
+
+% MLB
+% TRB
+% Modalities
+
 %% save and close
 close all
 cd(dirAnaAll)
