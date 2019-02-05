@@ -797,26 +797,141 @@ type = 'C-k'; %type of ICC used - 2-k, 2-way fixed effects
 [results.modalities.all.r, results.modalities.all.bound(1), results.modalities.all. bound(2), results.modalities.all.F,...
     results.modalities.all.df(1), results.modalities.all.df(2), results.modalities.all.p] = ICC(allData.modalities.data, type);
 
+% One-sample t-tests
+[results.modalities.lmT.h results.modalities.lmT.p results.modalities.lmT.ci ...
+    results.modalities.lmT.stats] = ttest(allData.modalities.data(:,1)); %landmarks one-sample
+[results.modalities.mlbT.h results.modalities.mlbT.p results.modalities.mlbT.ci ...
+    results.modalities.mlbT.stats] = ttest(allData.modalities.data(:,2)); %landmarks one-sample
+[results.modalities.trbT.h results.modalities.trbT.p results.modalities.trbT.ci ...
+    results.modalities.trbT.stats] = ttest(allData.modalities.data(:,3)); %landmarks one-sample
+
+% bonferroni corrected
+results.modalities.lmT.Bp = results.modalities.lmT.p*3;
+results.modalities.mlbT.Bp = results.modalities.mlbT.p*3;
+results.modalities.trbT.Bp = results.modalities.trbT.p*3;
+
 %% Creating covariance matrices
 % Landmarks
 % Getting  matrix for all session data
 lmcovar = cov(allData.sessions.lmPSE); %creating covariance matrix
-lmcovarScaled = mat2gray(lmcovar, [4 0]);
+lmcovarCorr = corrcov(lmcovar);
+lmcovarScaled = mat2gray(lmcovarCorr, [1 0]);
 imwrite(lmcovarScaled, 'lmcovar', 'PNG'); %writing to an image
 lmcovarImg = imread('lmcovar'); %reading the image back in, so it's in img format
-% Plotting matrix
-figure(1)
-figlm = imshow(lmcovarImg,'InitialMagnification', 'fit');
+
+lmTextStr = num2str(lmcovarCorr(:), '%0.2f'); %creating a text string for placing over the image
+lmTextStr = strtrim(cellstr(lmTextStr)); %remove any funny spacings
+[x, y] = meshgrid(1:4); %coordinates for the numbers
+
+% Plotting matrix, plot all together
+pngFileName = 'CovarMatrix.png';
+figure('pos',[150 150 1200 300])
+subplot(1,3,1)
+imagesc(lmcovarScaled);
+colormap gray
+C = colormap; L = size(C,1);
+Gs = round(interp1(linspace(min(lmcovarScaled(:)), max(lmcovarScaled(:)),L),1:L,lmcovarScaled));
+H = reshape(C(Gs,:), [size(Gs) 3]);
+image(H)
+hold on
+lmStrings = text(x(:), y(:), lmTextStr(:), 'HorizontalAlignment', 'center');
 ax = gca;
-set(ax, 'FontSize', 10);
-xLabels = {'Session 1', 'Session 2', 'Session 3', 'Session 4'};
-xticks(ax, [1 2 3 4]);
-xticklabels(ax, xLabels);
+set(ax, 'FontSize', 12);
+xLabels = {'Sess 1', 'Sess 2', 'Sess 3', 'Sess 4'};
+yLabels = {'Sess 1', 'Sess 2', 'Sess 3', 'Sess 4'};
+xticks(ax, [1 2 3 4]); yticks(ax, [1 2 3 4]);
+xticklabels(ax, xLabels); yticklabels(ax, yLabels);
+ytickangle(90)
 title('Landmarks')
 
-% MLB
-% TRB
-% Modalities
+%% MLB
+mlbcovar = cov(allData.sessions.mlb); %creating covariance matrix
+mlbcovarCorr = corrcov(mlbcovar);
+mlbcovarScaled = mat2gray(mlbcovarCorr, [1 0]);
+imwrite(mlbcovarScaled, 'mlbcovar', 'PNG'); %writing to an image
+mlbcovarImg = imread('mlbcovar'); %reading the image back in, so it's in img format
+
+mlbTextStr = num2str(mlbcovarCorr(:), '%0.2f'); %creating a text string for placing over the image
+mlbTextStr = strtrim(cellstr(mlbTextStr)); %remove any funny spacings
+
+subplot(1,3,2)
+imagesc(mlbcovarScaled);
+colormap gray
+C = colormap; L = size(C,1);
+Gs = round(interp1(linspace(min(mlbcovarScaled(:)), max(mlbcovarScaled(:)),L),1:L,mlbcovarScaled));
+H = reshape(C(Gs,:), [size(Gs) 3]);
+image(H)
+hold on
+mlbStrings = text(x(:), y(:), mlbTextStr(:), 'HorizontalAlignment', 'center');
+ax = gca;
+set(ax, 'FontSize', 12);
+xLabels = {'Sess 1', 'Sess 2', 'Sess 3', 'Sess 4'};
+yLabels = {' ', '', '', ''};
+xticks(ax, [1 2 3 4]); yticks(ax, [1 2 3 4]);
+xticklabels(ax, xLabels); yticklabels(ax, yLabels);
+ytickangle(90)
+title('Manual line bisection')
+
+%% TRB
+trbcovar = cov(allData.sessions.trb); %creating covariance matrix
+trbcovarCorr = corrcov(trbcovar);
+trbcovarScaled = mat2gray(trbcovarCorr, [1 0]);
+imwrite(trbcovarScaled, 'trbcovar', 'PNG'); %writing to an image
+trbcovarImg = imread('trbcovar'); %reading the image back in, so it's in img format
+
+trbTextStr = num2str(trbcovarCorr(:), '%0.2f'); %creating a text string for placing over the image
+trbTextStr = strtrim(cellstr(trbTextStr)); %remove any funny spacings
+
+subplot(1,3,3)
+imagesc(trbcovarScaled);
+colormap gray
+C = colormap; L = size(C,1);
+Gs = round(interp1(linspace(min(trbcovarScaled(:)), max(trbcovarScaled(:)),L),1:L,trbcovarScaled));
+H = reshape(C(Gs,:), [size(Gs) 3]);
+image(H)
+hold on
+trbStrings = text(x(:), y(:), trbTextStr(:), 'HorizontalAlignment', 'center');
+ax = gca;
+set(ax, 'FontSize', 12);
+xLabels = {'Sess 1', 'Sess 2', 'Sess 3', 'Sess 4'};
+yLabels = {' ', '', '', ''};
+xticks(ax, [1 2 3 4]); yticks(ax, [1 2 3 4]);
+xticklabels(ax, xLabels); yticklabels(ax, yLabels);
+ytickangle(90)
+title('Tactile rod bisection')
+saveas(gcf, pngFileName);
+
+figure(4)
+ax = gca;
+set(ax, 'FontSize', 14);
+colormap gray
+colorbar('eastoutside', 'Direction', 'reverse')
+saveas(figure(4), 'covarColourbar.png');
+
+
+%% Modalities
+modcovar = cov(allData.modalities.data);
+modcovarCorr = corrcov(modcovar);
+
+modTextStr = num2str(modcovarCorr(:), '%0.2f'); %creating a text string for placing over the image
+modTextStr = strtrim(cellstr(modTextStr)); %remove any funny spacings
+[xM, yM] = meshgrid(1:3);
+
+pngFileName = 'CovarMatrix_mod.png';
+figure()
+imagesc(modcovarCorr)
+colormap(flipud(gray))
+hold on
+modStrings = text(xM(:), yM(:), modTextStr(:), 'HorizontalAlignment', 'center',...
+    'FontSize', 14);
+ax = gca;
+set(ax, 'FontSize', 14);
+xLabels = {'LM', 'MLB', 'TRB'};
+yLabels = {'LM', 'MLB', 'TRB'};
+xticks(ax, [1 2 3]); yticks(ax, [1 2 3]);
+xticklabels(ax, xLabels); yticklabels(ax, yLabels);
+ytickangle(90)
+saveas(gcf, pngFileName);
 
 %% save and close
 close all
