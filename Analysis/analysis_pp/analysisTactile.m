@@ -6,9 +6,10 @@
 clear all
 
 %% File paths
-nParticipants = [1:19,21,22,24];
+nParticipants = [12:19,21,22,24];
 %nParticipants = 1;
 for p = 1:length(nParticipants)
+
     ppID = sprintf('P%0*d',2,nParticipants(p)); %for use when navigating files
     matfilename = sprintf('%s_tactileanalysis.mat', ppID);
     nSessions = 1:4; %vector number of sessions each participant does
@@ -270,9 +271,9 @@ for p = 1:length(nParticipants)
     pdfFileName = strcat(fig1name, '.pdf');
     for i = 1:length(nSessions)
         session = sprintf('Session%0*d',2,nSessions(i));
-        sess = tr2psych.(sprintf('%s', session))(1:6,2);
+        halfSess = tr2psych.(sprintf('%s', session))(1:6,2);
         figure(6)
-        plot(asym, sess, 'LineWidth', 1);
+        plot(asym, halfSess, 'LineWidth', 1);
         hold on
     end 
     figure(6)
@@ -291,7 +292,7 @@ for p = 1:length(nParticipants)
     saveas(gcf, pdfFileName);
     
     % Average session
-    fig2name = sprintf('%tr2raw_meanSessions', ppID);
+    fig2name = sprintf('%str2raw_meanSessions', ppID);
     pdfFileName = strcat(fig2name, '.pdf');
     
     figure(7)
