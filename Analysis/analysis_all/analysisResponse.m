@@ -142,9 +142,17 @@ for p = 1:length(nParticipants)
     
     % determining whether each participant is below the lower binomial
     % bounadry (therefore significantly different from 50%)
-    results.lm2.binomial{p,:} = true(allData.allSessions.lm2.shiftGroup(1,p)<results.lm2.binomialStat(1)); %landmarks
-    results.tr2.binomial{p,:} = true(allData.allSessions.tr2.shiftGroup(1,p)<results.tr2.binomialStat(1));
+    results.lm2.binomial.log{p,:} = true(allData.allSessions.lm2.shiftGroup(1,p)<results.lm2.binomialStat(1)); %landmarks
+    results.tr2.binomial.log{p,:} = true(allData.allSessions.tr2.shiftGroup(1,p)<results.tr2.binomialStat(1));
 end
+
+% getting proportion of participants
+% landmarks
+results.lm2.binomial.true = double(cell2mat(results.lm2.binomial.log));
+results.lm2.proportionSig = sum(results.lm2.binomial.true)/length(nParticipants);
+% tactile
+results.tr2.binomial.true = double(cell2mat(results.tr2.binomial.log));
+results.tr2.proportionSig = sum(results.tr2.binomial.true)/length(nParticipants);
 
 %% Plotting mean data
 % Make a plot that runs from -10 to 0 asymmetry as both lines shifted by
@@ -152,6 +160,9 @@ end
 
 %% Landmarks
 cd(dirAnaAll) %directory where all analysis stored
+% for shaded regions
+lm2low = 0.5-results.lm2.binomialStat(1); lm2high = results.lm2.binomialStat(2)-0.5;
+tr2low = 0.5-results.tr2.binomialStat(1); tr2high = results.tr2.binomialStat(2)-0.5;
 
 pdfFileName = strcat('lm2_responseAveragePP_sessions', '.pdf');
 asym = allData.allSessions.lm2.asymmetry(1:6);
@@ -170,7 +181,10 @@ midpoint = line('XData', [-10 0], 'YData', [0.5, 0.5], 'LineStyle', '--', ...
     'LineWidth', 0.5, 'Color', [0 0 0]); %midpoint
 xlabel('Stimulus asymmetry (mm)'); ylabel('Proportion right-shifted line perceived as longer');
 % Include shaded area with binomial data
-
+shadedVal = zeros(length(asym),1)+0.5; %making the same length so can plot shaded error bar around 0
+hold on
+createShadedRegion(asym, shadedVal, (shadedVal - lm2low),...
+    (shadedVal + lm2high),':','color', [0.5 0.5 0.5]);
 saveas(gcf, pdfFileName);
 
 % Average across all sessions
@@ -191,6 +205,10 @@ set(ax, 'FontSize', 11);
 hold on %drawing a line at 50%
 midpoint = line('XData', [-10 0], 'YData', [0.5, 0.5], 'LineStyle', '--', ...
     'LineWidth', 0.5, 'Color', [0 0 0]); %midpoint
+shadedVal = zeros(length(asym),1)+0.5; %making the same length so can plot shaded error bar around 0
+hold on
+createShadedRegion(asym, shadedVal, (shadedVal - lm2low),...
+    (shadedVal + lm2high),':','color', [0.5 0.5 0.5]);
 xlabel('Stimulus asymmetry (mm)'); ylabel('Proportion right-shifted line perceived as longer');
 saveas(gcf, pdfFileName);
 
@@ -210,6 +228,10 @@ set(ax, 'FontSize', 11);
 hold on %drawing a line at 50%
 midpoint = line('XData', [-10 0], 'YData', [0.5, 0.5], 'LineStyle', '--', ...
     'LineWidth', 0.5, 'Color', [0 0 0]); %midpoint
+shadedVal = zeros(length(asym),1)+0.5; %making the same length so can plot shaded error bar around 0
+hold on
+createShadedRegion(asym, shadedVal, (shadedVal - tr2low),...
+    (shadedVal + tr2high),':','color', [0.5 0.5 0.5]);
 xlabel('Stimulus asymmetry (mm)'); ylabel('Proportion right-shifted line perceived as longer');
 saveas(gcf, pdfFileName);
 
@@ -226,6 +248,10 @@ set(ax, 'FontSize', 11);
 hold on %drawing a line at 50%
 midpoint = line('XData', [-10 0], 'YData', [0.5, 0.5], 'LineStyle', '--', ...
     'LineWidth', 0.5, 'Color', [0 0 0]); %midpoint
+shadedVal = zeros(length(asym),1)+0.5; %making the same length so can plot shaded error bar around 0
+hold on
+createShadedRegion(asym, shadedVal, (shadedVal - tr2low),...
+    (shadedVal + tr2high),':','color', [0.5 0.5 0.5]);
 xlabel('Stimulus asymmetry (mm)'); ylabel('Proportion right-shifted line perceived as longer');
 saveas(gcf, pdfFileName);
 
@@ -255,4 +281,28 @@ EB(1,1).Color = [0.2 0.2 0.2]; EB(1,2).Color = [0.2 0.1 0.5];
 legend('Large shift', 'Small shift');
 
 %% Making Dakin plot
+%% Landmarks
+% Plotting the difference between average shifts
+results.plotting.shifts.lm2(:,1) = nParticipants; %participant info
+results.plotting.shifts.lm2(:,2) = mean(allData.allSessions.lm2.shiftGroup); %average proportion
+results.plotting.shifts.lm2(:,3) = allData.allSessions.lm2.shiftGroup(1,:); %high shift
+results.plotting.shifts.lm2(:,4) = allData.allSessions.lm2.shiftGroup(2,:); %low shift
+results.plotting.shifts.lm2(:,5) = std(allData.allSessions.lm2.shiftGroup); %std of proportions
+% Extracting CIs from the SDs
+lm2CI = results.plotting.shifts.lm2(:,5)/sqrt(length(nParticipants))*2.10;
+results.plotting.shifts.lm2(:,6) = lm2CI;
+% organising participants by mean proportion
+results.plotting.shifts.lm2 = sortrows(results.plotting.shifts.lm2, 2);
+results.plotting.shifts.lm2(:,7) = nParticipants; %observers not sorted by bias for plotting
+% standard deviation values for shading
+lm2SDpt5 = std(results.plotting.shifts.lm2(:,2))*0.5;
+lm2SD2 = std(results.plotting.shifts.lm2(:,2))*2;
+lm2SDall = std(results.plotting.shifts.lm2(:,5));
+lm2CI = std(results.plotting.shifts.lm2(:,6)); %need to do this again because data has been sorted
+
+% Making plot
+
+%% Tactile
 %% Plot Binomial
+
+save(matFilename, 'data', 'results');
