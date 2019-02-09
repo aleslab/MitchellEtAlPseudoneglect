@@ -146,22 +146,28 @@ for p = 1:length(nParticipants)
     
     % determining whether each participant is below the lower binomial
     % bounadry (therefore significantly different from 50%)
-    results.lm2.binomial.log{p,:} = true(allData.allSessions.lm2.shiftGroup(1,p)<results.lm2.binomialStat(1)); %landmarks
-    results.tr2.binomial.log{p,:} = true(allData.allSessions.tr2.shiftGroup(1,p)<results.tr2.binomialStat(1));
+    % Test for left bias (large shift smaller than low binomial)
+    results.lm2.binomial.logL{p,:} = true(allData.allSessions.lm2.shiftGroup(1,p)<results.lm2.binomialStat(1)); %landmarks
+    results.tr2.binomial.logL{p,:} = true(allData.allSessions.tr2.shiftGroup(1,p)<results.tr2.binomialStat(1));
+    % Test for right bias (large shift larger than high binomial)
+    results.lm2.binomial.logR{p,:} = true(allData.allSessions.lm2.shiftGroup(1,p)>results.lm2.binomialStat(2)); %landmarks
+    results.tr2.binomial.logR{p,:} = true(allData.allSessions.tr2.shiftGroup(1,p)>results.tr2.binomialStat(2));
 end
 
 % getting proportion of participants
-% landmarks
-results.lm2.binomial.true = double(cell2mat(results.lm2.binomial.log));
-results.lm2.proportionSig = sum(results.lm2.binomial.true)/length(nParticipants);
-% tactile
-results.tr2.binomial.true = double(cell2mat(results.tr2.binomial.log));
-results.tr2.proportionSig = sum(results.tr2.binomial.true)/length(nParticipants); 
+% landmarks - left shift
+results.lm2.binomial.trueL = double(cell2mat(results.lm2.binomial.logL));
+results.lm2.binomial.proportionSigLeft = sum(results.lm2.binomial.trueL)/length(nParticipants);
+% right shift
+results.lm2.binomial.trueR = double(cell2mat(results.lm2.binomial.logR));
+results.lm2.binomial.proportionSigRight = sum(results.lm2.binomial.trueR)/length(nParticipants);
 
-%% T-tests
-% Calculating difference between large and small shift group for each task
-% Within participants
-
+% tactile - left shift
+results.tr2.binomial.trueL = double(cell2mat(results.tr2.binomial.logL));
+results.tr2.binomial.proportionSigLeft = sum(results.tr2.binomial.trueL)/length(nParticipants);
+% right shift
+results.tr2.binomial.trueR = double(cell2mat(results.tr2.binomial.logR));
+results.tr2.binomial.proportionSigRight = sum(results.tr2.binomial.trueR)/length(nParticipants); 
 
 %% Plotting mean data
 % Make a plot that runs from -10 to 0 asymmetry as both lines shifted by
@@ -414,7 +420,18 @@ trText = [trlgd, trlgd.ItemText]; set(trText, 'FontSize', 10);
 legend boxoff
 saveas(gcf, pdfFileName);
 
-%% Plot Binomial
+%% T-test
+% Calculating difference between large and small shift group for each task
+% Within participants
+% Landmarks
+[h, p, ci, stat] = ttest(results.plotting.shifts.lm2(:,3), results.plotting.shifts.lm2(:,4));
+results.lm2.ttest.h = h; results.lm2.ttest.p = p; results.lm2.ttest.ci = ci;
+results.lm2.ttest.stat = stat; %adding to results struct
 
-save(matFilename, 'data', 'results');
+% Tactile
+[h, p, ci, stat] = ttest(results.plotting.shifts.tr2(:,3), results.plotting.shifts.tr2(:,4));
+results.tr2.ttest.h = h; results.tr2.ttest.p = p; results.tr2.ttest.ci = ci;
+results.tr2.ttest.stat = stat; %adding to results struct
+
+save(matFilename, 'allData', 'results');
 close all
