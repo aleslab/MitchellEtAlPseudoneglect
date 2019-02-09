@@ -22,7 +22,8 @@ clear all;      %Clear all existing variables from memory
 
 tic
 % Load in participant data
-nParticipants = [1:17];
+%nParticipants = [1:19,21,22,24];
+nParticipants = 11; %for testing
 for p = 1:length(nParticipants)  
     ppID = sprintf('P%0*d',2,nParticipants(p));
     %ppID = input('Participant ID? ', 's'); %for use when navigating files
@@ -30,7 +31,7 @@ for p = 1:length(nParticipants)
     matfilename = sprintf('%s_visualanalysis.mat', ppID);
     nSessions = 1:4; %vector number of sessions each participant does
     % Directory
-    dirBias = ('C:\Users\Experimenter\Documents\Experiments2018\Bias'); %subject to change depending on where you analyse
+    dirBias = ('M:\Experiments\Bias'); %subject to change depending on where you analyse
     dirPP = [dirBias filesep ppID]; %participant directory
     % Making new anaysis folder for saving
     cd(dirPP)
@@ -46,7 +47,7 @@ for p = 1:length(nParticipants)
     ParOrNonPar = 2; %non-parametric design
     nSims = 1000; %number of sims for all bootstraps and goodness of fit
     lm.lapseP = lm.lapse/100; %proportion correct, not percentage
-    paramsFree = [1 1 0 0];  %1: free parameter, 0: fixed parameter
+    paramsFree = [1 1 1 1];  %1: free parameter, 0: fixed parameter
 
     %Use the Cumulative normal function
     PF = @PAL_CumulativeNormal;  %Alternatives: PAL_Gumbel, PAL_Weibull,
@@ -54,7 +55,7 @@ for p = 1:length(nParticipants)
                          %PAL_CumulativeNormal, PAL_HyperbolicSecant
 
 
-    fitLapseRate = false;
+    fitLapseRate = true;
 
     %For this set of stim values the guess rate is equal to the lapse rate.  
     %This can be kept true for this data. 
@@ -82,6 +83,7 @@ for p = 1:length(nParticipants)
         % Number of trials at each entry of 'StimLevels'
         % Percentage so out of 100
         OutOfNum = lm.(sprintf('%s', session)).res(:,2)';
+        options = PAL_minimize('options'); %for lapse rate fitting
 
         %Parameter grid defining parameter space through which to perform a
         %brute-force search for values to be used as initial guesses in iterative
@@ -93,7 +95,7 @@ for p = 1:length(nParticipants)
         disp('Fitting function.....');
         [paramsValues LL exitflag] = PAL_PFML_Fit(StimLevels,NumPos, ...
         OutOfNum,searchGrid,paramsFree,PF,...
-        'lapseLimits',[0 1],'gammaEQlambda',gammaEqLambda)
+        'lapseLimits',[0 1],'gammaEQlambda', gammaEqLambda)
 
         % Getting standard error
         if ParOrNonPar == 1
@@ -107,7 +109,8 @@ for p = 1:length(nParticipants)
         end
 
         [Dev pDev] = PAL_PFML_GoodnessOfFit(StimLevels, NumPos, OutOfNum, ...
-        paramsValues, paramsFree, nSims, PF, 'searchGrid', searchGrid);
+        paramsValues, paramsFree, nSims, PF, 'lapseLimits', [0 1], 'gammaEQlambda', gammaEqLambda,...
+        'searchGrid', searchGrid);
 
         %Create simple plot
         ProportionCorrectObserved=NumPos./OutOfNum; 
@@ -192,8 +195,7 @@ for p = 1:length(nParticipants)
     % Perform fit - Cumulative Normal
     disp('Fitting function.....');
     [paramsValues LL exitflag] = PAL_PFML_Fit(StimLevels,NumPos, ...
-        OutOfNum,searchGrid,paramsFree,PF,...
-        'lapseLimits',[0 1],'gammaEQlambda',gammaEqLambda)
+        OutOfNum,searchGrid,paramsFree,PF, 'lapseLimits',[0 1],'gammaEQlambda',gammaEqLambda)
 
     % Getting standard error
     if ParOrNonPar == 1
@@ -210,7 +212,8 @@ for p = 1:length(nParticipants)
     disp('Determining Goodness-of-fit.....');
 
     [Dev pDev] = PAL_PFML_GoodnessOfFit(StimLevels, NumPos, OutOfNum, ...
-        paramsValues, paramsFree, nSims, PF, 'searchGrid', searchGrid);
+        paramsValues, paramsFree, nSims, PF, 'lapseLimits',[0 1],'gammaEQlambda',gammaEqLambda, ...
+        'searchGrid', searchGrid);
 
     %Create simple plot
     ProportionCorrectObserved=NumPos./OutOfNum; 

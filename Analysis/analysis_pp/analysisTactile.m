@@ -6,8 +6,10 @@
 clear all
 
 %% File paths
-nParticipants = [1:17];
+nParticipants = [12:19,21,22,24];
+%nParticipants = 1;
 for p = 1:length(nParticipants)
+
     ppID = sprintf('P%0*d',2,nParticipants(p)); %for use when navigating files
     matfilename = sprintf('%s_tactileanalysis.mat', ppID);
     nSessions = 1:4; %vector number of sessions each participant does
@@ -56,8 +58,11 @@ for p = 1:length(nParticipants)
         shift = Data(:, ismember(Text(1,:), 'shift')); %shift in mm (0,2,4,6,8,1(=10))
         line = Data(:, ismember(Text(1,:), 'line')); %indicating the line that should be shifted left (the other right, 1 = top, 2 = bottom)
         response = Data(:, ismember(Text(1,:), 'response')); %top line = 1, bottom line = 2
+        % Converting shift = 1 to shift = 10, representing actual shift
+        shift(find(shift==1)) = 10;
         % Making matrix
         tr2.(sprintf('%s', session)).matrix = [size, shift, line, response];
+
     end
 
     %% TRB analysis
@@ -189,9 +194,124 @@ for p = 1:length(nParticipants)
     saveas(figure(5), sprintf('%s_TRBlines.jpg', ppID));
 
     %% TR2 analysis
+    % Identifying whether response matches shift
+    measurements = -10:2:10; %stimulus asymmetries
+    for i = 1:length(nSessions)
+        session = sprintf('Session%0*d',2,nSessions(i));
+        cd(dirSess); %directing to current session folder
+        
+        % Creating matrix for values
+        tr2.(sprintf('%s', session)).allshift.per(:,1) = measurements';
+        tr2mat = tr2.(sprintf('%s', session)).matrix;
+        
+        % Midpoint values
+        tr2.(sprintf('%s', session)).allshift.mid = tr2mat(find(tr2mat(:,2)== 0),:); %midpoint, point where both lines are centred at 0    
+        % Finding midpoint values where shifted line does not equal
+        % response line
+        for j = 1:length(tr2.(sprintf('%s', session)).allshift.mid(:,4))
+            tr2.(sprintf('%s', session)).allshift.mid(j,5) = ...
+                ~isequal(tr2.(sprintf('%s', session)).allshift.mid(j,3), tr2.(sprintf('%s', session)).allshift.mid(j,4));
+        end
+        % Calculating the percentage for the midpoint
+        perMid = sum((tr2.(sprintf('%s', session)).allshift.mid(:,5))/...
+            length(tr2.(sprintf('%s', session)).allshift.mid(:,5)))*100;
+        % adding to key matrix
+        tr2.(sprintf('%s', session)).allshift.per(6,2) = perMid;
+        
+        % Do the same for all the shifts now, for top and bottom rods
+        % Extracting the values
+        for ii = 1:5 %5 shifts per line
+            shift = ii*2; shiftmm = shift; %for naming
+            name = sprintf('%d', shift);
+
+            tr2.(sprintf('%s', session)).allshift.(sprintf('left%d', shift)) ...
+                = tr2mat(find(tr2mat(:,2)== shiftmm),:); %left shift all
+%             tr2.(sprintf('%s', session)).allshift.(sprintf('bottom%d', shift)) ...
+%                 = tr2mat(find(tr2mat(:,2)== shiftmm & tr2mat(:,3)== 2),:); %bottom line left
+        end
+        
+        k = 1:5; k = flipud(k');
+        for ii = 1:5 %number of shifts
+            shift = ii*2; shiftmm = shift/10; %for naming
+            name = sprintf('%d', shift);
+            for j = 1:length(tr2.(sprintf('%s', session)).allshift.(sprintf('left%d', shift))(:,4))
+                tr2.(sprintf('%s', session)).allshift.(sprintf('left%d', shift))(j,5) = ...
+                        ~isequal(tr2.(sprintf('%s', session)).allshift.(sprintf('left%d', shift))(j,3),...
+                tr2.(sprintf('%s', session)).allshift.(sprintf('left%d', shift))(j,4)); 
+            end
+            for j = 1:length(tr2.(sprintf('%s', session)).allshift.(sprintf('left%d', shift))(:,4))
+                tr2.(sprintf('%s', session)).allshift.(sprintf('left%d', shift))(j,6) = ...
+                        isequal(tr2.(sprintf('%s', session)).allshift.(sprintf('left%d', shift))(j,3),...
+                tr2.(sprintf('%s', session)).allshift.(sprintf('left%d', shift))(j,4)); 
+            end
+            perLeft = sum((tr2.(sprintf('%s', session)).allshift.(sprintf('left%d', shift))(:,5))/...
+            length(tr2.(sprintf('%s', session)).allshift.(sprintf('left%d', shift))(:,5)))*100;
+            perRight = sum((tr2.(sprintf('%s', session)).allshift.(sprintf('left%d', shift))(:,6))/...
+            length(tr2.(sprintf('%s', session)).allshift.(sprintf('left%d', shift))(:,6)))*100;
+        
+            tr2.(sprintf('%s', session)).allshift.per(k(ii),2) = perLeft;
+            tr2.(sprintf('%s', session)).allshift.per((ii+6),2) = perRight;
+        end
+        tr2psych.(sprintf('%s', session)) = tr2.(sprintf('%s', session)).allshift.per;
+    end
+    
+    %average across all sessions
+    allSessions = [tr2psych.Session01(:,2), tr2psych.Session02(:,2), tr2psych.Session03(:,2),...
+        tr2psych.Session04(:,2)];
+    asym = tr2psych.Session01(:,1); %asymmtry for the x-axis
+    tr2psych.allSessions = [asym, mean(allSessions,2)]; % mean all sessions
+    
+    %Saving
+    cd(dirTact); save(matfilename, 'trb', 'tr2', 'tr2psych');
+    
+    %% Creating a plot
+    asym = [-10:2:0]; 
+    % All sessions
+    fig1name = sprintf('%str2raw_Sessions', ppID);
+    pdfFileName = strcat(fig1name, '.pdf');
+    for i = 1:length(nSessions)
+        session = sprintf('Session%0*d',2,nSessions(i));
+        halfSess = tr2psych.(sprintf('%s', session))(1:6,2);
+        figure(6)
+        plot(asym, halfSess, 'LineWidth', 1);
+        hold on
+    end 
+    figure(6)
+ % Adding the shifts as x-axis tick labels
+    ax = gca;
+    set(ax, 'Xtick', asym);
+    xlim([min(asym) max(asym)]); ylim([0 100]);
+    % Adding horizontal line at y = 50
+    ymid = max(ylim)/2;
+    hold on
+    plot(xlim, [1,1]*ymid, '--k')
+    % Naming
+    legend('Sess1', 'Sess2', 'Sess3', 'Sess4');
+    ylabel('Percentage right shifted line perceived as longer');
+    xlabel('Stimulus asymmetry (mm)');
+    saveas(gcf, pdfFileName);
+    
+    % Average session
+    fig2name = sprintf('%str2raw_meanSessions', ppID);
+    pdfFileName = strcat(fig2name, '.pdf');
+    
+    figure(7)
+    plot(asym, tr2psych.allSessions(1:6,2), 'LineWidth', 1);
+    % Adding the shifts as x-axis tick labels
+    ax = gca;
+    set(ax, 'Xtick', asym);
+    xlim([min(asym) max(asym)]); ylim([0 100]);
+    % Adding horizontal line at y = 50
+    ymid = max(ylim)/2;
+    hold on
+    plot(xlim, [1,1]*ymid, '--k')
+    ylabel('Percentage right shifted line perceived as longer');
+    xlabel('Stimulus asymmetry (mm)');
+    saveas(gcf, pdfFileName);
+
     %% TR2 plots
     %% Close and save
     close all
-    save(matfilename, 'trb', 'tr2');
+    save(matfilename, 'trb', 'tr2', 'tr2psych');
 end
 
