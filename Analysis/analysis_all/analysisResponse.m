@@ -24,7 +24,7 @@ for p = 1:length(nParticipants)
     matFilename = ('responseAnalysis.mat');
     % Directories
     % Directory
-    dirBias = ('M:\Experiments\Bias'); %subject to change depending on where you analyse
+    dirBias = ('C:\Users\Experimenter\Documents\Experiments2018\Bias'); %subject to change depending on where you analyse
     dirPP = [dirBias filesep ppID]; %participant directory
     dirAna = [dirPP filesep 'Analysis' filesep];
     dirVis = [dirAna 'Visual' filesep];
@@ -47,9 +47,11 @@ for p = 1:length(nParticipants)
         % landmarks data
         allData.(sprintf('%s', session)).lm2.asymmetry = lm2psych.(sprintf('%s', session))(:,1);
         allData.(sprintf('%s', session)).lm2.allPP(:,(p)) = (lm2psych.(sprintf('%s', session))(:,2))/100; %calculating proportion
+        allData.(sprintf('%s', session)).lm2.SD(p) = std(allData.(sprintf('%s', session)).lm2.allPP(1:6,p)); %sd of all 6 shifts (-10 to 0)
         % tactile data
         allData.(sprintf('%s', session)).tr2.asymmetry = tr2psych.(sprintf('%s', session))(:,1);
         allData.(sprintf('%s', session)).tr2.allPP(:,(p)) = (tr2psych.(sprintf('%s', session))(:,2))/100;
+        allData.(sprintf('%s', session)).tr2.SD(p) = std(allData.(sprintf('%s', session)).tr2.allPP(1:6,p));
         
         % average data into the 3 largest and 3 smallest stimulus asymmetries
         % landmarks
@@ -69,9 +71,11 @@ for p = 1:length(nParticipants)
     % landmarks
     allData.allSessions.lm2.asymmetry = lm2psych.allSessions(:,1); 
     allData.allSessions.lm2.allPP(:,(p)) = (lm2psych.allSessions(:,2))/100; %calculating proportions
+    allData.allSessions.lm2.SD(p) = std(allData.allSessions.lm2.allPP(1:6,p));
     % tactile
     allData.allSessions.tr2.asymmetry = tr2psych.allSessions(:,1);
     allData.allSessions.tr2.allPP(:,(p)) = (tr2psych.allSessions(:,2))/100;
+    allData.allSessions.tr2.SD(p) = std(allData.allSessions.tr2.allPP(1:6,p));
     
     % average data into the 3 largest and 3 smallest stimulus asymmetries
     % landmarks
@@ -152,7 +156,12 @@ results.lm2.binomial.true = double(cell2mat(results.lm2.binomial.log));
 results.lm2.proportionSig = sum(results.lm2.binomial.true)/length(nParticipants);
 % tactile
 results.tr2.binomial.true = double(cell2mat(results.tr2.binomial.log));
-results.tr2.proportionSig = sum(results.tr2.binomial.true)/length(nParticipants);
+results.tr2.proportionSig = sum(results.tr2.binomial.true)/length(nParticipants); 
+
+%% T-tests
+% Calculating difference between large and small shift group for each task
+% Within participants
+
 
 %% Plotting mean data
 % Make a plot that runs from -10 to 0 asymmetry as both lines shifted by
@@ -287,22 +296,125 @@ results.plotting.shifts.lm2(:,1) = nParticipants; %participant info
 results.plotting.shifts.lm2(:,2) = mean(allData.allSessions.lm2.shiftGroup); %average proportion
 results.plotting.shifts.lm2(:,3) = allData.allSessions.lm2.shiftGroup(1,:); %high shift
 results.plotting.shifts.lm2(:,4) = allData.allSessions.lm2.shiftGroup(2,:); %low shift
-results.plotting.shifts.lm2(:,5) = std(allData.allSessions.lm2.shiftGroup); %std of proportions
+results.plotting.shifts.lm2(:,5) = allData.allSessions.lm2.SD; %std of all shifts
 % Extracting CIs from the SDs
 lm2CI = results.plotting.shifts.lm2(:,5)/sqrt(length(nParticipants))*2.10;
 results.plotting.shifts.lm2(:,6) = lm2CI;
 % organising participants by mean proportion
 results.plotting.shifts.lm2 = sortrows(results.plotting.shifts.lm2, 2);
-results.plotting.shifts.lm2(:,7) = nParticipants; %observers not sorted by bias for plotting
+results.plotting.shifts.lm2(:,7) = 1:22; %observers not sorted by bias for plotting
 % standard deviation values for shading
 lm2SDpt5 = std(results.plotting.shifts.lm2(:,2))*0.5;
 lm2SD2 = std(results.plotting.shifts.lm2(:,2))*2;
-lm2SDall = std(results.plotting.shifts.lm2(:,5));
-lm2CI = std(results.plotting.shifts.lm2(:,6)); %need to do this again because data has been sorted
+lm2SDall = results.plotting.shifts.lm2(:,5);
+lm2CI = results.plotting.shifts.lm2(:,6); %need to do this again because data has been sorted
 
 % Making plot
+pdfFileName = strcat('Landmarks2_groups', '.pdf');
+figure('units', 'centimeters', 'Position', [5 3 18 12])
+hold on
+lm1 = scatter(results.plotting.shifts.lm2(:,7), results.plotting.shifts.lm2(:,3), ...
+    'filled', 'o', 'MarkerFaceColor', [0.7 0.5 0.7], 'MarkerEdgeColor', [0.1 0 0.1]); % landmark task data
+set(lm1, 'SizeData', 50);
+hold on
+lm2 = scatter(results.plotting.shifts.lm2(:,7), results.plotting.shifts.lm2(:,4), ...
+    'filled', 'o', 'MarkerFaceColor', [0.3 0.1 0.3], 'MarkerEdgeColor', [0.3 0.2 0.3]); % mlb task data
+set(lm2, 'SizeData', 50);
+hold on %adding error bars
+lmE = errorbar(results.plotting.shifts.lm2(:,7), results.plotting.shifts.lm2(:,2), lm2CI,  'LineStyle', 'none',...
+    'LineWidth', 1, 'Color', [0 0 0], 'CapSize', 0);
+hold on
+tr3 = scatter(results.plotting.shifts.lm2(:,7), results.plotting.shifts.lm2(:,2), ...
+    'filled', '^', 'MarkerFaceColor', [0.4 0 0.4], 'MarkerEdgeColor', [0.2 0 0.2]); % mean of task data
+set(tr3, 'SizeData', 50);
+hold on %drawing a line at 0.5
+line('XData', [0 length(nParticipants)], 'YData', [0.5, 0.5], 'LineStyle', '-', ...
+    'LineWidth', 0.5, 'Color', 'k'); %midpoint
+% adding the fiddly bits
+ax = gca;
+xVal = [ax.XLim(1):ax.XLim(end)];
+shadedVal = zeros(length(xVal),1)+0.5; %making the same length so can plot shaded error bar around 0
+hold on %shaded region of binomial analysis
+createShadedRegion(xVal, shadedVal, (shadedVal - lm2low), (shadedVal + lm2high),':','color', [0.7 0.7 0.7]);
+% Adding SD shaded area
+ylim([0.2 0.7]);
+% Making it prettier
+set(ax, 'FontSize', 11);
+xLabels = num2str(results.plotting.shifts.lm2(:,1));
+xticks(ax, 1:length(results.plotting.shifts.lm2(:,1)));
+xticklabels(ax, xLabels); 
+tix = get(gca, 'ytick')';
+set(gca, 'yticklabel', num2str(tix, '%.2f')); %setting all to 1dp
+% labels and legends
+xlabel('Observers'); ylabel('Proportion right-shifted longer');
+lmlgd = legend([lm1, lm2, tr3], 'Large shift', 'Small shift', 'Mean', [110 290 0.2 0.1]);
+lmText = [lmlgd, lmlgd.ItemText]; set(lmText, 'FontSize', 10);
+legend boxoff
+saveas(gcf, pdfFileName);
 
 %% Tactile
+% Plotting the difference between average shifts
+results.plotting.shifts.tr2(:,1) = nParticipants; %participant info
+results.plotting.shifts.tr2(:,2) = mean(allData.allSessions.tr2.shiftGroup); %average proportion
+results.plotting.shifts.tr2(:,3) = allData.allSessions.tr2.shiftGroup(1,:); %high shift
+results.plotting.shifts.tr2(:,4) = allData.allSessions.tr2.shiftGroup(2,:); %low shift
+results.plotting.shifts.tr2(:,5) = allData.allSessions.tr2.SD; %std of all shifts
+% Extracting CIs from the SDs
+tr2CI = results.plotting.shifts.tr2(:,5)/sqrt(length(nParticipants))*2.10;
+results.plotting.shifts.tr2(:,6) = tr2CI;
+% organising participants by mean proportion
+results.plotting.shifts.tr2 = sortrows(results.plotting.shifts.tr2, 2);
+results.plotting.shifts.tr2(:,7) = 1:22; %observers not sorted by bias for plotting
+% standard deviation values for shading
+tr2SDpt5 = std(results.plotting.shifts.tr2(:,2))*0.5;
+tr2SD2 = std(results.plotting.shifts.tr2(:,2))*2;
+tr2SDall = results.plotting.shifts.tr2(:,5);
+tr2CI = results.plotting.shifts.tr2(:,6); %need to do this again because data has been sorted
+
+% Making plot
+pdfFileName = strcat('Tactile2_groups', '.pdf');
+figure('units', 'centimeters', 'Position', [5 3 18 12])
+hold on
+tr1 = scatter(results.plotting.shifts.tr2(:,7), results.plotting.shifts.tr2(:,3), ...
+    'filled', 'o', 'MarkerFaceColor', [0.2 0.9 0.2], 'MarkerEdgeColor', [0 0.5 0]); % landmark task data
+set(tr1, 'SizeData', 50);
+hold on
+tr2 = scatter(results.plotting.shifts.tr2(:,7), results.plotting.shifts.tr2(:,4), ...
+    'filled', 'o', 'MarkerFaceColor', [0 0.4 0], 'MarkerEdgeColor', [0 0.2 0]); % mlb task data
+set(tr2, 'SizeData', 50);
+hold on %adding error bars
+trE = errorbar(results.plotting.shifts.tr2(:,7), results.plotting.shifts.tr2(:,2), tr2CI,  'LineStyle', 'none',...
+    'LineWidth', 1, 'Color', [0 0 0], 'CapSize', 0);
+hold on
+tr3 = scatter(results.plotting.shifts.tr2(:,7), results.plotting.shifts.tr2(:,2), ...
+    'filled', '^', 'MarkerFaceColor', [0 0.2 0], 'MarkerEdgeColor', [0 0.1 0]); % mean of task data
+set(tr3, 'SizeData', 50);
+hold on %drawing a line at 0.5
+line('XData', [0 length(nParticipants)], 'YData', [0.5, 0.5], 'LineStyle', '-', ...
+    'LineWidth', 0.5, 'Color', 'k'); %midpoint
+% adding the fiddly bits
+ax = gca;
+xVal = [ax.XLim(1):ax.XLim(end)];
+shadedVal = zeros(length(xVal),1)+0.5; %making the same length so can plot shaded error bar around 0
+hold on %shaded region of binomial analysis
+createShadedRegion(xVal, shadedVal, (shadedVal - tr2low), (shadedVal + tr2high),':','color', [0.7 0.7 0.7]);
+% Adding SD shaded area
+ylim([0.2 0.7]);
+% Making it prettier
+set(ax, 'FontSize', 11);
+xLabels = num2str(results.plotting.shifts.tr2(:,1));
+xticks(ax, 1:length(results.plotting.shifts.tr2(:,1)));
+xticklabels(ax, xLabels); 
+tix = get(gca, 'ytick')';
+set(gca, 'yticklabel', num2str(tix, '%.2f')); %setting all to 1dp
+% labels and legends
+xlabel('Observers'); ylabel('Proportion right-shifted longer');
+trlgd = legend([tr1, tr2, tr3], 'Large shift', 'Small shift', 'Mean', [110 290 0.2 0.1]);
+trText = [trlgd, trlgd.ItemText]; set(trText, 'FontSize', 10);
+legend boxoff
+saveas(gcf, pdfFileName);
+
 %% Plot Binomial
 
 save(matFilename, 'data', 'results');
+close all
