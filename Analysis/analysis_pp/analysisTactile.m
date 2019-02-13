@@ -6,7 +6,7 @@
 clear all
 
 %% File paths
-nParticipants = [12:19,21,22,24];
+nParticipants = [1:19,21,22,24];
 %nParticipants = 1;
 for p = 1:length(nParticipants)
 
