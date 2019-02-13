@@ -19,7 +19,7 @@ for p = 1:length(nParticipants)
     matfilename = sprintf('%s_visualanalysis2AFC.mat', ppID);
     nSessions = 1:4; %vector number of sessions each participant does
     % Directory
-    dirBias = ('C:\Users\Experimenter\Documents\Experiments2018\Bias'); %subject to change depending on where you analyse
+    dirBias = ('M:\Experiments\Bias'); %subject to change depending on where you analyse
     dirPP = [dirBias filesep ppID]; %participant directory
     % Navigating to analysis folder
     cd(dirPP)
@@ -125,7 +125,7 @@ for p = 1:length(nParticipants)
     % Naming
     legend('Sess1', 'Sess2', 'Sess3', 'Sess4');
     ylabel('Perceneage right shifted line perceived as longer');
-    xlabel('Stimulus asymmetry (mm)');
+    xlabel('Stimulus asymmetry (mm)'); title('Visual');
     saveas(gcf, pdfFileName);
     
     % Average session
@@ -133,7 +133,7 @@ for p = 1:length(nParticipants)
     pdfFileName = strcat(fig2name, '.pdf');
     
     figure(2)
-    plot(asym, lm2psych.allSessions(1:6,2), 'LineWidth', 1);
+    plot(asym, lm2psych.allSessions(1:6,2), 'LineWidth', 1.5);
     % Adding the shifts as x-axis tick labels
     ax = gca;
     set(ax, 'Xtick', asym);
@@ -143,7 +143,7 @@ for p = 1:length(nParticipants)
     hold on
     plot(xlim, [1,1]*ymid, '--k')
     ylabel('Perceneage right shifted line perceived as longer');
-    xlabel('Stimulus asymmetry (mm)');
+    xlabel('Stimulus asymmetry (mm)'); title('Visual');
     saveas(gcf, pdfFileName);
    
 %% Psychometric curve fitting
