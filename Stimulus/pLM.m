@@ -4,7 +4,7 @@ clc
 clear all
 datenow(1:6) = fix(clock);
 dummymode = 0;
-practice = 0;
+practice = 1;
 
 %% Variables
 matfilename = sprintf('LM_%d%d%d_%d%d%d', datenow);
@@ -18,7 +18,7 @@ time = struct;
 data = struct;
 
 % Dimensions in cm
-sd = 57; %distance from laptop
+sd = 57; %distance from laptop1
 sx = 47.5; %size of screen
 sy = 26.5;
 
@@ -214,11 +214,17 @@ for i = 1:nrtrials
             Screen('FillRect', window, black, [midX, liney-(stim.line.widthpix/2), linex2+shift, liney]); % line 2 - top right
             Screen('FillRect', window, black, [linex1+shift, liney, midX, liney+(stim.line.widthpix/2)]); %line 3 - bottom left
             Screen('FillRect', window, white, [midX, liney, linex2+shift, liney+(stim.line.widthpix/2)]); % line 2 - bottom right
-        end
+            end111
    % end
     
     Screen('Flip', window);
     time.target.start(i) = GetSecs;
+    
+    %photograph of stimuli
+    stimImg = Screen('GetImage', window);
+    imgName = sprintf('stim%s.jpg', string(i));
+    
+    
     WaitSecs(stim.time.line)
     %KbStrokeWait; %for testing
     Screen('Flip',window);
@@ -261,6 +267,7 @@ for i = 1:nrtrials
        Screen('Flip', window);
        time.target.end(i) = GetSecs;
     end
+    imwrite(stimImg, imgName);
 
 end
 time.experiment.end = GetSecs;
