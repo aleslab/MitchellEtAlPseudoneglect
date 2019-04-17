@@ -147,7 +147,16 @@ Screen('Flip', window);
 % Loop starts
 time.experiment.start = GetSecs;
 for i = 1:nrtrials  
-    % Stimulus line lengths
+    % switching hands 1/2 way through
+    if i == nrtrials/2
+        text = 'Switch hands';
+        Screen('DrawText', window, text, DisplayXSize/2 - width/2, DisplayYSize/2, black); 
+        Screen('Flip', window);
+        KbStrokeWait
+        Screen('Flip', window);
+    end 
+    
+     % Stimulus line lengths
     switch stim.size(i)
         case 1
             linelength = stim.line.lengthspix(1);
