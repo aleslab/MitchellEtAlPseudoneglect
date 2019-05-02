@@ -3,7 +3,7 @@
 clear all
 
 %% File paths
-nParticipants = [1:19,21:24,28,30];
+nParticipants = [1:19,21:24,26:30];
 for p = 1:length(nParticipants)
     ppID = sprintf('P%0*d',2,nParticipants(p)); %for use when navigating files
     %ppID = input('Participant ID? ', 's'); %for use when navigating files, debugging version
