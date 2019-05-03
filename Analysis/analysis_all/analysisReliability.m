@@ -716,7 +716,7 @@ midpoint = line('XData', [0 length(xValues)], 'YData', [0, 0], 'LineStyle', '--'
     'LineWidth', 0.5, 'Color', [0 0 0]); %midpoint
 ylim([-6 6]);
 ax = gca;
-set(ax, 'FontSize', 10);
+set(ax, 'FontSize', 10, 'xtick', [1 2 3 4]);
 xLabels = {'1', '2', '3', '4'};
 xticks(ax, [1 2 3 4]);
 xticklabels(ax, xLabels);

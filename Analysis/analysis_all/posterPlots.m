@@ -268,3 +268,57 @@ box off
 allT = title('All tasks'); set(allT, 'fontsize', 30);
 saveas(gcf, pngFileName);
 
+%% Mean session plot
+% First - bias y axis, session xaxis, modalities separate
+nSessions = 1:4;
+xValues = 1:(length(nSessions));
+sessSD1 = std(allData.sessions.allSessions(:,1));
+sessSD2 = std(allData.sessions.allSessions(:,2));
+sessSD3 = std(allData.sessions.allSessions(:,3));
+sessSD4 = std(allData.sessions.allSessions(:,4));
+sessCI1 = (sessSD1/sqrt(length(results.observers)))*2.11;
+sessCI2 = (sessSD2/sqrt(length(results.observers)))*2.11;
+sessCI3 = (sessSD3/sqrt(length(results.observers)))*2.11;
+sessCI4 = (sessSD4/sqrt(length(results.observers)))*2.11;
+errorBars = [sessCI1, sessCI2, sessCI3, sessCI4];
+allData.sessions.means.all = mean([allData.sessions.means.lmPSE; allData.sessions.means.mlb; ...
+    allData.sessions.means.trb]);
+
+pngFileName = strcat('biasSessions_bySess', '.png');
+
+figure('units', 'centimeters', 'Position', [5 3 18 16])
+dataMean = line('XData', [0 length(xValues)], 'YData', [allData.means.tot(1), allData.means.tot(1)],...
+    'LineStyle', '-', 'LineWidth', 2, 'Color', [0.6 0.6 0.6]); % mean for all data
+hold on
+midpoint = line('XData', [0 length(xValues)], 'YData', [0, 0], 'LineStyle', '--', ...
+    'LineWidth', 1.5, 'Color', [0.1 0.1 0.1]); %midpoint
+hold on
+errorbar(xValues, allData.sessions.means.all, errorBars, 'LineStyle', 'none', 'LineWidth', 2,...
+    'Color', [0.1 0.1 0.1], 'CapSize', 0);
+hold on
+s1 = scatter(xValues, allData.sessions.means.lmPSE, 'o', 'MarkerFaceColor', [0.5 0.2 0.6], ...
+    'MarkerEdgeColor', [0.1 0 0.2]); %lm data
+set(s1, 'SizeData', 150);
+hold on
+s2 = scatter(xValues, allData.sessions.means.mlb, 'filled', 'square', 'MarkerFaceColor', [0.1 0.4 0.7], ...
+    'MarkerEdgeColor', [0 0.1 0.2]);
+set(s2, 'SizeData', 150);
+hold on
+s3 = scatter(xValues, allData.sessions.means.trb, 'filled', '^', 'MarkerFaceColor', [0.5 0.5 0.7], ...
+    'MarkerEdgeColor', [0.1 0.1 0.2]);
+set(s3, 'SizeData', 150);
+ylim([-6 4]);
+ax = gca;
+set(ax, 'FontSize', 18, 'xtick', [1 2 3 4], 'ytick', [-6:2:4])
+xLabels = {'1', '2', '3', '4'};
+xticks(ax, [1 2 3 4]);
+xticklabels(ax, xLabels);
+ylabel('Bias (mm)');
+xlabel('Sessions');
+f3lgd = legend([s1 s2 s3], 'landmark', 'line bisection', 'rod bisection', [140 380 0.1 0.3]);
+f3Text = [f3lgd, f3lgd.ItemText]; set(f3Text, 'FontSize', 18);
+%f3t = title('Mean'); set(f3t, 'fontsize', 20);
+legend boxoff
+saveas(gcf, pngFileName);
+
+
