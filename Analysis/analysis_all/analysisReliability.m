@@ -10,7 +10,7 @@
 % data is consistent across sessions and modalities
 
 %% Loading data for each session
-nParticipants = [1:19,21,22,24];
+nParticipants = [1:19,21:24,26:30];
 allData = struct;
 matfilename = ('ReliabilityAnalysis.mat');
 for p = 1:length(nParticipants)
@@ -21,7 +21,7 @@ for p = 1:length(nParticipants)
     tactileFilename = sprintf('%s_tactileanalysis.mat', ppID);
     % Directories
     % Directory
-    dirBias = ('C:\Users\Experimenter\Documents\Experiments2018\Bias'); %subject to change depending on where you analyse
+    dirBias = ('M:\Experiments\Bias'); %subject to change depending on where you analyse
     dirPP = [dirBias filesep ppID]; %participant directory
     dirAna = [dirPP filesep 'Analysis' filesep];
     dirVis = [dirAna 'Visual' filesep];
@@ -160,6 +160,10 @@ outlierMLB = isoutlier(allData.modalities.data(:,2));
 % Tactile rod bisection
 outlierTRB = isoutlier(allData.modalities.data(:,3));
 outlierAll = [outlierLM, outlierMLB, outlierTRB]; outlierSum = sum(outlierAll,2);
+% Participant 24 = curve fitted poorly and not identified through outlier removeal
+% should be removed
+outlierSum(24,1) = 1;
+
 remove = find(outlierSum > 0.1); %identifies paticipants that need removing
 remove = sort(remove); %sorting so in participant order
 
@@ -799,11 +803,13 @@ type = 'C-k'; %type of ICC used - 2-k, 2-way fixed effects
 
 % One-sample t-tests
 [results.modalities.lmT.h results.modalities.lmT.p results.modalities.lmT.ci ...
-    results.modalities.lmT.stats] = ttest(allData.modalities.data(:,1)); %landmarks one-sample
+    results.modalities.lmT.stats] = ttest(allData.modalities.data(:,1)); %landmark one-sample
 [results.modalities.mlbT.h results.modalities.mlbT.p results.modalities.mlbT.ci ...
-    results.modalities.mlbT.stats] = ttest(allData.modalities.data(:,2)); %landmarks one-sample
+    results.modalities.mlbT.stats] = ttest(allData.modalities.data(:,2)); %mlb one-sample
 [results.modalities.trbT.h results.modalities.trbT.p results.modalities.trbT.ci ...
-    results.modalities.trbT.stats] = ttest(allData.modalities.data(:,3)); %landmarks one-sample
+    results.modalities.trbT.stats] = ttest(allData.modalities.data(:,3)); %trb one-sample
+[results.all.h results.all.p results.all.ci results.all.stats] = ...
+    ttest(allData.means.allPP(:,1));
 
 % bonferroni corrected
 results.modalities.lmT.Bp = results.modalities.lmT.p*3;

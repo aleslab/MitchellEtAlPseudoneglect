@@ -168,7 +168,7 @@ for p = 1:length(nParticipants)
     hold on
     errorbar(lines(1,:), lines(2,:), 'k');
     ylim([-0.2 0.2]);
-    xlabel('Lines'); ylabel('Bisection error (cm)');
+    xlabel('Lines'); ylabel('Bisection error');
     title('MLB all lines');
     saveas(figure(5), sprintf('%s_MLBlines.jpg', ppID));
 
