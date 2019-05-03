@@ -22,7 +22,7 @@ clear all;      %Clear all existing variables from memory
 
 tic
 % Load in participant data
-nParticipants = [21:24,26:30];
+nParticipants = [23,26:30];
 %nParticipants = 11; %for testing
 for p = 1:length(nParticipants)  
     ppID = sprintf('P%0*d',2,nParticipants(p));
