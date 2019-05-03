@@ -321,4 +321,102 @@ f3Text = [f3lgd, f3lgd.ItemText]; set(f3Text, 'FontSize', 18);
 legend boxoff
 saveas(gcf, pngFileName);
 
+%% Modalities hypothesis
+% standard deviation values for shading
+SDpt5 = allData.means.tot(2)*0.5;
+SD2 = allData.means.tot(2)*2;
+SDall = results.plotting.modalities(:,6);
+CIall = results.plotting.modalities(:,7);
+
+pngFileName = strcat('biasModalities', '.png');
+
+figure('units', 'centimeters', 'Position', [5 3 34 18])
+line('XData', [0 length(results.observers)], 'YData', [0, 0], 'LineStyle', '-', ...
+    'LineWidth', 0.5, 'Color', 'k'); %midpoint
+ax = gca;
+xVal = [ax.XLim(1):ax.XLim(end)];
+shadedVal = zeros(length(xVal),1); %making the same length so can plot shaded error bar around 0
+hold on
+createShadedRegion(xVal, shadedVal, (shadedVal - SDpt5), (shadedVal + SDpt5),':','color', [0.3 0.3 0.3]);
+hold on
+createShadedRegion(xVal, shadedVal, (shadedVal - SD2), (shadedVal + SD2),':','color', [0.5 0.5 0.5]);
+hold on
+errorbar(results.plotting.modalities(:,8), results.plotting.modalities(:,2), SDall, 'LineStyle', 'none',...
+    'LineWidth', 1.5, 'Color', [0.1 0.1 0.1], 'CapSize', 0);
+m1 = scatter(results.plotting.modalities(:,8), results.plotting.modalities(:,3), ...
+    'filled', 'o', 'MarkerFaceColor', [0.5 0.2 0.6]); % landmark task data
+set(m1, 'SizeData', 90);
+hold on
+m2 = scatter(results.plotting.modalities(:,8), results.plotting.modalities(:,4), ...
+    'filled', 'o', 'MarkerFaceColor', [0.1 0.4 0.7]); % mlb task data
+set(m2, 'SizeData', 90);
+hold on
+m3 = scatter(results.plotting.modalities(:,8), results.plotting.modalities(:,5), ...
+    'filled', 'o', 'MarkerFaceColor', [0.4 0.4 0.6]); % trb task data
+set(m3, 'SizeData', 90);
+hold on
+m4 = scatter(results.plotting.modalities(:,8), results.plotting.modalities(:,2), ...
+    'filled', '^', 'MarkerFaceColor', [0.8 0.8 0.9], 'MarkerEdgeColor', [0.1 0 0.2]); % mean task data
+set(m4, 'SizeData', 100);
+ylim([-15 15]);
+% Adding SD shaded area
+% Adding error bars to the mean data
+% Making it prettier
+set(ax, 'FontSize', 20);
+xLabels = num2str(results.plotting.modalities(:,1));
+xticks(ax, 1:length(results.plotting.modalities(:,1)));
+xticklabels(ax, xLabels);
+%set(ax, 'XTick', results.observers);
+xlabel('Observers'); ylabel('Bias (mm)');
+mlgd = legend([m1 m2 m3 m4], 'Landmarks', 'MLB', 'TRB', 'Mean', [195 400 0.2 0.1]);
+legend boxoff
+mText = [mlgd, mlgd.ItemText]; set(mText, 'FontSize', 20);
+% Adding text to define bias grouping
+mT = title('Modalities'); set(mT, 'fontsize', 30);
+saveas(gcf, pngFileName);
+
+%% Modalities plot showing varaition within participants
+% Like the within data smooth pursuit plots
+% Variables needed for the plot
+nData = length(results.observers); 
+barwidth = 1;
+xJitter = 0.01*randn(nData,1);
+xLocMatrix = [xJitter+.6 xJitter+2 xJitter+3.4]'; %Make a matrix of where to plot
+dataMat = [results.plotting.modalities(:,3), results.plotting.modalities(:,4), ...
+    results.plotting.modalities(:,5)]';
+
+% Making plot
+pngFileName = 'biasModalities_summary.png';
+figure('units', 'centimeters', 'Position', [5 3 22 18]);
+clf;set(gcf,'color','w');hold on;
+
+%Draw invidivual datapoints and the lines
+lineH= plot(xLocMatrix, dataMat,'-');
+hold on
+symbolH = plot(xLocMatrix, dataMat,'o'); 
+%change the line to be light gray. 
+set(lineH,'color',[.75 .65 .8], 'linewidth', 1.5)
+%Set the points to be a bit darker and a nice size. 
+set(symbolH,'color',[.35 .25 .4],'markersize',5);
+%Just bring up a bar plot, make it
+barH = bar([.5 2 3.5],[mean(dataMat(1,:)), mean(dataMat(2,:)), mean(dataMat(3,:))], barwidth)
+axH = gca; %Get the current axes the bar got plotteed into. 
+%Let's changeup the bar now.
+set(barH,'facecolor','none','linestyle','-','linewidth',3, 'barwidth', 0.7);
+%Next put some std error bars on the bar plot:
+errH = errorbar([.5 2 3.5],[mean(dataMat(1,:)) mean(dataMat(2,:)) mean(dataMat(3,:))],...
+    [std(dataMat(1,:))/sqrt(nData) std(dataMat(2,:))/sqrt(nData) std(dataMat(3,:))/sqrt(nData)],'.')
+set(errH,'color','k','linewidth',2);
+%Setup the axis/background
+set(axH,'linewidth',1,'fontsize',20,'xtick',[.5 2 3.5], 'ytick', [-8:4:8]);
+%axH.TickLength = [.03 0.1];
+axH.XTickLabel = {'landmark' 'line bisec.' 'rod bisec.'}; axH.YLim = [-10 8];
+axH = ylabel(['Bias (mm)']);
+%tH = title('Bias within modalities'); set(tH,'fontsize',30);
+box off
+saveas(gcf, pngFileName);
+
+
+
+
 
