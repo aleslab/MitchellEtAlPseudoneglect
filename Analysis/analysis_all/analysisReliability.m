@@ -72,7 +72,7 @@ for p = 1:length(nParticipants)
         error = [trb.(sprintf('%s', session)).error.line1(1), trb.(sprintf('%s', session)).error.line2(1),...
             trb.(sprintf('%s', session)).error.line3(1)];
         trb.(sprintf('%s', session)).error.mean(1) = nanmean(error)*10; %converting back to mm;
-        trb.(sprintf('%s', session)).error.mean(2) = nanstd(error)*10; %converting back to mm;
+        trb.(sprintf('%s', session)).error.mean(2) = nanstd(error); 
         % Saving to all data structure
         allData.(sprintf('%s', session)).trb.error(p,:) = trb.(sprintf('%s', session)).error.mean(1);
         allData.(sprintf('%s', session)).trb.errorstd(p,:) = trb.(sprintf('%s', session)).error.mean(2);
