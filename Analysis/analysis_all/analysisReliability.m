@@ -21,8 +21,8 @@ for p = 1:length(nParticipants)
     tactileFilename = sprintf('%s_tactileanalysis.mat', ppID);
     % Directories
     % Directory
-    dirBias = ('M:\Experiments\Bias'); %subject to change depending on where you analyse
-    dirPP = [dirBias filesep ppID]; %participant directory
+    dirBias = ('M:\Alex_Files\Experiments\Bias'); %subject to change depending on where you analyse
+    dirPP = [dirBias filesep 'Data' filesep ppID]; %participant directory
     dirAna = [dirPP filesep 'Analysis' filesep];
     dirVis = [dirAna 'Visual' filesep];
     dirTact = [dirAna 'Tactile' filesep];
@@ -841,6 +841,11 @@ H = reshape(C(Gs,:), [size(Gs) 3]);
 image(H)
 hold on
 lmStrings = text(x(:), y(:), lmTextStr(:), 'HorizontalAlignment', 'center');
+% making sure all numbers are visible
+lmStrings1 = text(x(2,2), y(3), lmTextStr(7), 'HorizontalAlignment', 'center',...
+    'Color', [0.7 0.7 0.7]);
+lmStrings1 = text(x(3,3), y(2), lmTextStr(7), 'HorizontalAlignment', 'center',...
+    'Color', [0.7 0.7 0.7]);
 ax = gca;
 set(ax, 'FontSize', 12);
 xLabels = {'Sess 1', 'Sess 2', 'Sess 3', 'Sess 4'};
