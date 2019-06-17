@@ -47,8 +47,9 @@ trbSD = std(tactileRod.mean);
 trbMean = mean(tactileRod.mean);
 
 %% Plotting landmark histo
-pdfFileName = 'landmarkHisto_all.pdf';
-figure()
+pngFileName = 'histo_all.png';
+figure('pos',[150 150 1600 400])
+subplot(1,3,1)
 % setting characteristics
 lmH = histfit(landmark.mean, nrBins, 'kernel'); %histogram, 1 bin every 0.5mm, kernel distribution fit
 % making pretty
@@ -80,8 +81,8 @@ lmHSD2 = line('XData', [-lmSD*2 -lmSD*2], 'YData', [0 length(yData)], 'LineStyle
 saveas(gcf, pdfFileName)
 
 %% Plotting MLB histo
-pdfFileName = 'lineBisectionHisto_all.pdf';
-figure()
+%pdfFileName = 'lineBisectionHisto_all.pdf';
+subplot(1,3,2)
 mlbH = histfit(lineBisection.mean, nrBins, 'kernel'); %histogram, 1 bin every 0.5mm, kernel distribution fit
 % making pretty
 mlbH(1).FaceColor = [0.7 0.7 1]; 
@@ -114,8 +115,7 @@ mlbHSD2 = line('XData', [-mlbSD*2 -mlbSD*2], 'YData', [0 length(yData)], 'LineSt
 saveas(gcf, pdfFileName)
 
 %% Plotting TRB histo
-pdfFileName = 'rodBisectionHisto_all.pdf';
-figure()
+subplot(1,3,3)
 trbH = histfit(tactileRod.mean, nrBins, 'kernel'); %histogram, 1 bin every 0.5mm, kernel distribution fit
 % making pretty
 trbH(1).FaceColor = [1 0.7 0.8]; 
@@ -145,7 +145,9 @@ trbHSD1 = line('XData', [trbSD*2 trbSD*2], 'YData', [0 length(yData)], 'LineStyl
 hold on 
 trbHSD2 = line('XData', [-trbSD*2 -trbSD*2], 'YData', [0 length(yData)], 'LineStyle', '-', ...
     'LineWidth', 1, 'Color', [0.4 0.4 0.4]);
-saveas(gcf, pdfFileName)
+% h = gcf; set(h, 'PaperOrientation', 'landscape');
+% set(h, 'PaperPositionMode', 'auto'); set(h, 'PaperPosition', [1 1 30 14]);
+saveas(gcf, pngFileName)
 
 %% Individual sessions - each task
 %% Save and close
