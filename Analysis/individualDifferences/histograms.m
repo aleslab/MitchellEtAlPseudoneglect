@@ -38,12 +38,18 @@ lmRange = max(landmark.mean) - min(landmark.mean);
 nrBins = round(lmRange/0.5);
 % standard deviation of population
 lmSD = std(landmark.mean);
+lmMean = mean(landmark.mean);
 % Line bisection
 mlbSD = std(lineBisection.mean);
+mlbMean = mean(lineBisection.mean);
+% Rod bisection
+trbSD = std(tactileRod.mean);
+trbMean = mean(tactileRod.mean);
 
 %% Plotting landmark histo
 pdfFileName = 'landmarkHisto_all.pdf';
 figure()
+% setting characteristics
 lmH = histfit(landmark.mean, nrBins, 'kernel'); %histogram, 1 bin every 0.5mm, kernel distribution fit
 % making pretty
 lmH(1).FaceColor = [0.9 0.7 1]; 
@@ -51,33 +57,34 @@ lmH(2).Color = [0.2 0.1 0.3];
 set(lmH(2), 'LineWidth', 3);
 % axes
 ax = gca;
-lmHT = title('Landmark mean distribution'); set(lmHT, 'FontSize', 12);
-lmHx = xlabel('Mean bias (mm)'); lmHy = ylabel('Frequency');
-set(lmHx, 'FontSize', 12); set(lmHy, 'FontSize', 12);
 set(ax, 'FontSize', 11, 'xtick', -6:1:6, 'ytick', 0:1:6);
 yData = ax.YLim(1):ax.YLim(end); %adding 1 so can see end of histogram
 xData = ax.XLim(1):ax.XLim(end);
+lmHT = title('Landmark mean distribution'); set(lmHT, 'FontSize', 12);
+lmHx = xlabel('Mean bias (mm)'); lmHy = ylabel('Frequency');
+set(lmHx, 'FontSize', 12); set(lmHy, 'FontSize', 12);
 shadedVal = zeros(1, length(yData));
 % draw line at 0
 hold on
-lmHline = line('XData', [0,0], 'YData', [0 length(yData)], 'LineStyle', '-', ...
-    'LineWidth', 1.5, 'Color', 'k');
+lmHline = line('XData', [0,0], 'YData', [0 length(yData)], 'LineStyle', '--', ...
+    'LineWidth', 2, 'Color', 'k');
+% draw line at mean
+lmHmean = line('XData', [lmMean,lmMean], 'YData', [0 length(yData)], 'LineStyle', '-', ...
+    'LineWidth', 2, 'Color', [0.2 0.1 0.3]);
 % lines around 2*SD
-hold on
-lmHSD1 = line('XData', [lmSD*2 lmSD*2], 'YData', [0 length(yData)], 'LineStyle', '--', ...
-    'LineWidth', 1, 'Color', 'k');
+lmHSD1 = line('XData', [lmSD*2 lmSD*2], 'YData', [0 length(yData)], 'LineStyle', '-', ...
+    'LineWidth', 1, 'Color', [0.4 0.4 0.4]);
 hold on 
-lmHSD2 = line('XData', [-lmSD*2 -lmSD*2], 'YData', [0 length(yData)], 'LineStyle', '--', ...
-    'LineWidth', 1, 'Color', 'k');
+lmHSD2 = line('XData', [-lmSD*2 -lmSD*2], 'YData', [0 length(yData)], 'LineStyle', '-', ...
+    'LineWidth', 1, 'Color', [0.4 0.4 0.4]);
 saveas(gcf, pdfFileName)
 
 %% Plotting MLB histo
-%% continue editing here - need an overall mean line too
 pdfFileName = 'lineBisectionHisto_all.pdf';
 figure()
 mlbH = histfit(lineBisection.mean, nrBins, 'kernel'); %histogram, 1 bin every 0.5mm, kernel distribution fit
 % making pretty
-mlbH(1).FaceColor = [0.6 0.6 1]; 
+mlbH(1).FaceColor = [0.7 0.7 1]; 
 mlbH(2).Color = [0.1 0.1 0.5];
 set(mlbH(2), 'LineWidth', 3);
 % axes
@@ -92,15 +99,52 @@ xData = ax.XLim(1):ax.XLim(end);
 shadedVal = zeros(1, length(yData));
 % draw line at 0
 hold on
-mlbHline = line('XData', [0,0], 'YData', [0 length(yData)], 'LineStyle', '-', ...
-    'LineWidth', 1.5, 'Color', 'k');
+mlbHline = line('XData', [0,0], 'YData', [0 length(yData)], 'LineStyle', '--', ...
+    'LineWidth', 2, 'Color', 'k');
+% line at mean
+mlbHmean = line('XData', [mlbMean,mlbMean], 'YData', [0 length(yData)], 'LineStyle', '-', ...
+    'LineWidth', 2, 'Color', [0.1 0.1 0.5]);
 % lines around 2*SD
 hold on
-mlbHSD1 = line('XData', [mlbSD*2 mlbSD*2], 'YData', [0 length(yData)], 'LineStyle', '--', ...
-    'LineWidth', 1, 'Color', 'k');
+mlbHSD1 = line('XData', [mlbSD*2 mlbSD*2], 'YData', [0 length(yData)], 'LineStyle', '-', ...
+    'LineWidth', 1, 'Color', [0.4 0.4 0.4]);
 hold on 
-mlbHSD2 = line('XData', [-mlbSD*2 -mlbSD*2], 'YData', [0 length(yData)], 'LineStyle', '--', ...
-    'LineWidth', 1, 'Color', 'k');
+mlbHSD2 = line('XData', [-mlbSD*2 -mlbSD*2], 'YData', [0 length(yData)], 'LineStyle', '-', ...
+    'LineWidth', 1, 'Color', [0.4 0.4 0.4]);
+saveas(gcf, pdfFileName)
+
+%% Plotting TRB histo
+pdfFileName = 'rodBisectionHisto_all.pdf';
+figure()
+trbH = histfit(tactileRod.mean, nrBins, 'kernel'); %histogram, 1 bin every 0.5mm, kernel distribution fit
+% making pretty
+trbH(1).FaceColor = [1 0.7 0.8]; 
+trbH(2).Color = [0.4 0 0.2];
+set(trbH(2), 'LineWidth', 3);
+% axes
+ax = gca;
+trbHT = title('Tactile rod mean distribution'); set(trbHT, 'FontSize', 12);
+trbHx = xlabel('Mean bias (mm)'); trbHy = ylabel('Frequency');
+set(trbHx, 'FontSize', 12); set(trbHy, 'FontSize', 12);
+xlim([-12 12])
+set(ax, 'FontSize', 11, 'xtick', [-12:2:12], 'ytick', 0:1:6);
+yData = ax.YLim(1):ax.YLim(end); %adding 1 so can see end of histogram
+xData = ax.XLim(1):ax.XLim(end);
+shadedVal = zeros(1, length(yData));
+% draw line at 0
+hold on
+trbHline = line('XData', [0,0], 'YData', [0 length(yData)], 'LineStyle', '--', ...
+    'LineWidth', 2, 'Color', 'k');
+% line at mean
+trbHmean = line('XData', [trbMean,trbMean], 'YData', [0 length(yData)], 'LineStyle', '-', ...
+    'LineWidth', 2, 'Color', [0.4 0 0.2]);
+% lines around 2*SD
+hold on
+trbHSD1 = line('XData', [trbSD*2 trbSD*2], 'YData', [0 length(yData)], 'LineStyle', '-', ...
+    'LineWidth', 1, 'Color', [0.4 0.4 0.4]);
+hold on 
+trbHSD2 = line('XData', [-trbSD*2 -trbSD*2], 'YData', [0 length(yData)], 'LineStyle', '-', ...
+    'LineWidth', 1, 'Color', [0.4 0.4 0.4]);
 saveas(gcf, pdfFileName)
 
 %% Individual sessions - each task
