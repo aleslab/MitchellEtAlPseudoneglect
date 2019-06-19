@@ -9,7 +9,7 @@
 %% Data
 % pathways
 expDir = 'M:\Alex_Files\Experiments\Bias\Analysis\';
-dataDir = [expDir 'analysis_all']; %original data set
+dataDir = [expDir]; %original data set
 resDir = [expDir 'individual_differences']; %for saving plots/individual diff analysis
 
 % getting data
