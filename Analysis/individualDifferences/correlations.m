@@ -172,7 +172,38 @@ saveas(gcf, pdfFileName)
 % Interested to see, specifically if there is a bisection task that is less
 % correlated thant the rest
 %% Plot
-pdfFileName = 'correlation_tasks.pdf';
+% creating polyvals for fitting
+regressionCoeff1 = polyfit(lm_relData(:,2), mlb_relData(:,2),1); %landmark vs. line bisection
+regressionCoeff2 = polyfit(lm_relData(:,2), trb_relData(:,2),1); %landmark vs. rod bisection
+regressionCoeff3 = polyfit(mlb_relData(:,2), trb_relData(:,2),1); %line bisection vs. rod bisection
+% plotting data - landmark vs mlb
+X1_plot = [min(lm_relData(:,2)); max(lm_relData(:,2))]; %making data plotable
+Y1_plot = polyval(regressionCoeff1, X1_plot);
+% landmark vs trb
+X2_plot = X1_plot;
+Y2_plot = polyval(regressionCoeff2, X2_plot);
+% mlb vs trb
+X3_plot = [min(mlb_relData(:,2)); max(mlb_relData(:,2))];
+Y3_plot = polyval(regressionCoeff3, X3_plot);
 
-%% Correlation
+pdfFileName = 'correlation_tasks.pdf';
+figure('pos',[150 150 1600 500]) %put all in one figure for easy comparison
+%landmark vs. line bisection plot
+subplot(1,3,1) 
+scatter(lm_relData(:,2), mlb_relData(:,2))
+hold on
+plot(X1_plot, Y1_plot)
+% landmark vs. rob bisection
+subplot(1,3,2)
+scatter(lm_relData(:,2), trb_relData(:,2))
+hold on
+plot(X2_plot, Y2_plot)
+% line bisection vs. rod bisection
+subplot(1,3,3)
+scatter(mlb_relData(:,2), trb_relData(:,2))
+hold on
+plot(X3_plot, Y3_plot)
+
+% No point in doing a correlation between bisection tasks... there clearly
+% is none
 
