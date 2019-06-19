@@ -18,9 +18,9 @@ allData = struct;
 
 % Getting outlier information
 dirAnaAll = [dirBias filesep 'Analysis']; %directory for all analysis - here is where data should be saved from this file
-cd(dirAnaAll)
-dataFilename = ('ReliabilityAnalysis.mat');
-load(dataFilename)
+% cd(dirAnaAll)
+% dataFilename = ('ReliabilityAnalysis.mat');
+% load(dataFilename)
 
 for p = 1:length(nParticipants)
     ppID = sprintf('P%0*d',2,nParticipants(p)); %for use when navigating files
@@ -312,7 +312,7 @@ lm2CI = results.plotting.shifts.lm2(:,5)/sqrt(length(nParticipants))*2.10;
 results.plotting.shifts.lm2(:,6) = lm2CI;
 % organising participants by mean proportion
 results.plotting.shifts.lm2 = sortrows(results.plotting.shifts.lm2, 2);
-results.plotting.shifts.lm2(:,7) = 1:22; %observers not sorted by bias for plotting
+results.plotting.shifts.lm2(:,7) = 1:(length(nParticipants)); %observers not sorted by bias for plotting
 % standard deviation values for shading
 lm2SDpt5 = std(results.plotting.shifts.lm2(:,2))*0.5;
 lm2SD2 = std(results.plotting.shifts.lm2(:,2))*2;
@@ -374,7 +374,7 @@ tr2CI = results.plotting.shifts.tr2(:,5)/sqrt(length(nParticipants))*2.10;
 results.plotting.shifts.tr2(:,6) = tr2CI;
 % organising participants by mean proportion
 results.plotting.shifts.tr2 = sortrows(results.plotting.shifts.tr2, 2);
-results.plotting.shifts.tr2(:,7) = 1:22; %observers not sorted by bias for plotting
+results.plotting.shifts.tr2(:,7) = 1:(length(nParticipants)); %observers not sorted by bias for plotting
 % standard deviation values for shading
 tr2SDpt5 = std(results.plotting.shifts.tr2(:,2))*0.5;
 tr2SD2 = std(results.plotting.shifts.tr2(:,2))*2;
