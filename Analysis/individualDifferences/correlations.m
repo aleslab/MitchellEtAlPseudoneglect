@@ -39,4 +39,25 @@ end
 lm_resData = lm_resData1(isfinite(lm_resData1(:,1)),:);
 tr_resData = tr_resData1(isfinite(tr_resData1(:,1)),:);
 
+% Getting data sets for bisection tasks (and sorting back into PP order)
+lm_relData = sortrows(results_rel.plotting.sessions.lm,1);
+mlb_relData = sortrows(results_rel.plotting.sessions.mlb,1);
+trb_relData = sortrows(results_rel.plotting.sessions.trb,1);
+
 %% Landmark vs. LM2AFC
+% Plotting first
+% Need to calculate polyfits for line of best fit
+regressionCoeff_P = polyfit(lm_relData(:,2), lm_resData(:,2),1);
+lmX_plot = [min(lm_relData(:,2)); max(lm_relData(:,2))]; %making data plotable
+lmY_plot_P = polyval(regressionCoeff_P, lmX_plot);
+
+lmMark = 50;
+% Take the mean values across all testing sessions
+figure()
+lmS = scatter(lm_relData(:,2), lm_resData(:,2), lmMark, 'filled', 'MarkerEdgeColor', [0.3 0.1 0.4],...
+    'MarkerFaceColor', [0.7 0.4 0.8]);
+hold on
+lmP = plot(lmX_plot, lmY_plot_P, 'Color', [0.3, 0.1, 0.4], 'LineWidth', 2); %plotting polyfit
+
+% Correlation second
+
