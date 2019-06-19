@@ -149,5 +149,12 @@ trbHSD2 = line('XData', [-trbSD*2 -trbSD*2], 'YData', [0 length(yData)], 'LineSt
 % set(h, 'PaperPositionMode', 'auto'); set(h, 'PaperPosition', [1 1 30 14]);
 saveas(gcf, pngFileName)
 
+%% K-S testing to check for normality
+% one sample ks test to check the spread of each data-set
+[normStat.lm.h, normStat.lm.p] = kstest(landmark.mean); %landmark
+[normStat.mlb.h, normStat.mlb.p] = kstest(lineBisection.mean); %line bisection
+[normStat.trb.h, normStat.trb.p] = kstest(tactileRod.mean); %tactile rod 
+
+
 %% Individual sessions - each task
 %% Save and close
