@@ -6,4 +6,8 @@
 % bisection correlated with tactile rod 2AFC
 
 %% Directories and variables
+dataDir = 'M:\Alex_Files\Experiments\Bias\Analysis\analysis_all';
+reliabilityFile = 'ReliabilityAnalysis.mat';
+responseFile = 'responseAnalysis.mat';
+
 %% Landmark vs. LM2AFC

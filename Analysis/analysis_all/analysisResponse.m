@@ -10,11 +10,18 @@
 
 clear all
 %% Getting data
-nParticipants = [1:19,21,22,24];
+dirBias = 'M:\Alex_Files\Experiments\Bias\'; %subject to change depending on where you analyse
+nParticipants = [1:19,21:24,26:30];
 %nParticipants = 3; %for testing
 nSessions = [1:4];
 allData = struct;
-matfilename = ('ReliabilityAnalysis.mat');
+
+% Getting outlier information
+dirAnaAll = [dirBias filesep 'Analysis']; %directory for all analysis - here is where data should be saved from this file
+cd(dirAnaAll)
+dataFilename = ('ReliabilityAnalysis.mat');
+load(dataFilename)
+
 for p = 1:length(nParticipants)
     ppID = sprintf('P%0*d',2,nParticipants(p)); %for use when navigating files
     % Variables 
@@ -22,14 +29,11 @@ for p = 1:length(nParticipants)
     visualFilename = sprintf('%s_visualanalysis2AFC.mat', ppID);
     tactileFilename = sprintf('%s_tactileanalysis.mat', ppID);
     matFilename = ('responseAnalysis.mat');
-    % Directories
     % Directory
-    dirBias = ('C:\Users\Experimenter\Documents\Experiments2018\Bias'); %subject to change depending on where you analyse
-    dirPP = [dirBias filesep ppID]; %participant directory
+    dirPP = [dirBias 'Data' filesep ppID]; %participant directory
     dirAna = [dirPP filesep 'Analysis' filesep];
     dirVis = [dirAna 'Visual' filesep];
     dirTact = [dirAna 'Tactile' filesep];
-    dirAnaAll = [dirBias filesep 'Analysis']; %directory for all analysis - here is where data should be saved from this file
     
     % Loading files for each participant visual and tactile data analysis
     cd(dirVis)

@@ -947,4 +947,4 @@ saveas(gcf, pngFileName);
 %% save and close
 close all
 cd(dirAnaAll)
-save(matfilename, 'allData', 'results');
+save(matfilename, 'allData', 'results', 'outlierSum');
