@@ -10,7 +10,7 @@ clear all;      %Clear all existing variables from memory
 
 tic
 % Load in participant data
-nParticipants = [1:19,21,22,24];
+nParticipants = [1:19,21:24,26:30];
 %nParticipants = 3; %for testing
 for p = 1:length(nParticipants)  
     ppID = sprintf('P%0*d',2,nParticipants(p));
@@ -19,8 +19,8 @@ for p = 1:length(nParticipants)
     matfilename = sprintf('%s_visualanalysis2AFC.mat', ppID);
     nSessions = 1:4; %vector number of sessions each participant does
     % Directory
-    dirBias = ('M:\Experiments\Bias'); %subject to change depending on where you analyse
-    dirPP = [dirBias filesep ppID]; %participant directory
+    dirBias = ('M:\Alex_Files\Experiments\Bias\'); %subject to change depending on where you analyse
+    dirPP = [dirBias 'Data' filesep ppID]; %participant directory
     % Navigating to analysis folder
     cd(dirPP)
     dirAna = [dirPP filesep 'Analysis' filesep];
