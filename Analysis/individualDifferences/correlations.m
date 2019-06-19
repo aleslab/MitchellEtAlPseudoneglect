@@ -56,8 +56,27 @@ lmMark = 50;
 figure()
 lmS = scatter(lm_relData(:,2), lm_resData(:,2), lmMark, 'filled', 'MarkerEdgeColor', [0.3 0.1 0.4],...
     'MarkerFaceColor', [0.7 0.4 0.8]);
+grid on
+% axes
+ax = gca;
+ylim([0.3 0.6]); xlim([-5 4])
+%set(ax, 'FontSize', 11, 'xtick', -5:1:5, 'ytick', 0:0.9);
+% y axes labels = 2dp
+ytix = get(ax,'ytick')';
+xtix = get(ax,'xtick')';
+set(ax,'yticklabel',num2str(ytix,'%.2f'))
+% drawing lines at 0 point
+line('XData', [0 0], 'YData', [ytix(1) ytix(end)], 'LineStyle', '-', ...
+    'LineWidth', 1, 'Color', [0.4 0.4 0.4]); %x-axis
+line('XData', [xtix(1) xtix(end)], 'YData', [0.5 0.5], 'LineStyle', '-', ...
+    'LineWidth', 1, 'Color', [0.4 0.4 0.4]); %x-axis
+% drawing line of best fit
 hold on
-lmP = plot(lmX_plot, lmY_plot_P, 'Color', [0.3, 0.1, 0.4], 'LineWidth', 2); %plotting polyfit
+lmP = plot(lmX_plot, lmY_plot_P, 'Color', [0.3, 0.1, 0.4], 'LineWidth', 2); %polyfit
+% labelling axes
+lmT = title('Landmark bisection vs. 2AFC'); set(lmT, 'FontSize', 12);
+lmAxT(1) = xlabel('Landmark bisection error (mm)');
+lmAxT(2) = ylabel('Landmark 2AFC proportion RHS perceived longer');
 
 % Correlation second
 
