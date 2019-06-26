@@ -48,38 +48,40 @@ trbSD = std(tactileRod.mean);
 trbMean = mean(tactileRod.mean);
 
 %% Plotting landmark histo
-pngFileName = 'histo_all.png';
-figure('pos',[150 150 1600 400])
-subplot(1,3,1)
+pngFileName = strcat('landmarkHisto', '.png');
+
+figure('units', 'centimeters', 'Position', [5 3 30 20])
 % setting characteristics
 lmH = histfit(landmark.mean, nrBins, 'kernel'); %histogram, 1 bin every 0.5mm, kernel distribution fit
 % making pretty
 lmH(1).FaceColor = [0.9 0.7 1]; 
 lmH(2).Color = [0.2 0.1 0.3];
-set(lmH(2), 'LineWidth', 3);
+set(lmH(1), 'LineWidth', 1.5, 'EdgeColor', [0.9 0.7 1], 'BarWidth', 1.2);
+set(lmH(2), 'LineWidth', 5);
 % axes
 ax = gca;
-set(ax, 'FontSize', 11, 'xtick', -6:1:6, 'ytick', 0:1:6);
+set(ax, 'FontSize', 20, 'xtick', -6:1:6, 'ytick', 0:1:6);
 yData = ax.YLim(1):ax.YLim(end); %adding 1 so can see end of histogram
 xData = ax.XLim(1):ax.XLim(end);
-lmHT = title('Landmark mean distribution'); set(lmHT, 'FontSize', 12);
+lmHT = title('Landmark mean distribution'); set(lmHT, 'FontSize', 32);
 lmHx = xlabel('Mean bias (mm)'); lmHy = ylabel('Frequency');
-set(lmHx, 'FontSize', 12); set(lmHy, 'FontSize', 12);
+set(lmHx, 'FontSize', 22); set(lmHy, 'FontSize', 22);
 shadedVal = zeros(1, length(yData));
 % draw line at 0
 hold on
 lmHline = line('XData', [0,0], 'YData', [0 length(yData)], 'LineStyle', '--', ...
-    'LineWidth', 2, 'Color', 'k');
+    'LineWidth', 4, 'Color', 'k');
 % draw line at mean
 lmHmean = line('XData', [lmMean,lmMean], 'YData', [0 length(yData)], 'LineStyle', '-', ...
-    'LineWidth', 2, 'Color', [0.2 0.1 0.3]);
+    'LineWidth', 4, 'Color', [0.2 0.1 0.3]);
 % lines around 2*SD
 lmHSD1 = line('XData', [lmSD*2 lmSD*2], 'YData', [0 length(yData)], 'LineStyle', '-', ...
-    'LineWidth', 1, 'Color', [0.4 0.4 0.4]);
+    'LineWidth', 3, 'Color', [0.4 0.4 0.4]);
 hold on 
 lmHSD2 = line('XData', [-lmSD*2 -lmSD*2], 'YData', [0 length(yData)], 'LineStyle', '-', ...
-    'LineWidth', 1, 'Color', [0.4 0.4 0.4]);
-%saveas(gcf, pdfFileName)
+    'LineWidth', 3, 'Color', [0.4 0.4 0.4]);
+box off
+saveas(gcf, pngFileName)
 
 %% Plotting MLB histo
 %pdfFileName = 'lineBisectionHisto_all.pdf';
