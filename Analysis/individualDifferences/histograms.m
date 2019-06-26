@@ -15,6 +15,7 @@ resDir = [expDir 'individual_differences']; %for saving plots/individual diff an
 % getting data
 cd(dataDir)
 load('reliabilityAnalysis.mat');
+matFileName = 'distributionAnalysis.mat';
 
 % variables
 nSessions = 1:4;
@@ -78,7 +79,7 @@ lmHSD1 = line('XData', [lmSD*2 lmSD*2], 'YData', [0 length(yData)], 'LineStyle',
 hold on 
 lmHSD2 = line('XData', [-lmSD*2 -lmSD*2], 'YData', [0 length(yData)], 'LineStyle', '-', ...
     'LineWidth', 1, 'Color', [0.4 0.4 0.4]);
-saveas(gcf, pdfFileName)
+%saveas(gcf, pdfFileName)
 
 %% Plotting MLB histo
 %pdfFileName = 'lineBisectionHisto_all.pdf';
@@ -112,7 +113,7 @@ mlbHSD1 = line('XData', [mlbSD*2 mlbSD*2], 'YData', [0 length(yData)], 'LineStyl
 hold on 
 mlbHSD2 = line('XData', [-mlbSD*2 -mlbSD*2], 'YData', [0 length(yData)], 'LineStyle', '-', ...
     'LineWidth', 1, 'Color', [0.4 0.4 0.4]);
-saveas(gcf, pdfFileName)
+%saveas(gcf, pdfFileName)
 
 %% Plotting TRB histo
 subplot(1,3,3)
@@ -155,6 +156,35 @@ saveas(gcf, pngFileName)
 [normStat.mlb.h, normStat.mlb.p] = kstest(lineBisection.mean); %line bisection
 [normStat.trb.h, normStat.trb.p] = kstest(tactileRod.mean); %tactile rod 
 
+%% Bayesian gaussian fit test
+% Code by J Ales - 24.06.19
+% Landmark task gaussian fit
+X = landmark.mean; %Same data you put into the histogram.  
+gmOnePop = fitgmdist(X,1); %Fit 1 gaussian to distribution
+gmTwoPop = fitgmdist(X,2); %Fit mixture of 2 gaussians to distribution
+gmFit.landmark.onePop = gmOnePop; %adding info to own struct 
+gmFit.landmark.twoPop = gmTwoPop;
+%Compare the evidence:
+gmFit.landmark.bayesFactor = gmTwoPop.BIC - gmOnePop.BIC; % (+) means in favor of ONE, (-) means in favor of Two
+
+% Line bisection gaussian fit
+X = lineBisection.mean; %Same data you put into the histogram.  
+gmOnePop = fitgmdist(X,1); %Fit 1 gaussian to distribution
+gmTwoPop = fitgmdist(X,2); %Fit mixture of 2 gaussians to distribution
+gmFit.lineBisection.onePop = gmOnePop; %adding info to own struct 
+gmFit.lineBisection.twoPop = gmTwoPop;
+%Compare the evidence:
+gmFit.lineBisection.bayesFactor = gmTwoPop.BIC - gmOnePop.BIC; % (+) means in favor of ONE, (-) means in favor of Two
+
+% Tactile rod gaussian fit
+X = tactileRod.mean; %Same data you put into the histogram.  
+gmOnePop = fitgmdist(X,1); %Fit 1 gaussian to distribution
+gmTwoPop = fitgmdist(X,2); %Fit mixture of 2 gaussians to distribution
+gmFit.tactileRod.onePop = gmOnePop; %adding info to own struct 
+gmFit.tactileRod.twoPop = gmTwoPop;
+%Compare the evidence:
+gmFit.tactileRod.bayesFactor = gmTwoPop.BIC - gmOnePop.BIC; % (+) means in favor of ONE, (-) means in favor of Two
 
 %% Individual sessions - each task
 %% Save and close
+save(matFileName, 'gmFit', 'normStat', 'landmark', 'lineBisection', 'tactileRod');
