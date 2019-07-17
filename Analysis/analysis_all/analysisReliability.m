@@ -944,6 +944,38 @@ xticklabels(ax, xLabels); yticklabels(ax, yLabels);
 ytickangle(90)
 saveas(gcf, pngFileName);
 
+%% Absolute error check
+% Caculating the absolute error for each task
+% If this is significantly different - are the tasks comparable?
+% By recommendation of Markus Hausmann
+
+% Absolute error across all sessions
+absLandmark = sqrt(results.plotting.modalities(:,3).^2);
+absLineBisection = sqrt(results.plotting.modalities(:,4).^2);
+absTactileRod = sqrt(results.plotting.modalities(:,5).^2);
+
+absoluteTaskError = [mean(absLandmark), mean(absLineBisection),...
+    mean(absTactileRod)];
+
+results.absoluteError.modality(:,1) = absLandmark;
+results.absoluteError.modality(:,2) = absLineBisection;
+results.absoluteError.modality(:,3) = absTactileRod;
+
+
+for i = 1:length(nSessions)
+    session = sprintf('Session%0*d',2,nSessions(i));
+    
+    %absolute error landmark sessions
+    absLM = sqrt(results.plotting.sessions.lm(:,2+i).^2);
+    results.absoluteError.landmark(:,i) = absLM;
+    %absolute error line bisection sessions
+    absMLB = sqrt(results.plotting.sessions.mlb(:,2+i).^2);
+    results.absoluteError.lineBisection(:,i) = absMLB;
+    %absolute error tactile rod sessions
+    absTRB = sqrt(results.plotting.sessions.trb(:,2+i).^2);
+    results.absoluteError.tactileRod(:,i) = absTRB;
+end
+
 %% save and close
 close all
 cd(dirAnaAll)
