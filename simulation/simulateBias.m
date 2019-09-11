@@ -15,7 +15,7 @@ addParameter(p,'trialParam', {0 1; 0 1});
 addParameter(p,'conditionRandFun', @normrnd);
 addParameter(p,'conditionParam', {0 4});
 addParameter(p,'sessionRandFun', @normrnd);
-addParameter(p,'sessionParam', {0 2});
+addParameter(p,'sessionParam', {0 4});
 addParameter(p,'participantRandFun', @normrnd);
 addParameter(p,'participantParam', {5 10});
 
