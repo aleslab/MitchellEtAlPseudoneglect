@@ -22,7 +22,7 @@ clear all;      %Clear all existing variables from memory
 
 tic
 % Load in participant data
-nParticipants = [23,26:30];
+nParticipants = [6];
 %nParticipants = 11; %for testing
 for p = 1:length(nParticipants)  
     ppID = sprintf('P%0*d',2,nParticipants(p));
@@ -31,7 +31,7 @@ for p = 1:length(nParticipants)
     matfilename = sprintf('%s_visualanalysis.mat', ppID);
     nSessions = 1:4; %vector number of sessions each participant does
     % Directory
-    dirBias = ('M:\Experiments\Bias'); %subject to change depending on where you analyse
+    dirBias = ('M:\Alex_Files\Experiments\Bias\Data'); %subject to change depending on where you analyse
     dirPP = [dirBias filesep ppID]; %participant directory
     % Making new anaysis folder for saving
     cd(dirPP)
@@ -231,7 +231,7 @@ for p = 1:length(nParticipants)
     set(gca, 'fontsize',14);
     set(gca, 'Xtick',StimLevels);
     axis([min(StimLevels) max(StimLevels) 0 1]);
-    xlabel('Stimulus Intensity');
+    xlabel('Stimulus Asymmetry (mm)');
     ylabel('Proportion right-side longer');
     figFileName = strcat(ppID, '_', 'pFitAll',  '.pdf');
     saveas(gcf, figFileName);
