@@ -370,8 +370,9 @@ results.plotting.sessions.lm(:,5) = allData.sessions.lmPSE(:,3); %session 3
 results.plotting.sessions.lm(:,6) = allData.sessions.lmPSE(:,4); %session 4
 results.plotting.sessions.lm(:,7) = std(allData.sessions.lmPSE,0,2); %std of all sessions for lm
 % Extracting the CIs from the SDs
-lmCI = (results.plotting.sessions.lm(:,7)/sqrt(720))*1.97;
-results.plotting.sessions.lm(:,8) = lmCI;
+lmCI = (allData.modalities.data(:,1)+1.96).*(results.plotting.sessions.lm(:,7)/sqrt(24));
+lmSEM = results.plotting.sessions.lm(:,7)/sqrt(24);
+results.plotting.sessions.lm(:,8) = lmSEM;
 % Sorting the matrix by mean bias
 results.plotting.sessions.lm = sortrows(results.plotting.sessions.lm, 2);
 results.plotting.sessions.lm(:,9) = results.observers; %observers not sorted by mean bias for use with plotting - organisation of data
@@ -390,8 +391,9 @@ results.plotting.sessions.mlb(:,5) = allData.sessions.mlb(:,3); %session 3
 results.plotting.sessions.mlb(:,6) = allData.sessions.mlb(:,4); %session 4
 results.plotting.sessions.mlb(:,7) = std(allData.sessions.mlb,0,2); %std of all sessions for mlb
 % Extracting the CIs from the SDs
-mlbCI = (results.plotting.sessions.mlb(:,7)/sqrt(360))*1.97;
-results.plotting.sessions.mlb(:,8) = mlbCI;
+mlbCI = (allData.modalities.data(:,2)+1.96)*std(allData.modalities.data(:,2)/sqrt(24));
+mlbSEM = results.plotting.sessions.mlb(:,7)/sqrt(24);
+results.plotting.sessions.mlb(:,8) = mlbSEM;
 % Sorting the matrix by mean bias
 results.plotting.sessions.mlb = sortrows(results.plotting.sessions.mlb, 2);
 results.plotting.sessions.mlb(:,9) = results.observers; %observers not sorted by mean bias for use with plotting - organisation of data
@@ -410,8 +412,9 @@ results.plotting.sessions.trb(:,5) = allData.sessions.trb(:,3); %session 3
 results.plotting.sessions.trb(:,6) = allData.sessions.trb(:,4); %session 4
 results.plotting.sessions.trb(:,7) = std(allData.sessions.trb,0,2); %std of all sessions for trb
 % Extracting the CIs from the SDs
-trbCI = (results.plotting.sessions.trb(:,7)/sqrt(216))*1.98;
-results.plotting.sessions.trb(:,8) = trbCI;
+trbCI = (allData.modalities.data(:,3)+1.96)*std(allData.modalities.data(:,3)/sqrt(24));
+trbSEM = results.plotting.sessions.trb(:,7)/sqrt(24);
+results.plotting.sessions.trb(:,8) = trbSEM;
 % Sorting the matrix by mean bias
 results.plotting.sessions.trb = sortrows(results.plotting.sessions.trb, 2);
 results.plotting.sessions.trb(:,9) = results.observers; %observers not sorted by mean bias for use with plotting - organisation of data
@@ -432,8 +435,9 @@ allData.sessions.allSessions = [allData.sessions.Session01all(:,1), allData.sess
     allData.sessions.Session03all(:,1), allData.sessions.Session04all(:,1)];
 results.plotting.sessions.all(:,7) = std(allData.sessions.allSessions,0,2); %std of all sessions for trb
 % Extracting the CIs from the SDs
-sessallCI = (results.plotting.sessions.all(:,7)/sqrt(19))*1.98;
-results.plotting.sessions.all(:,8) = sessallCI;
+sessallCI = (results.plotting.sessions.all(:,7)/sqrt(24))*1.98;
+sessallSEM = results.plotting.sessions.all(:,7)/sqrt(24);
+results.plotting.sessions.all(:,8) = sessallSEM;
 % Sorting the matrix by mean bias
 results.plotting.sessions.all = sortrows(results.plotting.sessions.all, 2);
 results.plotting.sessions.all(:,9) = results.observers; %observers not sorted by mean bias for use with plotting - organisation of data
@@ -815,6 +819,22 @@ type = 'C-k'; %type of ICC used - 2-k, 2-way fixed effects
 results.modalities.lmT.Bp = results.modalities.lmT.p*3;
 results.modalities.mlbT.Bp = results.modalities.mlbT.p*3;
 results.modalities.trbT.Bp = results.modalities.trbT.p*3;
+
+% t-tests for each session (collapsed across task)
+[results.sessions.s1t.h results.sessions.s1t.p results.sessions.s1t.ci ...
+    results.sessions.s1t.stats] = ttest(allData.sessions.allSessions(:,1));
+[results.sessions.s2t.h results.sessions.s2t.p results.sessions.s2t.ci ...
+    results.sessions.s2t.stats] = ttest(allData.sessions.allSessions(:,2));
+[results.sessions.s3t.h results.sessions.s3t.p results.sessions.s3t.ci ...
+    results.sessions.s3t.stats] = ttest(allData.sessions.allSessions(:,3));
+[results.sessions.s4t.h results.sessions.s4t.p results.sessions.s4t.ci ...
+    results.sessions.s4t.stats] = ttest(allData.sessions.allSessions(:,4));
+
+%bonferroni corrected
+results.sessions.s1t.Bp = results.sessions.s1t.p*4;
+results.sessions.s2t.Bp = results.sessions.s2t.p*4;
+results.sessions.s3t.Bp = results.sessions.s3t.p*4;
+results.sessions.s4t.Bp = results.sessions.s4t.p*4;
 
 %% Creating covariance matrices
 % Landmarks

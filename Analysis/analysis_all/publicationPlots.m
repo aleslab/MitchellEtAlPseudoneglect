@@ -36,11 +36,6 @@ line('XData', [0 length(results.observers)], 'YData', [0, 0], 'LineStyle', '-', 
 hold on
 ax = gca;
 xVal = [ax.XLim(1):ax.XLim(end)];
-shadedVal = zeros(length(xVal),1); %making the same length so can plot shaded error bar around 0
-createShadedRegion(xVal, shadedVal, (shadedVal - lmSDpt5), (shadedVal + lmSDpt5),':','color', [0.3 0.3 0.3]);
-hold on
-createShadedRegion(xVal, shadedVal, (shadedVal - lmSD2), (shadedVal + lmSD2),':','color', [0.5 0.5 0.5]);
-hold on
 lm1 = scatter(results.plotting.sessions.lm(:,9), results.plotting.sessions.lm(:,3), ...
     'filled', 'o', 'MarkerFaceColor', s1_col); % session1
 set(lm1, 'SizeData', 60);
@@ -92,10 +87,6 @@ hold on
 ax = gca;
 xVal = [ax.XLim(1):ax.XLim(end)];
 shadedVal = zeros(length(xVal),1); %making the same length so can plot shaded error bar around 0
-createShadedRegion(xVal, shadedVal, (shadedVal - mlbSDpt5), (shadedVal + mlbSDpt5),':','color', [0.3 0.3 0.3]);
-hold on
-createShadedRegion(xVal, shadedVal, (shadedVal - mlbSD2), (shadedVal + mlbSD2),':','color', [0.5 0.5 0.5]);
-hold on
 mlb1 = scatter(results.plotting.sessions.mlb(:,9), results.plotting.sessions.mlb(:,3), ...
     'filled', 'o', 'MarkerFaceColor', s1_col); % session1
 set(mlb1, 'SizeData', 60);
@@ -145,10 +136,6 @@ hold on
 ax = gca;
 xVal = [ax.XLim(1):ax.XLim(end)];
 shadedVal = zeros(length(xVal),1); %making the same length so can plot shaded error bar around 0
-createShadedRegion(xVal, shadedVal, (shadedVal - trbSDpt5), (shadedVal + trbSDpt5),':','color', [0.3 0.3 0.3]);
-hold on
-createShadedRegion(xVal, shadedVal, (shadedVal - trbSD2), (shadedVal + trbSD2),':','color', [0.5 0.5 0.5]);
-hold on
 trb1 = scatter(results.plotting.sessions.trb(:,9), results.plotting.sessions.trb(:,3), ...
     'filled', 'o', 'MarkerFaceColor', s1_col); % session1
 set(trb1, 'SizeData', 60);
@@ -210,10 +197,6 @@ hold on
 ax = gca;
 xVal = [ax.XLim(1):ax.XLim(end)];
 shadedVal = zeros(length(xVal),1); %making the same length so can plot shaded error bar around 0
-createShadedRegion(xVal, shadedVal, (shadedVal - allSDpt5), (shadedVal + allSDpt5),':','color', [0.3 0.3 0.3]);
-hold on
-createShadedRegion(xVal, shadedVal, (shadedVal - allSD2), (shadedVal + allSD2),':','color', [0.7 0.7 0.7]);
-hold on
 all1 = scatter(results.plotting.sessions.all(:,9), results.plotting.sessions.all(:,3), ...
     'filled', 'o', 'MarkerFaceColor', s1_col); % session1
 set(all1, 'SizeData', 60);
@@ -326,13 +309,10 @@ pngFileName = strcat('biasModalities', '.png');
 figure('units', 'centimeters', 'Position', [5 3 18 10])
 line('XData', [0 length(results.observers)], 'YData', [0, 0], 'LineStyle', '-', ...
     'LineWidth', 1, 'Color', 'k'); %midpoint
+hold on
 ax = gca;
 xVal = [ax.XLim(1):ax.XLim(end)];
 shadedVal = zeros(length(xVal),1); %making the same length so can plot shaded error bar around 0
-hold on
-createShadedRegion(xVal, shadedVal, (shadedVal - SDpt5), (shadedVal + SDpt5),':','color', [0.3 0.3 0.3]);
-hold on
-createShadedRegion(xVal, shadedVal, (shadedVal - SD2), (shadedVal + SD2),':','color', [0.5 0.5 0.5]);
 m1 = scatter(results.plotting.modalities(:,8), results.plotting.modalities(:,3), ...
     'filled', 'o', 'MarkerFaceColor', [0.3 0.3 0.3]); % landmark task data
 set(m1, 'SizeData', 60);
@@ -410,7 +390,46 @@ axH = ylabel(['Bias (mm)']);
 box off
 saveas(gcf, pngFileName);
 
+%% Sessions plot showing variation within participants
+nData = length(results.observers); 
+barwidth = 1;
+xJitter = 0.01*randn(nData,1);
+xLocMatrix = [xJitter+.6 xJitter+1.6 xJitter+2.4 xJitter+3.4]'; %Make a matrix of where to plot
+dataMat = allData.sessions.allSessions';
 
+% Making plot
+pngFileName = 'biasSessions_summary.png';
+figure('units', 'centimeters', 'Position', [5 3 12 10]);
+clf;set(gcf,'color','w');hold on;
+
+%Draw invidivual datapoints and the lines
+lineH= plot(xLocMatrix, dataMat,'-');
+hold on
+symbolH = plot(xLocMatrix, dataMat,'.'); 
+%change the line to be light gray. 
+set(lineH,'color',[.75 .75 .75], 'linewidth', 1.5)
+%Set the points to be a bit darker and a nice size. 
+set(symbolH,'color',[.3 .3 .3],'markersize',12);
+%Just bring up a bar plot, make it
+barH = bar([.5 1.5 2.5 3.5],[mean(dataMat(1,:)), mean(dataMat(2,:)), mean(dataMat(3,:)),...
+    mean(dataMat(4,:))], barwidth);
+axH = gca; %Get the current axes the bar got plotteed into. 
+%Let's changeup the bar now.
+set(barH,'facecolor','none','linestyle','-','linewidth',2, 'barwidth', 0.7);
+%Next put some std error bars on the bar plot:
+errH = errorbar([.5 1.5 2.5 3.5],[mean(dataMat(1,:)) mean(dataMat(2,:)) mean(dataMat(3,:)), mean(dataMat(4,:))],...
+    [std(dataMat(1,:))/sqrt(nData) std(dataMat(2,:))/sqrt(nData)...
+    std(dataMat(3,:))/sqrt(nData), std(dataMat(4,:))/sqrt(nData)],'.');
+set(errH,'color','k','linewidth',1.5, 'capsize', 7);
+%Setup the axis/background
+set(axH,'linewidth',1,'fontsize',11,'xtick',[.5 1.5 2.5 3.5], 'ytick', [-8:2:6]);
+%axH.TickLength = [.03 0.1];
+axH.XTickLabel = {'session 1' ' sesion 2' 'session 3' 'session 4'}; axH.YLim = [-9 7];
+axH = ylabel(['Bias (mm)']);
+%mT = title('Means all tasks'); set(mT, 'fontsize', 32);
+%tH = title('Bias within modalities'); set(tH,'fontsize',30);
+box off
+saveas(gcf, pngFileName);
 
 
 

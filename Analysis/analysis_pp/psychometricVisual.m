@@ -125,10 +125,10 @@ for p = 1:length(nParticipants)
         plot(StimLevels,ProportionCorrectObserved,'k.','markersize',20);
         %observedHandle = plot2afc(StimLevels,NumPos,OutOfNum);
         %set(observedHandle,'color','k','linewidth',1.5)
-        set(gca, 'fontsize',14);
+        set(gca, 'fontsize',16);
         set(gca, 'Xtick',StimLevels);
         axis([min(StimLevels) max(StimLevels) 0 1]);
-        xlabel('Stimulus Intensity');
+        xlabel('Stimulus Asymmetry (mm)');
         ylabel('Proportion right-side longer');
         figFileName = strcat(ppID, '_', 'pFit', session, '.pdf');
         saveas(gcf, figFileName);
@@ -173,10 +173,10 @@ for p = 1:length(nParticipants)
     plot(StimLevelsFineGrain,lm.pfits.Session03.model,'-','color',[0 .1 .6],'linewidth',2);
     hold on
     plot(StimLevelsFineGrain,lm.pfits.Session04.model,'-','color',[.2 .2 .2],'linewidth',2);
-    set(gca, 'fontsize',14);
+    set(gca, 'fontsize',15);
     set(gca, 'Xtick',StimLevels);
     axis([min(StimLevels) max(StimLevels) 0 1]);
-    xlabel('Stimulus Intensity');
+    xlabel('Stimulus Asymmetry (mm)');
     ylabel('Proportion right-side longer');
     legend(' 1', ' 2', ' 3', ' 4', 'Position', [350 90 0.2 0.1]);
     figFileName = strcat(ppID, '_', 'pFit_allsess', '.pdf');
@@ -228,7 +228,7 @@ for p = 1:length(nParticipants)
     plot(StimLevels,ProportionCorrectObserved,'k.','markersize',20);
     %observedHandle = plot2afc(StimLevels,NumPos,OutOfNum);
     %set(observedHandle,'color','k','linewidth',1.5)
-    set(gca, 'fontsize',14);
+    set(gca, 'fontsize',15);
     set(gca, 'Xtick',StimLevels);
     axis([min(StimLevels) max(StimLevels) 0 1]);
     xlabel('Stimulus Asymmetry (mm)');
