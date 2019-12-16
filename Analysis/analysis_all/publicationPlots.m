@@ -65,7 +65,7 @@ set(ax, 'FontSize', 11);
 xLabels = num2str(results.plotting.sessions.lm(:,1));
 xticks(ax, 1:length(results.plotting.sessions.lm(:,1)));
 xticklabels(ax, xLabels);
-ylabel('Bias (mm)');
+ylabel('Bisection error (mm)');
 %[lmlgd] = legend([lm1, lm2, lm3, lm4, lm5], '1', '2', '3', '4', 'Mean');
 %lmText = [lmlgd, lmlgd.ItemText]; set(lmText, 'FontSize', 12);
 %legend boxoff
@@ -115,7 +115,7 @@ ylim([-25 25]);
 set(ax, 'FontSize', 11, 'ytick', [-20:10:20]);
 xLabels = num2str(results.plotting.sessions.mlb(:,1));
 xticks(ax, 1:length(results.plotting.sessions.mlb(:,1)));
-xticklabels(ax, xLabels);ylabel('Bias (mm)');
+xticklabels(ax, xLabels);ylabel('Bisection error (mm)');
 box off
 mlbT = title('Line bisection'); set(mlbT, 'fontsize', 12);
 %saveas(gcf, pngFileName);
@@ -164,7 +164,7 @@ set(ax, 'FontSize', 11, 'ytick', [-20:10:20]);
 xLabels = num2str(results.plotting.sessions.trb(:,1));
 xticks(ax, 1:length(results.plotting.sessions.trb(:,1)));
 xticklabels(ax, xLabels);
-xlabel('Observers'); ylabel('Bias (mm)');
+xlabel('Observers'); ylabel('Bisection error (mm)');
 %legend boxoff
 % Adding text to define bias grouping
 box off
@@ -179,6 +179,7 @@ set(lgd, 'Position', newLegendPos, 'Units', newUnits);
 title(lgd, 'Session');
 legend boxoff
 
+print -r300 %set to resolution (let's try this)
 saveas(gcf, pngFileName);
 
 %% All sessions
@@ -226,7 +227,7 @@ set(ax, 'FontSize', 11, 'ytick', [-15:5:15]);
 xLabels = num2str(results.plotting.sessions.all(:,1));
 xticks(ax, 1:length(results.plotting.sessions.all(:,1)));
 xticklabels(ax, xLabels);
-xlabel('Observers'); ylabel('Bias (mm)');
+xlabel('Observers'); ylabel('Bisection error (mm)');
 alllgd = legend([all1, all2, all3, all4, all5], '1', '2', '3', '4', 'Mean', [100 225 0.1 0.2]);
 allText = [alllgd, alllgd.ItemText]; set(allText, 'FontSize', 10);
 %set(alllgd, 'SizeData', 24)
@@ -240,6 +241,7 @@ rightDim = [0.575 0.13 0.29 0.045]; midDim = [0.41 0.13 0.16 0.045];
 % % saving as both pdf and png for ease
 box off
 %allT = title('All tasks'); set(allT, 'fontsize', 14);
+print -r300
 saveas(gcf, pngFileName);
 
 %% Mean session plot
@@ -288,13 +290,14 @@ set(ax, 'FontSize', 11, 'xtick', [1 2 3 4], 'ytick', [-4:2:4])
 xLabels = {'1', '2', '3', '4'};
 xticks(ax, [1 2 3 4]);
 xticklabels(ax, xLabels);
-ylabel('Bias (mm)');
+ylabel('Bisection error (mm)');
 xlabel('Sessions');
 f3lgd = legend([s1 s2 s3], 'landmark', 'line bisection', 'rod bisection', [95 240 0.1 0.3]);
 f3Text = [f3lgd, f3lgd.ItemText]; set(f3Text, 'FontSize', 10);
 %sT = title('Means'); set(sT, 'fontsize', 12);
 %f3t = title('Mean'); set(f3t, 'fontsize', 20);
 legend boxoff
+print -r300
 saveas(gcf, pngFileName);
 
 %% Modalities hypothesis
@@ -340,12 +343,13 @@ xLabels = num2str(results.plotting.modalities(:,1));
 xticks(ax, 1:length(results.plotting.modalities(:,1)));
 xticklabels(ax, xLabels);
 %set(ax, 'XTick', results.observers);
-xlabel('Observers'); ylabel('Bias (mm)');
+xlabel('Observers'); ylabel('Bisection error (mm)');
 mlgd = legend([m1 m2 m3 m4], 'Landmarks', 'MLB', 'TRB', 'Mean', [110 230 0.2 0.1]);
 legend boxoff
 mText = [mlgd, mlgd.ItemText]; set(mText, 'FontSize', 10);
 % Adding text to define bias grouping
 %mT = title('Modalities'); set(mT, 'fontsize', 34);
+print -r300
 saveas(gcf, pngFileName);
 
 %% Modalities plot showing varaition within participants
@@ -384,10 +388,11 @@ set(errH,'color','k','linewidth',1.5, 'capsize', 7);
 set(axH,'linewidth',1,'fontsize',11,'xtick',[.5 2 3.5], 'ytick', [-8:2:6]);
 %axH.TickLength = [.03 0.1];
 axH.XTickLabel = {'landmark' 'line bisec.' 'rod bisec.'}; axH.YLim = [-9 7];
-axH = ylabel(['Bias (mm)']);
+axH = ylabel(['Bisection error (mm)']);
 %mT = title('Means all tasks'); set(mT, 'fontsize', 32);
 %tH = title('Bias within modalities'); set(tH,'fontsize',30);
 box off
+print -r300
 saveas(gcf, pngFileName);
 
 %% Sessions plot showing variation within participants
@@ -425,10 +430,11 @@ set(errH,'color','k','linewidth',1.5, 'capsize', 7);
 set(axH,'linewidth',1,'fontsize',11,'xtick',[.5 1.5 2.5 3.5], 'ytick', [-8:2:6]);
 %axH.TickLength = [.03 0.1];
 axH.XTickLabel = {'session 1' ' sesion 2' 'session 3' 'session 4'}; axH.YLim = [-9 7];
-axH = ylabel(['Bias (mm)']);
+axH = ylabel(['Bisection error (mm)']);
 %mT = title('Means all tasks'); set(mT, 'fontsize', 32);
 %tH = title('Bias within modalities'); set(tH,'fontsize',30);
 box off
+print -r300
 saveas(gcf, pngFileName);
 
 
