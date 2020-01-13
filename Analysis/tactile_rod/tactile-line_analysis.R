@@ -5,6 +5,7 @@
 library(readr)
 library(ggplot2)
 library(reshape)
+library(Rmisc)
 
 # load data
 dataPath <- 'M:/Alex_Files/Experiments/Bias/Data/tactile-rod/'
@@ -69,12 +70,26 @@ write.csv(res_length, 'tactile-rod_meanbylength.csv', row.names = FALSE)
 ##### plotting the data #####
 dodge = position_dodge(0.2)
 ggplot(res_length, aes(x = LEN, y = ERR)) +
-  geom_point(shape = 1, size = 4.5) +
-  geom_line(aes(group = SUB), alpha = .3, size = .85) +
+  geom_point(shape = 1, size = 3) +
+  geom_line(aes(group = SUB), alpha = .3, size = .8) +
   labs(title = 'Tactile rod bisection', x = 'Line length (mm)', 
        y = 'Bisection error (mm)', element_text(size = 12)) +
   geom_hline(yintercept = 0, size = 0.7) + ylim(-20,15) +
   theme_bw() 
 # saving plot
+ggsave('trb_linelength.png', plot = last_plot(), device = NULL, dpi = 300, 
+       scale = 1, path = anaPath)
+
+# mean of all data
+res_length_mean <- summarySE(res_length, measurevar = 'ERR', groupvar = 'LEN',
+                             na.rm = TRUE)
+# plotting this
+ggplot(res_length_mean, aes(x = LEN, y = ERR)) + 
+  geom_point(shape = 1, size = 3) +
+  geom_errorbar(aes(x = LEN, ymin = LEN-sd, ymax = LEN+sd))
+###### continue adding error bar info
+
+
+
 
 
