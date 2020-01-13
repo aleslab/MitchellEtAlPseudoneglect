@@ -102,9 +102,30 @@ ggsave('trb_mean_linelength.png', plot = last_plot(), device = NULL, dpi = 300,
 # ANOVA (one-way)
 # organise data-frame 
 res_aov <- dcast(res_length, SUB ~ LEN)
-length_mdl <- lm(, data = res_aov)
+# run regression and ANOVA
+length_mdl <- lm(ERR ~ LEN, data = res_length)
+length_aov <- anova(length_mdl)
   
-  
+##### organising data by bias ######
+# average all factors for each PP
+res_means <- aggregate(ERR ~ SUB, mean, data = res)
+colnames(res_means)[colnames(res_means) == 'ERR'] <- 'meanERR'
+res_means <- merge(res_length, res_means, by = 'SUB')
+
+# grouping by mean error
+res_means$BIAS <- factor(res_means$meanERR < 0, label =  c('right', 'left'))
+
+# Plot these :)
+ggplot(res_means, aes(x = LEN, y = ERR)) +
+  geom_point() + facet_wrap(~BIAS) + 
+  geom_line(aes(group = SUB), alpha = .3, size = .8) +
+  geom_hline(yintercept = 0, size = 0.5) +
+  ylim(-20,15) + labs(x = 'Line length (mm)', y = 'Bisection error (mm)', 
+                      element_text(size = 10)) +
+  theme_bw()
+
+ggsave('trb_linelength_bias.png', plot = last_plot(), device = NULL, dpi = 300, 
+       width = 6, height = 4, scale = 1, path = anaPath)
   
   
   
