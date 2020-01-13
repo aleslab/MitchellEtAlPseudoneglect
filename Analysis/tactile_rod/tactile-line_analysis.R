@@ -43,4 +43,11 @@ res <- res[, c(6,7,9,8,2:5)]
 # calculating error
 res$ERR <- res$pMID - res$MID #how to do this with mid as a factor
 
-### continue from here! collapsing, calculating and plotting
+##### Averaging data across factors #####
+# aggregate by line length and position
+res_means <- aggregate(ERR ~ SESS*LEN*POS*SUB, mean, data = res)
+res_means <- res_means[, c(4,1:3,5)] #putting subject first again
+
+# plot to have a look :)
+ggplot(res_means, aes(x = ERR, y = LEN), colour = SESS) +
+  geom_point() + facet_wrap(~SUB)
