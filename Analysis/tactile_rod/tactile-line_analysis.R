@@ -90,14 +90,22 @@ res_length_mean <- summarySE(res_length, measurevar = 'ERR', groupvar = 'LEN',
 # plotting this
 ggplot(res_length_mean, aes(x = LEN, y = ERR)) + 
   geom_hline(yintercept = 0, size = 0.5) +
-  geom_point(shape = 1, size = 5) +
-  geom_errorbar(aes(ymin = ERR-sd, ymax = ERR+sd), width = .05, size = .3) +
+  geom_point(shape = 21, fill = "grey40", stroke = 1, size = 4) +
+  geom_errorbar(aes(ymin = ERR-sd, ymax = ERR+sd), width = .05, size = .5) +
   ylim(-10,8) + labs(title = 'Tactile rod bisection', x = 'Line length (mm)', 
                      y = 'Bisection error (mm)', element_text(size = 12)) +
   theme_bw()
 
+ggsave('trb_mean_linelength.png', plot = last_plot(), device = NULL, dpi = 300, 
+       width = 6, height = 4, scale = 1, path = anaPath)
 
-
-
-
-
+# ANOVA (one-way)
+# organise data-frame 
+res_aov <- dcast(res_length, SUB ~ LEN)
+length_mdl <- lm(, data = res_aov)
+  
+  
+  
+  
+  
+  
