@@ -125,7 +125,7 @@ ggplot(res_means, aes(x = LEN, y = ERR)) +
   theme_bw()
 
 ggsave('trb_linelength_bias.png', plot = last_plot(), device = NULL, dpi = 300, 
-       width = 6, height = 4, scale = 1, path = anaPath)
+       width = 7, height = 4, scale = 1, path = anaPath)
   
   
   
