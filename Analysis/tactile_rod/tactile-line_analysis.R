@@ -45,9 +45,36 @@ res$ERR <- res$pMID - res$MID #how to do this with mid as a factor
 
 ##### Averaging data across factors #####
 # aggregate by line length and position
-res_means <- aggregate(ERR ~ SESS*LEN*POS*SUB, mean, data = res)
-res_means <- res_means[, c(4,1:3,5)] #putting subject first again
+res_means_pos <- aggregate(ERR ~ SESS*LEN*POS*SUB, mean, data = res)
+res_means_pos <- res_means_pos[, c(4,1:3,5)] #putting subject first again
+# mean across position
+res_means <- aggregate(ERR ~ SESS*LEN*SUB, mean, data = res)
+res_means <- res_means[, c(3,1,2,4)] #putting subject first again
+# saving
+setwd(anaPath)
+write.csv(res_means_pos, 'tactile-rod_data.csv', row.names = FALSE)
+
 
 # plot to have a look :)
 ggplot(res_means, aes(x = ERR, y = LEN), colour = SESS) +
-  geom_point() + facet_wrap(~SUB)
+  geom_point(aes(colour = SESS)) + facet_wrap(~SUB) +
+  theme_bw()
+
+# mean of all participants
+res_length <- aggregate(ERR ~ LEN*SUB, mean, data = res_means)
+# saving
+setwd(anaPath)
+write.csv(res_length, 'tactile-rod_meanbylength.csv', row.names = FALSE)
+
+##### plotting the data #####
+dodge = position_dodge(0.2)
+ggplot(res_length, aes(x = LEN, y = ERR)) +
+  geom_point(shape = 1, size = 4.5) +
+  geom_line(aes(group = SUB), alpha = .3, size = .85) +
+  labs(title = 'Tactile rod bisection', x = 'Line length (mm)', 
+       y = 'Bisection error (mm)', element_text(size = 12)) +
+  geom_hline(yintercept = 0, size = 0.7) + ylim(-20,15) +
+  theme_bw() 
+# saving plot
+
+
