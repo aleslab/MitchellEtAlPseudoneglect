@@ -4,12 +4,16 @@
 ###### libraries and loading ######
 library(readr)
 library(ggplot2)
-library(reshape)
+library(reshape2)
 library(Rmisc)
 
 # load data
-dataPath <- 'M:/Alex_Files/Experiments/Bias/Data/tactile-rod/'
-anaPath <- 'M:/Alex_Files/Experiments/Bias/Analysis/tactile-rod_Abi/'
+#on pc
+#dataPath <- 'M:/Alex_Files/Experiments/Bias/Data/tactile-rod/'
+#anaPath <- 'M:/Alex_Files/Experiments/Bias/Analysis/tactile-rod_Abi/'
+#on mac
+dataPath <- "/Users/alexandramitchell/Documents/Past-Experiments/Bias/tactile-rod/"
+anaPath <- "/Users/alexandramitchell/Documents/Past-Experiments/Bias/analysis/"
 
 setwd(dataPath)
 filenames <- dir(
@@ -85,9 +89,13 @@ res_length_mean <- summarySE(res_length, measurevar = 'ERR', groupvar = 'LEN',
                              na.rm = TRUE)
 # plotting this
 ggplot(res_length_mean, aes(x = LEN, y = ERR)) + 
-  geom_point(shape = 1, size = 3) +
-  geom_errorbar(aes(x = LEN, ymin = LEN-sd, ymax = LEN+sd))
-###### continue adding error bar info
+  geom_hline(yintercept = 0, size = 0.5) +
+  geom_point(shape = 1, size = 5) +
+  geom_errorbar(aes(ymin = ERR-sd, ymax = ERR+sd), width = .05, size = .3) +
+  ylim(-10,8) + labs(title = 'Tactile rod bisection', x = 'Line length (mm)', 
+                     y = 'Bisection error (mm)', element_text(size = 12)) +
+  theme_bw()
+
 
 
 
