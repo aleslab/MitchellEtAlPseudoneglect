@@ -11,8 +11,8 @@ for p = 1:length(nParticipants)
     matfilename = sprintf('%s_visualanalysisStart.mat', ppID);
     nSessions = 1:4; %vector number of sessions each participant does
     % Directory
-    dirBias = ('M:\Experiments\Bias'); %subject to change depending on where you analyse
-    dirPP = [dirBias filesep ppID]; %participant directory
+    dirBias = ('M:\Alex_Files\Experiments\Bias'); %subject to change depending on where you analyse
+    dirPP = [dirBias filesep 'Data' filesep ppID]; %participant directory
     % Making new anaysis folder for saving
     cd(dirPP)
     mkdir Analysis;
@@ -31,6 +31,20 @@ for p = 1:length(nParticipants)
         mlbName = dir([dirSess 'MLB_*.mat']); %getting file details for MLB data
         load(mlbName.name);    
         mlb.(sprintf('%s', session)) = data;
+        hand_used = zeros(length(data.matrix),1);
+        
+        % Adding 'hand used' information to address reviwer comments
+        % (30.04.20) - First 15 participants used right hand, then left;
+        % final 15 used left then right
+        if nParticipants(p) > 0 && nParticipants(p) < 16
+            hand_used(1:90,1) = 2; %right hand used first 
+            hand_used(91:end,1) = 1; %left hand second
+            mlb.(sprintf('%s', session)).matrix(:,8) = hand_used;
+        else
+            hand_used(1:90,1) = 1; %right hand used first 
+            hand_used(91:end,1) = 2; %left hand second
+            mlb.(sprintf('%s', session)).matrix(:,8) = hand_used;
+        end
 
         % Landmarks
         lmName = dir([dirSess 'LM_*.mat']); %getting file details for MLB data
@@ -46,8 +60,9 @@ for p = 1:length(nParticipants)
     end
 
     %% Analyse MLB data
-    % Grouping into line length
+    
     for i = 1:length(nSessions)
+        % Grouping into line length
         session = sprintf('Session%0*d',2,nSessions(i));
         cd(dirSess); %directing to current session folder
         length1 = 100; length2 = 200; length3 = 300; %length of lines in mm
@@ -90,7 +105,22 @@ for p = 1:length(nParticipants)
         mlb.(sprintf('%s', session)).proportionError.line2 = [avpropL2(i), stdpropL2(i)];
         avpropL3(i) = nanmean(mlb.(sprintf('%s', session)).line3mat(:,8)); %30 cm line
         stdpropL3(i) = nanstd(mlb.(sprintf('%s', session)).line3mat(:,8));
-        mlb.(sprintf('%s', session)).proportionError.line3 = [avpropL3(i), stdpropL3(i)];      
+        mlb.(sprintf('%s', session)).proportionError.line3 = [avpropL3(i), stdpropL3(i)]; 
+        
+        % grouping into hand used
+        % left hand
+        mlb.(sprintf('%s', session)).left_hand = ...
+            mlb.(sprintf('%s', session)).matrix(find(mlb.(sprintf('%s', session)).matrix(:,8)== 1),:);
+        % right hand
+        mlb.(sprintf('%s', session)).right_hand = ...
+            mlb.(sprintf('%s', session)).matrix(find(mlb.(sprintf('%s', session)).matrix(:,8)== 2),:);
+        % Average and std error for each hand used
+        av_leftHand(i) = nanmean(mlb.(sprintf('%s', session)).left_hand(:,6)); %left hand
+        std_leftHand(i) = nanstd(mlb.(sprintf('%s', session)).left_hand(:,6));
+        mlb.(sprintf('%s', session)).error.left_hand = [av_leftHand(i), std_leftHand(i)];
+        av_rightHand(i) = nanmean(mlb.(sprintf('%s', session)).right_hand(:,6)); %right hand
+        std_rightHand(i) = nanstd(mlb.(sprintf('%s', session)).right_hand(:,6));
+        mlb.(sprintf('%s', session)).error.right_hand = [av_rightHand(i), std_rightHand(i)];
     end
 
     %% Average error across sessions
@@ -108,6 +138,10 @@ for p = 1:length(nParticipants)
     % Total proportion error and std across sessions
     allPropErr = [mlb.line1.properr(1), mlb.line2.properr(1), mlb.line3.properr(1)];
     mlb.meanTotPropError = mean(allError);
+    
+    % The same for hand used 
+    mlb.left_hand.err = [mean(av_leftHand), std(av_leftHand)];
+    mlb.right_hand.err = [mean(av_rightHand), std(av_rightHand)];
     
     %% Plotting MLB task
     cd(dirVis); %navigating to analysis folder to save plots to
