@@ -11,8 +11,8 @@ for p = 1:length(nParticipants)
     matfilename = sprintf('%s_visualanalysisStart.mat', ppID);
     nSessions = 1:4; %vector number of sessions each participant does
     % Directory
-    dirBias = ('M:\Experiments\Bias'); %subject to change depending on where you analyse
-    dirPP = [dirBias filesep ppID]; %participant directory
+    dirBias = ('M:\Alex_Files\Experiments\Bias'); %subject to change depending on where you analyse
+    dirPP = [dirBias filesep 'Data' filesep ppID]; %participant directory
     % Making new anaysis folder for saving
     cd(dirPP)
     mkdir Analysis;
@@ -31,6 +31,20 @@ for p = 1:length(nParticipants)
         mlbName = dir([dirSess 'MLB_*.mat']); %getting file details for MLB data
         load(mlbName.name);    
         mlb.(sprintf('%s', session)) = data;
+        hand_used = zeros(length(data.matrix),1);
+        
+        % Adding 'hand used' information to address reviwer comments
+        % (30.04.20) - First 15 participants used right hand, then left;
+        % final 15 used left then right
+        if nParticipants(p) > 0 && nParticipants(p) < 16
+            hand_used(1:90,1) = 2; %right hand used first 
+            hand_used(91:end,1) = 1; %left hand second
+            mlb.(sprintf('%s', session)).matrix(:,8) = hand_used;
+        else
+            hand_used(1:90,1) = 1; %right hand used first 
+            hand_used(91:180,1) = 2; %left hand second
+            mlb.(sprintf('%s', session)).matrix(:,8) = hand_used;
+        end
 
         % Landmarks
         lmName = dir([dirSess 'LM_*.mat']); %getting file details for MLB data
