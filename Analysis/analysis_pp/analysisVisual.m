@@ -140,6 +140,8 @@ for p = 1:length(nParticipants)
     mlb.meanTotPropError = mean(allError);
     
     % The same for hand used 
+    mlb.left_hand.err = [mean(av_leftHand), std(av_leftHand)];
+    mlb.right_hand.err = [mean(av_rightHand), std(av_rightHand)];
     
     %% Plotting MLB task
     cd(dirVis); %navigating to analysis folder to save plots to
