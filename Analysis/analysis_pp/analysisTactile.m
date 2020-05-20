@@ -135,13 +135,6 @@ for p = 1:length(nParticipants)
     % Total error and std across sessions
     allError = [trb.line1.err(1), trb.line2.err(1), trb.line3.err(1)];
     trb.meanTotError = mean(allError);
-    % Proportion of line error
-    trb.line1.properr = [mean(avpropL1), std(avpropL1)];
-    trb.line2.properr = [mean(avpropL2), std(avpropL2)];
-    trb.line3.properr = [mean(avpropL3), std(avpropL3)];
-    % Total proportion error and std across sessions
-    allPropErr = [trb.line1.properr(1), trb.line2.properr(1), trb.line3.properr(1)];
-    trb.meanTotPropError = mean(allError);
     
     % Matrices for session plotting, each line
     trb.sessionVals.line1.err(1,:) = avL1; trb.sessionVals.line1.err(2,:) = stdL1; %values for sessions
@@ -157,18 +150,13 @@ for p = 1:length(nParticipants)
     trb.sessionVals.all.err(2,:) = [std(sess(1,:)), std(sess(2,:)),...
         std(sess(3,:)), std(sess(4,:))];
     
-    % Doing the same for proportion error across all sessions
-    trb.sessionVals.line1.properr(1,:) = avpropL1; trb.sessionVals.line1.properr(2,:) = stdpropL1; %values for sessions
-    trb.sessionVals.line2.properr(1,:) = avpropL2; trb.sessionVals.line2.properr(2,:) = stdpropL2;
-    trb.sessionVals.line3.properr(1,:) = avpropL3; trb.sessionVals.line3.properr(2,:) = stdpropL3;
-    % All sessions
-    for i = 1:length(nSessions)
-        sess(i,:) = [avpropL1(1,i), avpropL2(1,i), avpropL3(1,i)];
-    end
-    trb.sessionVals.all.properr(1,:) = [mean(sess(1,:)), mean(sess(2,:)),...
-        mean(sess(3,:)), mean(sess(4,:))];
-    trb.sessionVals.all.properr(2,:) = [std(sess(1,:)), std(sess(2,:)),...
-        std(sess(3,:)), std(sess(4,:))];
+    % Same for hand useds
+    trb.left_hand.err = [mean(av_left), std(av_left)];
+    trb.right_hand.err = [mean(av_right), std(av_right)];
+    % Matrices for session plotting, each line
+    trb.sessionVals.left_hand.err(1,:) = av_left; trb.sessionVals.left_hand.err(2,:) = std_left; %values for sessions
+    trb.sessionVals.right_hand.err(1,:) = av_right; trb.sessionVals.right_hand.err(2,:) = std_right;
+    
 
     %% TRB plots
     cd(dirTact); %navigating to analysis directory to save plots
@@ -176,10 +164,10 @@ for p = 1:length(nParticipants)
         line = sprintf('line%d', j);
         % Plotting each line
         figure(j)
-        bar(trb.sessionVals.(sprintf('%s', line)).properr(1,:))
+        bar(trb.sessionVals.(sprintf('%s', line)).err(1,:))
         hold on
-        errorbar(trb.sessionVals.(sprintf('%s', line)).properr(1,:), trb.sessionVals.(sprintf('%s', line)).properr(2,:), 'k')
-        xlabel('Sessions'); ylabel('Proportion bisection error');
+        errorbar(trb.sessionVals.(sprintf('%s', line)).err(1,:), trb.sessionVals.(sprintf('%s', line)).err(2,:), 'k')
+        xlabel('Sessions'); ylabel('Bisection error');
         title(sprintf('TRB %s', line));
         saveas(figure(j), sprintf('%s_TRB%s.jpg', ppID, line));
     end
@@ -187,23 +175,21 @@ for p = 1:length(nParticipants)
 
     % Plotting average of all lines
     figure(4)
-    bar(trb.sessionVals.all.properr(1,:))
+    bar(trb.sessionVals.all.err(1,:))
     hold on
-    errorbar(trb.sessionVals.all.properr(1,:), trb.sessionVals.all.properr(2,:), 'k')
-    ylim([-0.3 0.3]);
-    xlabel('Sessions'); ylabel('Proportion bisection error');
+    errorbar(trb.sessionVals.all.err(1,:), trb.sessionVals.all.err(2,:), 'k')
+    xlabel('Sessions'); ylabel('Bisection error');
     title('trb all sessions');
     saveas(figure(4), sprintf('%s_TRBsess.jpg', ppID));
 
     % Plotting averages of all sessions
-    lines(1,:) = [trb.line1.properr(1), trb.line2.properr(1), trb.line3.properr(1)];
-    lines(2,:) = [trb.line1.properr(2), trb.line2.properr(2), trb.line3.properr(2)];
+    lines(1,:) = [trb.line1.err(1), trb.line2.err(1), trb.line3.err(1)];
+    lines(2,:) = [trb.line1.err(2), trb.line2.err(2), trb.line3.err(2)];
     figure(5)
     bar(lines(1,:))
     hold on
     errorbar(lines(1,:), lines(2,:), 'k');
-    ylim([-0.3 0.3]);
-    xlabel('Lines'); ylabel('Proportion bisection error');
+    xlabel('Lines'); ylabel('Bisection error');
     title('trb all lines');
     saveas(figure(5), sprintf('%s_TRBlines.jpg', ppID));
 
@@ -211,6 +197,6 @@ for p = 1:length(nParticipants)
     %% TR2 plots
     %% Close and save
     close all
-    save(matfilename, 'trb', 'tr2', 'tr2psych');
+    save(matfilename, 'trb', 'tr2');
 end
 
