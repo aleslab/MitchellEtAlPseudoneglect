@@ -22,12 +22,19 @@ for p = 1:length(nParticipants)
     dirTac = [dirPP filesep 'Tactile'];
     cd(dirPP)
     
-%% MLB Extracting data
+%% Extracting data
     % for MLB - go to visual folder
     cd(dirVis)
     load(visualFilename)
+    cd(dirTac)
+    load(tactileFilename)
     
-%% TRB Extracting data
+    %% Getting data per session, compiling into matrices
+    %%%%%% reached here and keep going
+    for i = 1:length(nSessions)
+        mlbData.(sprintf('%s', session)).left_hand(:,p) = mlb.(sprintf('%s', session)).erro.left_hand(1);
+    end
+    
 end
 %% Group averages
 %% Plotting data
