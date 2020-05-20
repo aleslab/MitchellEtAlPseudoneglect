@@ -12,7 +12,8 @@ for p = 1:length(nParticipants)
     dirBias = ('M:\Alex_Files\Experiments\Bias'); %subject to change depending on where you analyse
     
     ppID = sprintf('P%0*d',2,nParticipants(p)); %for use when navigating files
-    matfilename = sprintf('%s_visualanalysisStart.mat', ppID);
+    visualFilename = sprintf('%s_visualanalysisStart.mat', ppID);
+    tactileFilename = sprintf('%s_tactileanalysis.mat', ppID);
     nSessions = 1:4; %vector number of sessions each participant does
     
     % individual participant directory, analysis
@@ -23,6 +24,8 @@ for p = 1:length(nParticipants)
     
 %% MLB Extracting data
     % for MLB - go to visual folder
+    cd(dirVis)
+    load(visualFilename)
     
 %% TRB Extracting data
 end

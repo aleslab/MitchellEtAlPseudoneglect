@@ -6,7 +6,7 @@
 clear all
 
 %% File paths
-nParticipants = [12:19,21:24,26:30];
+nParticipants = [1:19,21:24,26:30];
 %nParticipants = 1;
 for p = 1:length(nParticipants)
 
@@ -14,8 +14,8 @@ for p = 1:length(nParticipants)
     matfilename = sprintf('%s_tactileanalysis.mat', ppID);
     nSessions = 1:4; %vector number of sessions each participant does
     % Directory
-    dirBias = ('M:\Experiments\Bias'); %subject to change depending on where you analyse
-    dirPP = [dirBias filesep ppID]; %participant directory
+    dirBias = ('M:\Alex_Files\Experiments\Bias'); %subject to change depending on where you analyse
+    dirPP = [dirBias filesep 'Data' filesep ppID]; %participant directory
     % Making new anaysis folder for saving
     cd(dirPP)
     mkdir Analysis;
@@ -38,6 +38,17 @@ for p = 1:length(nParticipants)
         size = Data(:, ismember(Text(1,:), 'size'));
         side = Data(:, ismember(Text(1,:), 'shift')); %2deg left = 1, middle = 0, 2deg right = 2
         response = Data(:, ismember(Text(1,:), 'response')); %in mm, relative to length of line
+        [~, hand] = xlsread('TrialMatrix_TRB','D2:D55'); %hand used L = left, R = right
+        % converting hand used from string to numeric, 1= l, 2 = r
+        hand_used = [];
+        for ii = 1:length(hand)
+            if hand{ii} == 'L'
+                hand_used(ii,:) = 1;
+            elseif hand{ii} == 'R'
+                hand_used(ii,:) = 2;
+            end
+        end
+        
         % Finding error 
         size_mm = size*100; %finding actual line length in mm to calculate error
         error = response - size_mm/2; %calculating data error in mm
@@ -50,7 +61,7 @@ for p = 1:length(nParticipants)
 
         trb.(sprintf('%s', session)).data.error = error;
         % data matrix for later analyses
-        trb.(sprintf('%s', session)).matrix = [size, side, response, error];
+        trb.(sprintf('%s', session)).matrix = [size, side, response, hand_used, error];
 
         %% TR2 task
         [Data,Text] = xlsread('TrialMatrix_TR2'); %importing trial information for landmark tasks
@@ -82,35 +93,38 @@ for p = 1:length(nParticipants)
             trb.(sprintf('%s', session)).matrix(find(trb.(sprintf('%s', session)).matrix(:,1)== 3),:);
 
         % Average and std error for each line length
-        avL1(i) = nanmean(trb.(sprintf('%s', session)).line1mat(:,4)); %10 cm line
-        stdL1(i) = nanstd(trb.(sprintf('%s', session)).line1mat(:,4));
+        avL1(i) = nanmean(trb.(sprintf('%s', session)).line1mat(:,5)); %10 cm line
+        stdL1(i) = nanstd(trb.(sprintf('%s', session)).line1mat(:,5));
         trb.(sprintf('%s', session)).error.line1 = [avL1(i), stdL1(i)];
-        avL2(i) = nanmean(trb.(sprintf('%s', session)).line2mat(:,4)); %20 cm line
-        stdL2(i) = nanstd(trb.(sprintf('%s', session)).line2mat(:,4));
+        avL2(i) = nanmean(trb.(sprintf('%s', session)).line2mat(:,5)); %20 cm line
+        stdL2(i) = nanstd(trb.(sprintf('%s', session)).line2mat(:,5));
         trb.(sprintf('%s', session)).error.line2 = [avL2(i), stdL2(i)];
-        avL3(i) = nanmean(trb.(sprintf('%s', session)).line3mat(:,4)); %30 cm line
-        stdL3(i) = nanstd(trb.(sprintf('%s', session)).line3mat(:,4));
+        avL3(i) = nanmean(trb.(sprintf('%s', session)).line3mat(:,5)); %30 cm line
+        stdL3(i) = nanstd(trb.(sprintf('%s', session)).line3mat(:,5));
         trb.(sprintf('%s', session)).error.line3 = [avL3(i), stdL3(i)];
         
         % Calculating data as proportion of the line (in mm) to standardise
         % for analysis
-        propL1 = ((trb.(sprintf('%s', session)).line1mat(:,4))*10)/(length1); %error in mm, as a proportion of half the line length (the error is signed)
-        propL2 = ((trb.(sprintf('%s', session)).line2mat(:,4))*10)/(length2);
-        propL3 = ((trb.(sprintf('%s', session)).line3mat(:,4))*10)/(length3);
-        trb.(sprintf('%s', session)).line1mat(:,5) = propL1; %adding to matrix
-        trb.(sprintf('%s', session)).line2mat(:,5) = propL2;
-        trb.(sprintf('%s', session)).line3mat(:,5) = propL3;
+        propL1 = ((trb.(sprintf('%s', session)).line1mat(:,5))*10)/(length1); %error in mm, as a proportion of half the line length (the error is signed)
+        propL2 = ((trb.(sprintf('%s', session)).line2mat(:,5))*10)/(length2);
+        propL3 = ((trb.(sprintf('%s', session)).line3mat(:,5))*10)/(length3);
+        trb.(sprintf('%s', session)).line1mat(:,6) = propL1; %adding to matrix
+        trb.(sprintf('%s', session)).line2mat(:,6) = propL2;
+        trb.(sprintf('%s', session)).line3mat(:,6) = propL3;
         
-        % Taking the mean and std of the proportion error
-        avpropL1(i) = nanmean(trb.(sprintf('%s', session)).line1mat(:,5)); %10 cm line
-        stdpropL1(i) = nanstd(trb.(sprintf('%s', session)).line1mat(:,5));
-        trb.(sprintf('%s', session)).proportionError.line1 = [avpropL1(i), stdpropL1(i)];
-        avpropL2(i) = nanmean(trb.(sprintf('%s', session)).line2mat(:,5)); %20 cm line
-        stdpropL2(i) = nanstd(trb.(sprintf('%s', session)).line2mat(:,5));
-        trb.(sprintf('%s', session)).proportionError.line2 = [avpropL2(i), stdpropL2(i)];
-        avpropL3(i) = nanmean(trb.(sprintf('%s', session)).line3mat(:,5)); %30 cm line
-        stdpropL3(i) = nanstd(trb.(sprintf('%s', session)).line3mat(:,5));
-        trb.(sprintf('%s', session)).proportionError.line3 = [avpropL3(i), stdpropL3(i)];     
+        % Doing the same for hand used
+        trb.(sprintf('%s', session)).left_hand = ...
+            trb.(sprintf('%s', session)).matrix(find(trb.(sprintf('%s', session)).matrix(:,4)== 1),:); %left hand
+        trb.(sprintf('%s', session)).right_hand = ...
+            trb.(sprintf('%s', session)).matrix(find(trb.(sprintf('%s', session)).matrix(:,4)== 2),:); %right hand
+        % Average and std error for each hand used
+        av_left(i) = nanmean(trb.(sprintf('%s', session)).left_hand(:,5)); %10 cm line
+        std_left(i) = nanstd(trb.(sprintf('%s', session)).left_hand(:,5));
+        trb.(sprintf('%s', session)).error.left_hand = [av_left(i), std_left(i)];
+        av_right(i) = nanmean(trb.(sprintf('%s', session)).right_hand(:,5)); %20 cm line
+        std_right(i) = nanstd(trb.(sprintf('%s', session)).right_hand(:,5));
+        trb.(sprintf('%s', session)).error.right_hand = [av_right(i), std_right(i)];
+        
     end
 
     %% Average error across sessions/lines
