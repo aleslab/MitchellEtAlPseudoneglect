@@ -160,3 +160,7 @@ plotting = struct;
 plotting.observers = 1:length(res_mlb.average);
 
 %% Organising data for ANOVA
+
+%% saving
+cd(dirAna)
+save('hand_analysis.mat', 'res_mlb', 'res_trb', 'res_mods');
