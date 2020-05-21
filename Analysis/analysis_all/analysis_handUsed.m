@@ -100,9 +100,63 @@ res_trb.left_hand.average(:,2) = nanstd(res_trb.left_hand.Rerror, 0, 2); %std
 res_trb.right_hand.average(:,1) = nanmean(res_trb.right_hand.Rerror, 2); %mean
 res_trb.right_hand.average(:,2) = nanstd(res_trb.right_hand.Rerror, 0, 2); %std
 
-%% Plotting data
+% Average across hand for each task - for plotting
+mlball = [res_mlb.left_hand.average(:,1), res_mlb.right_hand.average(:,1)];
+res_mlb.average = mean(mlball, 2);
+trball = [res_trb.left_hand.average(:,1), res_trb.right_hand.average(:,1)];
+res_trb.average = mean(trball, 2);
+
+% Compile averages into modalities structure to use for analysis
+% Load and add the landmark data here too - for comparison
+load('ReliabilityAnalysis.mat', 'results')
+landmark = results.plotting.modalities(:,3);
+res_mods.left_hand = [res_mlb.left_hand.average(:,1), res_trb.left_hand.average(:,1), landmark];
+res_mods.right_hand = [res_mlb.right_hand.average(:,1), res_trb.right_hand.average(:,1), landmark];
 
 %% STATS - Cronbach's Alpha
+% Using Cronbach's alpha to assess reliability of mlb and trb across
+% sessions for each hand (left and right) to see if splitting across hand
+% used improves reliability of results (reviewer request)
+type = 'C-k'; %type of ICC used - 2-k, 2-way fixed effects
+% Reliability across session, for each hand
+% MLB, left hand
+[res_mlb.reliability.left_hand.r, res_mlb.reliability.left_hand.bound(1), res_mlb.reliability.left_hand.bound(2), ...
+    res_mlb.reliability.left_hand.F, res_mlb.reliability.left_hand.df(1), res_mlb.reliability.left_hand.df(2), ...
+    res_mlb.reliability.left_hand.p] = ICC(res_mlb.left_hand.Rerror, type);
+% MLB, right hand
+[res_mlb.reliability.right_hand.r, res_mlb.reliability.right_hand.bound(1), res_mlb.reliability.right_hand.bound(2), ...
+    res_mlb.reliability.right_hand.F, res_mlb.reliability.right_hand.df(1), res_mlb.reliability.right_hand.df(2), ...
+    res_mlb.reliability.right_hand.p] = ICC(res_mlb.right_hand.Rerror, type);
+% TRB, left hand
+[res_trb.reliability.left_hand.r, res_trb.reliability.left_hand.bound(1), res_trb.reliability.left_hand.bound(2), ...
+    res_trb.reliability.left_hand.F, res_trb.reliability.left_hand.df(1), res_trb.reliability.left_hand.df(2), ...
+    res_trb.reliability.left_hand.p] = ICC(res_trb.left_hand.Rerror, type);
+% TRB, right hand
+[res_trb.reliability.right_hand.r, res_trb.reliability.right_hand.bound(1), res_trb.reliability.right_hand.bound(2), ...
+    res_trb.reliability.right_hand.F, res_trb.reliability.right_hand.df(1), res_trb.reliability.right_hand.df(2), ...
+    res_trb.reliability.right_hand.p] = ICC(res_trb.right_hand.Rerror, type);
+    
+% Reliability across modality, for each hand - including landmarks for both (hand
+% used did not differentiate)
+% left hand
+[res_mods.reliability.left_hand.r, res_mods.reliability.left_hand.bound(1), res_mods.reliability.left_hand.bound(2), ...
+    res_mods.reliability.left_hand.F, res_mods.reliability.left_hand.df(1), res_mods.reliability.left_hand.df(2), ...
+    res_mods.reliability.left_hand.p] = ICC(res_mods.left_hand, type);
+% right hand
+[res_mods.reliability.right_hand.r, res_mods.reliability.right_hand.bound(1), res_mods.reliability.right_hand.bound(2), ...
+    res_mods.reliability.right_hand.F, res_mods.reliability.right_hand.df(1), res_mods.reliability.right_hand.df(2), ...
+    res_mods.reliability.right_hand.p] = ICC(res_mods.right_hand, type);
 
+% Correlate left and right hand values between mlb and trb
+[rho,pval] = corr(res_mods.left_hand(:,1), res_mods.left_hand(:,2));
+res_mods.corr.left_hand.r = rho;
+res_mods.corr.left_hand.p = pval;
+[rho,pval] = corr(res_mods.right_hand(:,1), res_mods.right_hand(:,2));
+res_mods.corr.right_hand.r = rho;
+res_mods.corr.right_hand.p = pval;
+
+%% Plotting data
+plotting = struct;
+plotting.observers = 1:length(res_mlb.average);
 
 %% Organising data for ANOVA
