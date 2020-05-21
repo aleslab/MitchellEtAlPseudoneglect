@@ -60,13 +60,13 @@ for p = 1:length(nParticipants)
         allData.(sprintf('%s', session)).mlb.errorstd(p,:) = (mlb.(sprintf('%s', session)).error.mean(2))*10; %converting back to mm
         % Averaging line proportion error (cause I didn't do this
         % previously)...
-        propError = [mlb.(sprintf('%s', session)).proportionError.line1(1), mlb.(sprintf('%s', session)).proportionError.line2(1),...
-            mlb.(sprintf('%s', session)).proportionError.line3(1)];
-        mlb.(sprintf('%s', session)).proportionError.mean(1) = nanmean(propError);
-        mlb.(sprintf('%s', session)).proportionError.mean(2) = nanstd(propError);
+        %propError = [mlb.(sprintf('%s', session)).proportionError.line1(1), mlb.(sprintf('%s', session)).proportionError.line2(1),...
+        %    mlb.(sprintf('%s', session)).proportionError.line3(1)];
+        %mlb.(sprintf('%s', session)).proportionError.mean(1) = nanmean(propError);
+        %mlb.(sprintf('%s', session)).proportionError.mean(2) = nanstd(propError);
         % Saving to the alldata structure
-        allData.(sprintf('%s', session)).mlb.proportionError(p,:) = nanmean(propError);
-        allData.(sprintf('%s', session)).mlb.proportionErrorStd(p,:) = nanstd(propError);
+        %allData.(sprintf('%s', session)).mlb.proportionError(p,:) = nanmean(propError);
+        %allData.(sprintf('%s', session)).mlb.proportionErrorStd(p,:) = nanstd(propError);
         
         % Same for TRB
         error = [trb.(sprintf('%s', session)).error.line1(1), trb.(sprintf('%s', session)).error.line2(1),...
@@ -78,13 +78,13 @@ for p = 1:length(nParticipants)
         allData.(sprintf('%s', session)).trb.errorstd(p,:) = trb.(sprintf('%s', session)).error.mean(2);
         % Averaging line proportion error (cause I didn't do this
         % previously)...
-        propError = [trb.(sprintf('%s', session)).proportionError.line1(1), trb.(sprintf('%s', session)).proportionError.line2(1),...
-            trb.(sprintf('%s', session)).proportionError.line3(1)];
-        trb.(sprintf('%s', session)).proportionError.mean(1) = nanmean(propError);
-        trb.(sprintf('%s', session)).proportionError.mean(2) = nanstd(propError);
-        % Saving to the alldata structure
-        allData.(sprintf('%s', session)).trb.proportionError(p,:) = nanmean(propError);
-        allData.(sprintf('%s', session)).trb.proportionErrorStd(p,:) = nanstd(propError);
+%         propError = [trb.(sprintf('%s', session)).proportionError.line1(1), trb.(sprintf('%s', session)).proportionError.line2(1),...
+%             trb.(sprintf('%s', session)).proportionError.line3(1)];
+%         trb.(sprintf('%s', session)).proportionError.mean(1) = nanmean(propError);
+%         trb.(sprintf('%s', session)).proportionError.mean(2) = nanstd(propError);
+%         Saving to the alldata structure
+%         allData.(sprintf('%s', session)).trb.proportionError(p,:) = nanmean(propError);
+%         allData.(sprintf('%s', session)).trb.proportionErrorStd(p,:) = nanstd(propError);
         
         %% Saving data for  all sessions
         % Landmarks
@@ -101,10 +101,10 @@ for p = 1:length(nParticipants)
         allData.sessions.mlb(p,i) = sessionmlb;
         allData.sessions.mlbStd(p,i) = sessionmlbSD;
         % Proportion error
-        sessionmlb = allData.(sprintf('%s', session)).mlb.proportionError(p,1);
-        sessionmlbSD = allData.(sprintf('%s', session)).mlb.proportionErrorStd(p,1);
-        allData.sessions.mlbProp(p,i) = sessionmlb;
-        allData.sessions.mlbPropStd(p,i) = sessionmlbSD;
+%         sessionmlb = allData.(sprintf('%s', session)).mlb.proportionError(p,1);
+%         sessionmlbSD = allData.(sprintf('%s', session)).mlb.proportionErrorStd(p,1);
+%         allData.sessions.mlbProp(p,i) = sessionmlb;
+%         allData.sessions.mlbPropStd(p,i) = sessionmlbSD;
         
         % Tactile rod bisection
         sessiontrb = allData.(sprintf('%s', session)).trb.error(p,1);
@@ -112,11 +112,11 @@ for p = 1:length(nParticipants)
         allData.sessions.trb(p,i) = sessiontrb;
         allData.sessions.trbStd(p,i) = sessiontrbSD;
         % Proportion error
-        sessiontrb = allData.(sprintf('%s', session)).trb.proportionError(p,1);
-        sessiontrbSD = allData.(sprintf('%s', session)).trb.proportionErrorStd(p,1);
-        allData.sessions.trbProp(p,i) = sessiontrb;
-        allData.sessions.trbPropStd(p,i) = sessiontrbSD;
-        
+%         sessiontrb = allData.(sprintf('%s', session)).trb.proportionError(p,1);
+%         sessiontrbSD = allData.(sprintf('%s', session)).trb.proportionErrorStd(p,1);
+%         allData.sessions.trbProp(p,i) = sessiontrb;
+%         allData.sessions.trbPropStd(p,i) = sessiontrbSD;
+%         
     end
     
     %% Saving data for all modalities
@@ -128,7 +128,7 @@ for p = 1:length(nParticipants)
     allData.modalities.data(p,1) = modlm; allData.modalities.sds(p,1) = modlmSD;
     % Manual line bisection
     modmlb = nanmean(allData.sessions.mlb(p,:));
-    modmlbSD = nanstd(allData.sessions.mlbProp(p,:));
+    modmlbSD = nanstd(allData.sessions.mlb(p,:));
     allData.modalities.data(p,2) = modmlb; allData.modalities.sds(p,2) = modmlbSD;
     % Tactile rod bisection
     modtrb = nanmean(allData.sessions.trb(p,:));
