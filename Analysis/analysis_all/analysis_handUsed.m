@@ -30,14 +30,40 @@ for p = 1:length(nParticipants)
     load(tactileFilename)
     
     %% Getting data per session, compiling into matrices
-    %%%%%% reached here and keep going
-    for i = 1:length(nSessions)
-        mlbData.(sprintf('%s', session)).left_hand(:,p) = mlb.(sprintf('%s', session)).erro.left_hand(1);
+    for s = 1:length(nSessions)
+        cd(dirPP)
+        session = sprintf('Session%0*d',2,nSessions(s));
+        % MLB
+        % left hand
+        res_mlb.left_hand.error(p,s) = (mlb.(sprintf('%s', session)).error.left_hand(1))*10; %mean
+        res_mlb.left_hand.sd(p,s) = (mlb.(sprintf('%s', session)).error.left_hand(2))*10; %sd
+        % right hand
+        res_mlb.right_hand.error(p,s) = (mlb.(sprintf('%s', session)).error.right_hand(1))*10; %mean
+        res_mlb.right_hand.sd(p,s) = (mlb.(sprintf('%s', session)).error.right_hand(2))*10; %sd
+        
+        % TRB
+        % left hand
+        res_trb.left_hand.error(p,s) = (trb.(sprintf('%s', session)).error.left_hand(1))*10; %mean
+        res_trb.left_hand.sd(p,s) = (trb.(sprintf('%s', session)).error.left_hand(2))*10; %sd
+        % right hand
+        res_trb.right_hand.error(p,s) = (trb.(sprintf('%s', session)).error.right_hand(1))*10; %mean
+        res_trb.right_hand.sd(p,s) = (trb.(sprintf('%s', session)).error.right_hand(2))*10; %sd       
     end
-    
+
 end
-%% Group averages
-%% Plotting data
+
+%% Averaging across session
+% MLB, left hand
+res_mlb.left_hand.average(:,1) = nanmean(res_mlb.left_hand.error, 2); %mean
+res_mlb.left_hand.average(:,2) = nanstd(res_mlb.left_hand.error, 0, 2); %std
+% right hand
+res_mlb.right_hand.average(:,1) = nanmean(res_mlb.right_hand.error, 2); %mean
+res_mlb.right_hand.average(:,2) = nanstd(res_mlb.right_hand.error, 0, 2); %std
+% TRB
+res_trb.left_hand.average(:,1) = nanmean(res_trb.left_hand.error, 2); %mean
+res_trb.left_hand.average(:,2) = nanstd(res_trb.left_hand.error, 0, 2); %std
+res_trb.right_hand.average(:,1) = nanmean(res_trb.right_hand.error, 2); %mean
+res_trb.right_hand.average(:,2) = nanstd(res_trb.right_hand.error, 0, 2); %std
 
 %% Group averages
 %% Plotting data
