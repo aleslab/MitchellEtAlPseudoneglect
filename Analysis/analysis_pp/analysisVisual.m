@@ -333,54 +333,115 @@ for p = 1:length(nParticipants)
             lm.(sprintf('%s', session)).res(ii+6,3) = nRightR;
             lm.(sprintf('%s', session)).res(ii+6,4) = percentRR;      
         end
+        %% Calculate percentage 'right side longer' for each colour shift (contrast switch at line midpoint)
+        % Response to reviewer comment
+        % First, extract shift matrix for each contrast
+        % isolate each shift
+        mid = lm.(sprintf('%s', session)).allshift.mid;
+        left2 = lm.(sprintf('%s', session)).allshift.left2;
+        left4 = lm.(sprintf('%s', session)).allshift.left4;
+        left6 = lm.(sprintf('%s', session)).allshift.left6;
+        left8 = lm.(sprintf('%s', session)).allshift.left8;
+        left10 = lm.(sprintf('%s', session)).allshift.left10;
+        right2 = lm.(sprintf('%s', session)).allshift.right2;
+        right4 = lm.(sprintf('%s', session)).allshift.right4;
+        right6 = lm.(sprintf('%s', session)).allshift.right6;
+        right8 = lm.(sprintf('%s', session)).allshift.right8;
+        right10 = lm.(sprintf('%s', session)).allshift.right10;
+
+        % extract each contrast from each shift
+        % black = top left
+        lm.(sprintf('%s', session)).con1shift.mid = mid(find(mid(:,5) == 1), :);
+        lm.(sprintf('%s', session)).con1shift.left2 = left2(find(left2(:,5) == 1), :);
+        lm.(sprintf('%s', session)).con1shift.left4 = left4(find(left4(:,5) == 1), :);
+        lm.(sprintf('%s', session)).con1shift.left6 = left6(find(left6(:,5) == 1), :);
+        lm.(sprintf('%s', session)).con1shift.left8 = left8(find(left8(:,5) == 1), :);
+        lm.(sprintf('%s', session)).con1shift.left10 = left10(find(left10(:,5) == 1), :);
+        lm.(sprintf('%s', session)).con1shift.right2 = right2(find(right2(:,5) == 1), :);
+        lm.(sprintf('%s', session)).con1shift.right4 = right4(find(right4(:,5) == 1), :);
+        lm.(sprintf('%s', session)).con1shift.right6 = right6(find(right6(:,5) == 1), :);
+        lm.(sprintf('%s', session)).con1shift.right8 = right8(find(right8(:,5) == 1), :);
+        lm.(sprintf('%s', session)).con1shift.right10 = right10(find(right10(:,5) == 1), :);
+        % white = top left
+        lm.(sprintf('%s', session)).con2shift.mid = mid(find(mid(:,5) == 2), :);
+        lm.(sprintf('%s', session)).con2shift.left2 = left2(find(left2(:,5) == 2), :);
+        lm.(sprintf('%s', session)).con2shift.left4 = left4(find(left4(:,5) == 2), :);
+        lm.(sprintf('%s', session)).con2shift.left6 = left6(find(left6(:,5) == 2), :);
+        lm.(sprintf('%s', session)).con2shift.left8 = left8(find(left8(:,5) == 2), :);
+        lm.(sprintf('%s', session)).con2shift.left10 = left10(find(left10(:,5) == 2), :);
+        lm.(sprintf('%s', session)).con2shift.right2 = right2(find(right2(:,5) == 2), :);
+        lm.(sprintf('%s', session)).con2shift.right4 = right4(find(right4(:,5) == 2), :);
+        lm.(sprintf('%s', session)).con2shift.right6 = right6(find(right6(:,5) == 2), :);
+        lm.(sprintf('%s', session)).con2shift.right8 = right8(find(right8(:,5) == 2), :);
+        lm.(sprintf('%s', session)).con2shift.right10 = right10(find(right10(:,5) == 2), :);
+
+        % Get matrices of key values - proportion right for each shift
+        % contrast 1 = black top left
+        lm.(sprintf('%s', session)).con1(:,1) = measurements'; %black = top left    
+        nTrials = length(lm.(sprintf('%s', session)).con1shift.mid(:,4)); %number of trials for  the condition
+        nRight = sum(lm.(sprintf('%s', session)).con1shift.mid(:,4)==2); %number of trials they responded that the right side is longer
+        percentR = (nRight/nTrials)*100;
+        % Adding to matrix
+        lm.(sprintf('%s', session)).con1(6,2) = nTrials;
+        lm.(sprintf('%s', session)).con1(6,3) = nRight;
+        lm.(sprintf('%s', session)).con1(6,4) = percentR;
+        % For all shifts
+        for ii = 1:5
+            shift = ii*2; shiftmm = shift/10; %for naming
+            name = sprintf('%d', shift);
+
+            % Getting key values, left shift
+            nTrialsL = length(lm.(sprintf('%s', session)).con1shift.(sprintf('left%d', shift))(:,4)); %number of trials for  the condition
+            nRightL = sum(lm.(sprintf('%s', session)).con1shift.(sprintf('left%d', shift))(:,4)==2); %number of trials they responded that the right side is longer
+            percentRL = (nRightL/nTrialsL)*100;
+            % Getting key values, right shift
+            nTrialsR = length(lm.(sprintf('%s', session)).con1shift.(sprintf('right%d', shift))(:,4)); %number of trials for  the condition
+            nRightR = sum(lm.(sprintf('%s', session)).con1shift.(sprintf('right%d', shift))(:,4)==2); %number of trials they responded that the right side is longer
+            percentRR = (nRightR/nTrialsR)*100;
+            % Adding to matrix, left shift
+            lm.(sprintf('%s', session)).con1(k(ii),2) = nTrialsL;
+            lm.(sprintf('%s', session)).con1(k(ii),3) = nRightL;
+            lm.(sprintf('%s', session)).con1(k(ii),4) = percentRL;
+            % Adding to matrix, left shift
+            lm.(sprintf('%s', session)).con1(ii+6,2) = nTrialsR;
+            lm.(sprintf('%s', session)).con1(ii+6,3) = nRightR;
+            lm.(sprintf('%s', session)).con1(ii+6,4) = percentRR;      
+        end
+        
+        % contrast 2 = white top left
+        lm.(sprintf('%s', session)).con2(:,1) = measurements'; %white = top left 
+        nTrials = length(lm.(sprintf('%s', session)).con2shift.mid(:,4)); %number of trials for  the condition
+        nRight = sum(lm.(sprintf('%s', session)).con2shift.mid(:,4)==2); %number of trials they responded that the right side is longer
+        percentR = (nRight/nTrials)*100;
+        % Adding to matrix
+        lm.(sprintf('%s', session)).con2(6,2) = nTrials;
+        lm.(sprintf('%s', session)).con2(6,3) = nRight;
+        lm.(sprintf('%s', session)).con2(6,4) = percentR;
+        % For all shifts
+        for ii = 1:5
+            shift = ii*2; shiftmm = shift/10; %for naming
+            name = sprintf('%d', shift);
+
+            % Getting key values, left shift
+            nTrialsL = length(lm.(sprintf('%s', session)).con2shift.(sprintf('left%d', shift))(:,4)); %number of trials for  the condition
+            nRightL = sum(lm.(sprintf('%s', session)).con2shift.(sprintf('left%d', shift))(:,4)==2); %number of trials they responded that the right side is longer
+            percentRL = (nRightL/nTrialsL)*100;
+            % Getting key values, right shift
+            nTrialsR = length(lm.(sprintf('%s', session)).con2shift.(sprintf('right%d', shift))(:,4)); %number of trials for  the condition
+            nRightR = sum(lm.(sprintf('%s', session)).con2shift.(sprintf('right%d', shift))(:,4)==2); %number of trials they responded that the right side is longer
+            percentRR = (nRightR/nTrialsR)*100;
+            % Adding to matrix, left shift
+            lm.(sprintf('%s', session)).con2(k(ii),2) = nTrialsL;
+            lm.(sprintf('%s', session)).con2(k(ii),3) = nRightL;
+            lm.(sprintf('%s', session)).con2(k(ii),4) = percentRL;
+            % Adding to matrix, left shift
+            lm.(sprintf('%s', session)).con2(ii+6,2) = nTrialsR;
+            lm.(sprintf('%s', session)).con2(ii+6,3) = nRightR;
+            lm.(sprintf('%s', session)).con2(ii+6,4) = percentRR;      
+        end
     end
 
-    %% Calculate percentage 'right side longer' for each colour shift (contrast switch at line midpoint)
-    % Response to reviewer comment
-    % First, extract shift matrix for each contrast
-    % isolate each shift
-    mid = lm.(sprintf('%s', session)).allshift.mid;
-    left2 = lm.(sprintf('%s', session)).allshift.left2;
-    left4 = lm.(sprintf('%s', session)).allshift.left4;
-    left6 = lm.(sprintf('%s', session)).allshift.left6;
-    left8 = lm.(sprintf('%s', session)).allshift.left8;
-    left10 = lm.(sprintf('%s', session)).allshift.left10;
-    right2 = lm.(sprintf('%s', session)).allshift.right2;
-    right4 = lm.(sprintf('%s', session)).allshift.right4;
-    right6 = lm.(sprintf('%s', session)).allshift.right6;
-    right8 = lm.(sprintf('%s', session)).allshift.right8;
-    right10 = lm.(sprintf('%s', session)).allshift.right10;
     
-    % extract each contrast from each shift
-    % black = top left
-    lm.(sprintf('%s', session)).con1shift.mid = mid(find(mid(:,5) == 1), :);
-    lm.(sprintf('%s', session)).con1shift.left2 = left2(find(left2(:,5) == 1), :);
-    lm.(sprintf('%s', session)).con1shift.left4 = left4(find(left4(:,5) == 1), :);
-    lm.(sprintf('%s', session)).con1shift.left6 = left6(find(left6(:,5) == 1), :);
-    lm.(sprintf('%s', session)).con1shift.left8 = left8(find(left8(:,5) == 1), :);
-    lm.(sprintf('%s', session)).con1shift.left10 = left10(find(left10(:,5) == 1), :);
-    lm.(sprintf('%s', session)).con1shift.right2 = right2(find(right2(:,5) == 1), :);
-    lm.(sprintf('%s', session)).con1shift.right4 = right4(find(right4(:,5) == 1), :);
-    lm.(sprintf('%s', session)).con1shift.right6 = right6(find(right6(:,5) == 1), :);
-    lm.(sprintf('%s', session)).con1shift.right8 = right8(find(right8(:,5) == 1), :);
-    lm.(sprintf('%s', session)).con1shift.right10 = right10(find(right10(:,5) == 1), :);
-    % white = top left
-    lm.(sprintf('%s', session)).con2shift.mid = mid(find(mid(:,5) == 2), :);
-    lm.(sprintf('%s', session)).con2shift.left2 = left2(find(left2(:,5) == 2), :);
-    lm.(sprintf('%s', session)).con2shift.left4 = left4(find(left4(:,5) == 2), :);
-    lm.(sprintf('%s', session)).con2shift.left6 = left6(find(left6(:,5) == 2), :);
-    lm.(sprintf('%s', session)).con2shift.left8 = left8(find(left8(:,5) == 2), :);
-    lm.(sprintf('%s', session)).con2shift.left10 = left10(find(left10(:,5) == 2), :);
-    lm.(sprintf('%s', session)).con2shift.right2 = right2(find(right2(:,5) == 2), :);
-    lm.(sprintf('%s', session)).con2shift.right4 = right4(find(right4(:,5) == 2), :);
-    lm.(sprintf('%s', session)).con2shift.right6 = right6(find(right6(:,5) == 2), :);
-    lm.(sprintf('%s', session)).con2shift.right8 = right8(find(right8(:,5) == 2), :);
-    lm.(sprintf('%s', session)).con2shift.right10 = right10(find(right10(:,5) == 2), :);
-   
-    % Get matrices of key values - proportion right for each shift
-    lm.(sprintf('%s', session)).con1(:,1) = measurements'; %black = top left
-    lm.(sprintf('%s', session)).con2(:,1) = measurements'; %white = top loft
-        
     %% Data across all sessions
     % Matrices of shifts for each line length
     for j = 1:3
@@ -427,7 +488,97 @@ for p = 1:length(nParticipants)
         end
     end
     
-%% All sessions, all lines    
+    
+%% All sessions, for each contrast
+% contrast 1 - black top left
+% midpoint 
+lm.allsessions.con1shift.mid = [lm.Session01.con1shift.mid; lm.Session02.con1shift.mid; ...
+    lm.Session03.con1shift.mid; lm.Session04.con1shift.mid];
+lm.allsessions.con1(:,1) = measurements';
+nTrials = length(lm.allsessions.con1shift.mid(:,4)); 
+nRight = sum(lm.allsessions.con1shift.mid(:,4)==2); %number of trials they responded that the right side is longer
+percentR = (nRight/nTrials)*100;
+% Adding to matrix
+lm.allsessions.con1(6,2) = nTrials;
+lm.allsessions.con1(6,3) = nRight;
+lm.allsessions.con1(6,4) = percentR;
+% all other shifts
+for ii = 1:5
+    shift = ii*2; shiftmm = shift/10; %for naming
+    name = sprintf('%d', shift);
+
+    % creating matrix - left
+    lm.allsessions.con1shift.(sprintf('left%d', shift)) = [lm.Session01.con1shift.(sprintf('left%d', shift));...
+        lm.Session02.con1shift.(sprintf('left%d', shift)); lm.Session03.con1shift.(sprintf('left%d', shift));...
+        lm.Session04.con1shift.(sprintf('left%d', shift))];
+    % Getting key values, left shift
+    nTrialsL = length(lm.allsessions.con1shift.(sprintf('left%d', shift))(:,4)); %number of trials for  the condition
+    nRightL = sum(lm.allsessions.con1shift.(sprintf('left%d', shift))(:,4)==2); %number of trials they responded that the right side is longer
+    percentRL = (nRightL/nTrialsL)*100;
+    % creating matrix - right
+    lm.allsessions.con1shift.(sprintf('right%d', shift)) = [lm.Session01.con1shift.(sprintf('right%d', shift));...
+        lm.Session02.con1shift.(sprintf('right%d', shift)); lm.Session03.con1shift.(sprintf('right%d', shift));...
+        lm.Session04.con1shift.(sprintf('right%d', shift))];
+    % Getting key values, right shift
+    nTrialsR = length(lm.allsessions.con1shift.(sprintf('right%d', shift))(:,4)); %number of trials for  the condition
+    nRightR = sum(lm.allsessions.con1shift.(sprintf('right%d', shift))(:,4)==2); %number of trials they responded that the right side is longer
+    percentRR = (nRightR/nTrialsR)*100;
+    % Adding to matrix, left shift
+    lm.allsessions.con1(k(ii),2) = nTrialsL;
+    lm.allsessions.con1(k(ii),3) = nRightL;
+    lm.allsessions.con1(k(ii),4) = percentRL;
+    % Adding to matrix, left shift
+    lm.allsessions.con1(ii+6,2) = nTrialsR;
+    lm.allsessions.con1(ii+6,3) = nRightR;
+    lm.allsessions.con1(ii+6,4) = percentRR;      
+end
+
+% contrast 2 - white top left
+% midpoint 
+lm.allsessions.con2shift.mid = [lm.Session01.con2shift.mid; lm.Session02.con2shift.mid; ...
+    lm.Session03.con2shift.mid; lm.Session04.con2shift.mid];
+lm.allsessions.con2(:,1) = measurements';
+nTrials = length(lm.allsessions.con2shift.mid(:,4)); 
+nRight = sum(lm.allsessions.con2shift.mid(:,4)==2); %number of trials they responded that the right side is longer
+percentR = (nRight/nTrials)*100;
+% Adding to matrix
+lm.allsessions.con2(6,2) = nTrials;
+lm.allsessions.con2(6,3) = nRight;
+lm.allsessions.con2(6,4) = percentR;
+% all other shifts
+for ii = 1:5
+    shift = ii*2; shiftmm = shift/10; %for naming
+    name = sprintf('%d', shift);
+ 
+    % creating matrix - left
+    lm.allsessions.con2shift.(sprintf('left%d', shift)) = [lm.Session01.con2shift.(sprintf('left%d', shift));...
+        lm.Session02.con2shift.(sprintf('left%d', shift)); lm.Session03.con2shift.(sprintf('left%d', shift));...
+        lm.Session04.con2shift.(sprintf('left%d', shift))];
+    % Getting key values, left shift
+    nTrialsL = length(lm.allsessions.con2shift.(sprintf('left%d', shift))(:,4)); %number of trials for  the condition
+    nRightL = sum(lm.allsessions.con2shift.(sprintf('left%d', shift))(:,4)==2); %number of trials they responded that the right side is longer
+    percentRL = (nRightL/nTrialsL)*100;
+     % creating matrix - right
+    lm.allsessions.con2shift.(sprintf('right%d', shift)) = [lm.Session01.con2shift.(sprintf('right%d', shift));...
+        lm.Session02.con2shift.(sprintf('right%d', shift)); lm.Session03.con2shift.(sprintf('right%d', shift));...
+        lm.Session04.con2shift.(sprintf('right%d', shift))];
+    % Getting key values, right shift
+    nTrialsR = length(lm.allsessions.con2shift.(sprintf('right%d', shift))(:,4)); %number of trials for  the condition
+    nRightR = sum(lm.allsessions.con2shift.(sprintf('right%d', shift))(:,4)==2); %number of trials they responded that the right side is longer
+    percentRR = (nRightR/nTrialsR)*100;
+    % Adding to matrix, left shift
+    lm.allsessions.con2(k(ii),2) = nTrialsL;
+    lm.allsessions.con2(k(ii),3) = nRightL;
+    lm.allsessions.con2(k(ii),4) = percentRL;
+    % Adding to matrix, left shift
+    lm.allsessions.con2(ii+6,2) = nTrialsR;
+    lm.allsessions.con2(ii+6,3) = nRightR;
+    lm.allsessions.con2(ii+6,4) = percentRR;      
+end
+
+
+
+%% All sessions, all lines
 lm.allsessions.alllines.mid = [lm.allsessions.line1.mid; lm.allsessions.line2.mid;...
      lm.allsessions.line3.mid]; %all lines
  
