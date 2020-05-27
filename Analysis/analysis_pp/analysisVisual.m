@@ -50,7 +50,8 @@ for p = 1:length(nParticipants)
         lmName = dir([dirSess 'LM_*.mat']); %getting file details for MLB data
         load(lmName.name);    
         lm.(sprintf('%s', session)) = data;
-
+        lm.(sprintf('%s', session)).matrix(:,5) = stim.pos;
+        
         % Landmarks 2AFC
         lm2Name= dir([dirSess 'LM2afc_*.mat']); %getting file details for MLB data
         load(lm2Name.name);    
@@ -334,7 +335,53 @@ for p = 1:length(nParticipants)
         end
     end
 
-    % Data across all sessions
+    %% Calculate percentage 'right side longer' for each colour shift (contrast switch at line midpoint)
+    % Response to reviewer comment
+    % First, extract shift matrix for each contrast
+    % isolate each shift
+    mid = lm.(sprintf('%s', session)).allshift.mid;
+    left2 = lm.(sprintf('%s', session)).allshift.left2;
+    left4 = lm.(sprintf('%s', session)).allshift.left4;
+    left6 = lm.(sprintf('%s', session)).allshift.left6;
+    left8 = lm.(sprintf('%s', session)).allshift.left8;
+    left10 = lm.(sprintf('%s', session)).allshift.left10;
+    right2 = lm.(sprintf('%s', session)).allshift.right2;
+    right4 = lm.(sprintf('%s', session)).allshift.right4;
+    right6 = lm.(sprintf('%s', session)).allshift.right6;
+    right8 = lm.(sprintf('%s', session)).allshift.right8;
+    right10 = lm.(sprintf('%s', session)).allshift.right10;
+    
+    % extract each contrast from each shift
+    % black = top left
+    lm.(sprintf('%s', session)).con1shift.mid = mid(find(mid(:,5) == 1), :);
+    lm.(sprintf('%s', session)).con1shift.left2 = left2(find(left2(:,5) == 1), :);
+    lm.(sprintf('%s', session)).con1shift.left4 = left4(find(left4(:,5) == 1), :);
+    lm.(sprintf('%s', session)).con1shift.left6 = left6(find(left6(:,5) == 1), :);
+    lm.(sprintf('%s', session)).con1shift.left8 = left8(find(left8(:,5) == 1), :);
+    lm.(sprintf('%s', session)).con1shift.left10 = left10(find(left10(:,5) == 1), :);
+    lm.(sprintf('%s', session)).con1shift.right2 = right2(find(right2(:,5) == 1), :);
+    lm.(sprintf('%s', session)).con1shift.right4 = right4(find(right4(:,5) == 1), :);
+    lm.(sprintf('%s', session)).con1shift.right6 = right6(find(right6(:,5) == 1), :);
+    lm.(sprintf('%s', session)).con1shift.right8 = right8(find(right8(:,5) == 1), :);
+    lm.(sprintf('%s', session)).con1shift.right10 = right10(find(right10(:,5) == 1), :);
+    % white = top left
+    lm.(sprintf('%s', session)).con2shift.mid = mid(find(mid(:,5) == 2), :);
+    lm.(sprintf('%s', session)).con2shift.left2 = left2(find(left2(:,5) == 2), :);
+    lm.(sprintf('%s', session)).con2shift.left4 = left4(find(left4(:,5) == 2), :);
+    lm.(sprintf('%s', session)).con2shift.left6 = left6(find(left6(:,5) == 2), :);
+    lm.(sprintf('%s', session)).con2shift.left8 = left8(find(left8(:,5) == 2), :);
+    lm.(sprintf('%s', session)).con2shift.left10 = left10(find(left10(:,5) == 2), :);
+    lm.(sprintf('%s', session)).con2shift.right2 = right2(find(right2(:,5) == 2), :);
+    lm.(sprintf('%s', session)).con2shift.right4 = right4(find(right4(:,5) == 2), :);
+    lm.(sprintf('%s', session)).con2shift.right6 = right6(find(right6(:,5) == 2), :);
+    lm.(sprintf('%s', session)).con2shift.right8 = right8(find(right8(:,5) == 2), :);
+    lm.(sprintf('%s', session)).con2shift.right10 = right10(find(right10(:,5) == 2), :);
+   
+    % Get matrices of key values - proportion right for each shift
+    lm.(sprintf('%s', session)).con1(:,1) = measurements'; %black = top left
+    lm.(sprintf('%s', session)).con2(:,1) = measurements'; %white = top loft
+        
+    %% Data across all sessions
     % Matrices of shifts for each line length
     for j = 1:3
         line = sprintf('line%d', j);
