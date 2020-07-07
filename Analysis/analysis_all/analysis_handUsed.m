@@ -112,6 +112,9 @@ load('ReliabilityAnalysis.mat', 'results')
 landmark = results.plotting.modalities(:,3);
 res_mods.left_hand = [res_mlb.left_hand.average(:,1), res_trb.left_hand.average(:,1), landmark];
 res_mods.right_hand = [res_mlb.right_hand.average(:,1), res_trb.right_hand.average(:,1), landmark];
+% data for each hand, in same modality
+res_mlb.hand = [res_mlb.right_hand.average(:,1), res_mlb.left_hand.average(:,1)];
+res_trb.hand = [res_trb.right_hand.average(:,1), res_trb.left_hand.average(:,1)];
 
 %% STATS - Cronbach's Alpha
 % Using Cronbach's alpha to assess reliability of mlb and trb across
@@ -154,6 +157,16 @@ res_mods.corr.left_hand.p = pval;
 [rho,pval] = corr(res_mods.right_hand(:,1), res_mods.right_hand(:,2));
 res_mods.corr.right_hand.r = rho;
 res_mods.corr.right_hand.p = pval;
+
+%% Cronbach's alpha across hands
+% MLB
+[res_mlb.reliability.hand.r, res_mlb.reliability.hand.bound(1), res_mlb.reliability.hand.bound(2), ...
+    res_mlb.reliability.hand.F, res_mlb.reliability.left_hand.df(1), res_mlb.reliability.hand.df(2), ...
+    res_mlb.reliability.hand.p] = ICC(res_mlb.hand, type);
+% TRB
+[res_trb.reliability.hand.r, res_trb.reliability.hand.bound(1), res_trb.reliability.hand.bound(2), ...
+    res_trb.reliability.hand.F, res_trb.reliability.left_hand.df(1), res_trb.reliability.hand.df(2), ...
+    res_trb.reliability.hand.p] = ICC(res_trb.hand, type);
 
 %% Plotting data
 plotting = struct;
