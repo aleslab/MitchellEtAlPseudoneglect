@@ -7,7 +7,7 @@
 
 %% Setting paths
 clear all
-nParticipants = [1:19,21:24,26:30];
+nParticipants = [1:10,12:16,18,21:24,26:30];
 % Directory
 dirBias = ('M:\Alex_Files\Experiments\Bias'); %subject to change depending on where you analyse
 dirAna = ('M:\Alex_Files\Experiments\Bias\Analysis');
@@ -15,10 +15,8 @@ dirAna = ('M:\Alex_Files\Experiments\Bias\Analysis');
 %% Looping through participants and getting data
 for p = 1:length(nParticipants)
     ppID = sprintf('P%0*d',2,nParticipants(p)); %for use when navigating files
-    visualFilename = sprintf('%s_visualanalysisStart.mat', ppID);
+    visualFilename = sprintf('%s_visualanalysisContrast.mat', ppID);
     matfilename = ('LMcontrast_analysis.mat');
-    
-    nSessions = 1:4; %vector number of sessions each participant does
     
     % individual participant directory
     dirPP = [dirBias filesep 'Data' filesep ppID filesep 'Analysis']; %participant directory
@@ -28,22 +26,15 @@ for p = 1:length(nParticipants)
     load(visualFilename)
     
     %% Extract data
-    % Get percentage right-side responses for each midpoint for trials
-    % where left + right sides are the same length - for each contrast
-
-    % First, average across sessions
-    res.all.con1(p) = lm.allsessions.con1(6,4); 
-    res.all.con2(p) = lm.allsessions.con2(6,4); 
-    % Next, for each individual session
-    for s = 1:length(nSessions)
-        session = sprintf('Session%0*d',2,nSessions(s));      
-        res.(sprintf('%s', session)).con1(p) = lm.(sprintf('%s', session)).con1(6,4);
-        res.(sprintf('%s', session)).con2(p) = lm.(sprintf('%s', session)).con2(6,4);
-    end
+    % Get PSE for each participant
+    PSE_con1 = -(lm.pfits.con1.stim50right);
+    PSE_con2 = -(lm.pfits.con2.stim50right);
+    res.con1.PSE(p) = PSE_con1;
+    res.con2.PSE(p) = PSE_con2;
 end
 
 %% Statistical analysis
 % t-test comparing mean percentage right-side responses across all sessions
-[res.all.h, res.all.p, res.all.ci, res.all.stats] = ttest(res.all.con1, res.all.con2);
+[res.all.h, res.all.p, res.all.ci, res.all.stats] = ttest(res.con1.PSE, res.con2.PSE);
 
 %% Plotting
