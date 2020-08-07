@@ -2,6 +2,7 @@
 function [r, LB, UB, F, df1, df2, p] = ICC_case_C_k(MSR, MSE, MSC, MSW, alpha, r0, n, k)
 r = (MSR - MSE) / MSR;
 
+%F = (1-r0)/(MSR/MSE);
 F = (MSR/MSE) * (1-r0);
 df1 = n - 1;
 df2 = (n-1)*(k-1);
