@@ -3,7 +3,7 @@ Collection of files for Investigating reliability and task demands in pseudonegl
 
 DOWNLOAD
 
-Download and unzip raw Data from OSF - make sure data is saved in folder called 'Data' within repository
+Download and unzip raw Data from OSF (https://osf.io/5fksw/) - make sure data is saved in folder called 'Data' within repository
 
 Download all code directly from github - place code in the same folder as 'Data' (NOT inside 'Data')
 
