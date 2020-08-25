@@ -10,11 +10,11 @@ cd(dirAna)
 load('ReliabilityAnalysis.mat');
 mkdir Plots
 dirPlot = [dirAna filesep 'Plots'];
-cd(plotDir)
+cd(dirPlot)
 
 %% Plotting - large scaled-up plots for posters
 % creating figure for session subplots
-pngFileName = strcat('biasSessions', '.png');
+pngFileName = strcat('Figure5', '.png');
 figure('units', 'centimeters', 'Position', [10 1 17 55])
 
 %colours for figures
@@ -185,123 +185,6 @@ legend boxoff
 print -r300 %set to resolution (let's try this)
 saveas(gcf, pngFileName);
 
-%% All sessions
-% standard deviation values for shading
-allSDpt5 = std(allData.means.allPP(:,1))*0.5;
-allSD2 = std(allData.means.allPP(:,1))*2;
-allSDall = results.plotting.sessions.all(:,7);
-allCI = results.plotting.sessions.all(:,8); %need to do this again because data has been sorted
-pngFileName = strcat('biasSessions_all', '.png');
-
-figure('units', 'centimeters', 'Position', [5 3 18 10])
-% Adding SD shaded area - before the actual data for ease of visualisation
-line('XData', [0 length(results.observers)], 'YData', [0, 0], 'LineStyle', '-', ...
-    'LineWidth', 1, 'Color', 'k'); %midpoint
-hold on
-ax = gca;
-xVal = [ax.XLim(1):ax.XLim(end)];
-shadedVal = zeros(length(xVal),1); %making the same length so can plot shaded error bar around 0
-all1 = scatter(results.plotting.sessions.all(:,9), results.plotting.sessions.all(:,3), ...
-    'filled', 'o', 'MarkerFaceColor', s1_col); % session1
-set(all1, 'SizeData', 60);
-hold on
-all2 = scatter(results.plotting.sessions.all(:,9), results.plotting.sessions.all(:,4), ...
-    'filled', 'square', 'MarkerFaceColor', s2_col); % session1
-set(all2, 'SizeData', 60);
-hold on
-all3 = scatter(results.plotting.sessions.all(:,9), results.plotting.sessions.all(:,5), ...
-    'filled', 'o', 'MarkerFaceColor', s3_col); % session3
-set(all3, 'SizeData', 60);
-hold on
-all4 = scatter(results.plotting.sessions.all(:,9), results.plotting.sessions.all(:,6), ...
-    'filled', 'square', 'MarkerFaceColor', s4_col); % session4
-set(all4, 'SizeData', 60);
-% Adding error bars to the mean data
-hold on
-all5 = scatter(results.plotting.sessions.all(:,9), results.plotting.sessions.all(:,2), ...
-    'filled', '^', 'MarkerFaceColor', mean_faceCol, 'MarkerEdgeColor', mean_edgeCol); % mean task data
-set(all5, 'SizeData', 80);
-hold on
-errorbar(results.plotting.sessions.all(:,9), results.plotting.sessions.all(:,2), allCI, 'LineStyle', 'none',...
-    'LineWidth', 1.5, 'Color', [0.1 0.1 0.1], 'CapSize', 0); %SD error bars first
-ylim([-15 15]);
-% Making it prettier
-set(ax, 'FontSize', 11, 'ytick', [-15:5:15]);
-xLabels = num2str(results.plotting.sessions.all(:,1));
-xticks(ax, 1:length(results.plotting.sessions.all(:,1)));
-xticklabels(ax, xLabels);
-xlabel('Observers'); ylabel('Bisection error (mm)');
-alllgd = legend([all1, all2, all3, all4, all5], '1', '2', '3', '4', 'Mean', [100 225 0.1 0.2]);
-allText = [alllgd, alllgd.ItemText]; set(allText, 'FontSize', 10);
-%set(alllgd, 'SizeData', 24)
-legend boxoff
-% Adding text to define bias grouping
-leftDim = [0.17 0.13 0.235 0.045];
-rightDim = [0.575 0.13 0.29 0.045]; midDim = [0.41 0.13 0.16 0.045];
-% annotation('textbox', leftDim, 'String', 'Left', 'FontSize', 8); %'Color', [0.2 0.2 0.2]);
-% annotation('textbox', rightDim, 'String', 'Right', 'FontSize', 8); %'Color', [0.7 0.7 0.7]);
-% annotation('textbox', midDim, 'String', 'Unspecified', 'FontSize', 8);  %'Color', [0.45 0.45 0.45]);
-% % saving as both pdf and png for ease
-box off
-%allT = title('All tasks'); set(allT, 'fontsize', 14);
-print -r300
-saveas(gcf, pngFileName);
-
-%% Mean session plot
-% First - bias y axis, session xaxis, modalities separate
-nSessions = 1:4;
-xValues = 1:(length(nSessions));
-sessSD1 = std(allData.sessions.allSessions(:,1));
-sessSD2 = std(allData.sessions.allSessions(:,2));
-sessSD3 = std(allData.sessions.allSessions(:,3));
-sessSD4 = std(allData.sessions.allSessions(:,4));
-sessCI1 = (sessSD1/sqrt(length(results.observers)))*2.11;
-sessCI2 = (sessSD2/sqrt(length(results.observers)))*2.11;
-sessCI3 = (sessSD3/sqrt(length(results.observers)))*2.11;
-sessCI4 = (sessSD4/sqrt(length(results.observers)))*2.11;
-errorBars = [sessCI1, sessCI2, sessCI3, sessCI4];
-allData.sessions.means.all = mean([allData.sessions.means.lmPSE; allData.sessions.means.mlb; ...
-    allData.sessions.means.trb]);
-
-% calculating CIs
-pngFileName = strcat('biasSessions_bySess', '.png');
-
-figure('units', 'centimeters', 'Position', [5 3 13 10])
-dataMean = line('XData', [0 length(xValues)], 'YData', [allData.means.tot(1), allData.means.tot(1)],...
-    'LineStyle', '-', 'LineWidth', 2, 'Color', [0.6 0.6 0.6]); % mean for all data
-hold on
-midpoint = line('XData', [0 length(xValues)], 'YData', [0, 0], 'LineStyle', '--', ...
-    'LineWidth', 1.5, 'Color', [0.1 0.1 0.1]); %midpoint
-hold on
-errorbar(xValues, allData.sessions.means.lmPSE, allData.sessions.sds.lmPSE, 'LineStyle', 'none', 'LineWidth', 1.5,...
-    'Color', [0.1 0.1 0.1], 'CapSize', 0);
-hold on
-s1 = scatter(xValues, allData.sessions.means.lmPSE, 'o', 'MarkerFaceColor', s2_col, ...
-    'MarkerEdgeColor', [0 0 0]); %lm data
-set(s1, 'SizeData', 90);
-hold on
-s2 = scatter(xValues, allData.sessions.means.mlb, 'filled', 'square', 'MarkerFaceColor', s3_col, ...
-    'MarkerEdgeColor', [0 0 0]);
-set(s2, 'SizeData', 90);
-hold on
-s3 = scatter(xValues, allData.sessions.means.trb, 'filled', '^', 'MarkerFaceColor', s4_col, ...
-    'MarkerEdgeColor', [0 0 0]);
-set(s3, 'SizeData', 90);
-ylim([-5 5]);
-ax = gca;
-set(ax, 'FontSize', 11, 'xtick', [1 2 3 4], 'ytick', [-4:2:4])
-xLabels = {'1', '2', '3', '4'};
-xticks(ax, [1 2 3 4]);
-xticklabels(ax, xLabels);
-ylabel('Bisection error (mm)');
-xlabel('Sessions');
-f3lgd = legend([s1 s2 s3], 'landmark', 'line bisection', 'rod bisection', [95 240 0.1 0.3]);
-f3Text = [f3lgd, f3lgd.ItemText]; set(f3Text, 'FontSize', 10);
-%sT = title('Means'); set(sT, 'fontsize', 12);
-%f3t = title('Mean'); set(f3t, 'fontsize', 20);
-legend boxoff
-print -r300
-saveas(gcf, pngFileName);
 
 %% Modalities hypothesis
 % standard deviation values for shading
@@ -310,7 +193,7 @@ SD2 = allData.means.tot(2)*2;
 SDall = results.plotting.modalities(:,6);
 CIall = results.plotting.modalities(:,7);
 
-pngFileName = strcat('biasModalities', '.png');
+pngFileName = strcat('Figure7', '.png');
 
 figure('units', 'centimeters', 'Position', [5 3 18 10])
 line('XData', [0 length(results.observers)], 'YData', [0, 0], 'LineStyle', '-', ...
@@ -366,7 +249,7 @@ dataMat = [results.plotting.modalities(:,3), results.plotting.modalities(:,4), .
     results.plotting.modalities(:,5)]';
 
 % Making plot
-pngFileName = 'biasModalities_summary.png';
+pngFileName = 'Figure8.png';
 figure('units', 'centimeters', 'Position', [5 3 12 8]);
 clf;set(gcf,'color','w');hold on;
 
@@ -406,7 +289,7 @@ xLocMatrix = [xJitter+.6 xJitter+1.6 xJitter+2.4 xJitter+3.4]'; %Make a matrix o
 dataMat = allData.sessions.allSessions';
 
 % Making plot
-pngFileName = 'biasSessions_summary.png';
+pngFileName = 'Figure6.png';
 figure('units', 'centimeters', 'Position', [5 3 12 10]);
 clf;set(gcf,'color','w');hold on;
 

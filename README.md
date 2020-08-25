@@ -22,6 +22,8 @@ To run data analysis you will need:
 - Palamedes toolbox to run psychophysical analyses (http://www.palamedestoolbox.org/download.html)
 - Add the 'external' folder to your MATLAB path (includes necessary functions, e.g. ICC)
 
+** NOTE: The ICC may not work on some platforms, the data to run this outside of MATLAB should be present in data **
+
 All individual analysis files are saved so group analysis should run straight away - but individual analysis scripts are available.
 
 ~ Individual participant analyses ~
@@ -53,6 +55,52 @@ Results: trb
 
 ~ Group level analyses ~
 To run analysis run: grp_analysisReliability.m
+
+grp_analysisReliability will produce 'Analysis' folder
+Output: ReliabilityAnalysis.mat
+
+Key structure: 'results' used to calculate alpha and make plots
+
+Organisation of structures (by column):
+
+Results.plotting.modalities: 
+(1) observers 
+(2) bisection error total mean
+(3) bisection error landmark 
+(4) bisection error manual line bisection
+(5) bisection error tactile rod bisection
+(6) bisection error standard deviation all tasks
+(7) SEM all tasks
+(8) observers organised by bias
+
+Results.plotting.sessions.(task):  <- one for each lm/mlb/trb
+(1) observers 
+(2) bisection error task mean
+(3) bisection error session 1
+(4) bisection error session 2
+(5) bisection error session 3
+(6) bisection error session 4
+(7) standard deviation task
+(8) SEM task
+(9) observers organised by bias
+
+
+ALPHA RESULTS:
+
+Reliability across session:
+- Landmark: results.sessions.lm
+- Line bisection: results.sessions.mlb
+- Tactile rod: results.sessions.trb
+
+Reliability across modalitiy:
+- results.modalities.all
+
+T-tests:
+- Landmark: results.modalities.lmT
+- Line bisection: results.modalities.mlbT
+- Tactile rod: results.modalities.trbT
+
+
 To produce figures found in text run: publicationPlots.m
 
-This code will produce figures
+This will produce 'Plots' folder within 'Analysis'
