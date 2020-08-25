@@ -126,3 +126,6 @@ Plots will end up here: folder/Analysis/Plots
 
 This will produce 'Plots' folder within 'Analysis'
 - Create and save all plots presented in publication
+
+** 'grp_analysis_handUsed.m' will produce hand used analysis presented in supplimentary
+** 'pp_psychometricContrast.m' and 'grp_analysis_LMlineContrast.m' will produce line contrast analysis presented in supplimentary

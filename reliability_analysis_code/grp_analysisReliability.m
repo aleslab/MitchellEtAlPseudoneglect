@@ -170,6 +170,8 @@ outlierAll = [outlierLM, outlierMLB, outlierTRB]; outlierSum = sum(outlierAll,2)
 % Participant 24 = curve fitted poorly and not identified through outlier removeal
 % should be removed
 outlierSum(24,1) = 1;
+cd(dirAnaAll)
+save('outliers.mat', 'outlierSum')
 
 remove = find(outlierSum > 0.1); %identifies paticipants that need removing
 remove = sort(remove); %sorting so in participant order

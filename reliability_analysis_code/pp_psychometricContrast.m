@@ -21,7 +21,10 @@
 clear all;      %Clear all existing variables from memory
 
 tic
-% Load in participant data
+filePath = cd;
+[dirBias, name, ext] = fileparts(filePath); %subject to change depending on where you analyse
+dirData = [dirBias filesep 'Data'];
+    
 nParticipants = [1:19,21:24,26:30];
 %nParticipants = 11; %for testing
 for p = 1:length(nParticipants)  
@@ -31,8 +34,7 @@ for p = 1:length(nParticipants)
     matfilename = sprintf('%s_visualanalysisContrast.mat', ppID);
     nSessions = 1:2; %vector number of sessions each participant does
     % Directory
-    dirBias = ('M:\Alex_Files\Experiments\Bias\Data'); %subject to change depending on where you analyse
-    dirPP = [dirBias filesep ppID]; %participant directory
+    dirPP = [dirData filesep ppID]; %participant directory
     % Making new anaysis folder for saving
     cd(dirPP)
     mkdir Analysis;
