@@ -13,6 +13,20 @@ INSTRUCTIONS FOR RUNNING THE EXPERIMENT STIMULUS
 To run the experiment you will need:
 - MATLAB (R2017a and above) 
 - The latest version of psychtoolbox (http://psychtoolbox.org/)
+- To run Line bisection task you will also need a touchscreen with a Linux OS and a stylus
+
+** Tactile rod bisection is not run through MATLAB and requires a tactile rod platform and rods **
+
+Open 'stimulus_code' 
+
+To run landmark task: lm.m
+To run line-bisection task: mlb.m
+
+Output files saved in same folder: 
+- Landmark: LM_date_time.mat
+- Line bisection: MLB_date_time.mat
+
+All data-files are saved in individual session folders in each participant folder alongside initial analyses
 
 
 INSTRUCTIONS FOR DATA ANALYSIS
@@ -23,6 +37,7 @@ To run data analysis you will need:
 - Add the 'external' folder to your MATLAB path (includes necessary functions, e.g. ICC)
 
 ** NOTE: The ICC may not work on some platforms, the data to run this outside of MATLAB should be present in data **
+** NOTE2: Make sure MATLAB always runs from script path - if not may get path errors **
 
 All individual analysis files are saved so group analysis should run straight away - but individual analysis scripts are available.
 
@@ -53,11 +68,16 @@ File: PP_tactileanalysis
 Results: trb
 - average mean bisection error alongside raw data
 
+
 ~ Group level analyses ~
 To run analysis run: grp_analysisReliability.m
+Data will end up here: folder/Analysis
 
 grp_analysisReliability will produce 'Analysis' folder
 Output: ReliabilityAnalysis.mat
+- Produces a variety of different plots 
+- Cronbach's alpha and t-test results
+- Covariance matrices (not presented in pub)
 
 Key structure: 'results' used to calculate alpha and make plots
 
@@ -102,5 +122,7 @@ T-tests:
 
 
 To produce figures found in text run: publicationPlots.m
+Plots will end up here: folder/Analysis/Plots
 
 This will produce 'Plots' folder within 'Analysis'
+- Create and save all plots presented in publication
