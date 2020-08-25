@@ -2,11 +2,14 @@
 % Creating script that makes plots for A0 poster
 
 %% Directories and data
-dirBias = ('M:\Alex_Files\Experiments\Bias');
+% Getting directory
+filePath = cd;
+[dirBias, name, ext] = fileparts(filePath); %subject to change depending on where you analysis;
 dirAna = [dirBias filesep 'Analysis']; %directory for all participant analysis
 cd(dirAna)
 load('ReliabilityAnalysis.mat');
-plotDir = ('M:\Alex_Files\Publications\Bias\Figures');
+mkdir Plots
+dirPlot = [dirAna filesep 'Plots'];
 cd(plotDir)
 
 %% Plotting - large scaled-up plots for posters

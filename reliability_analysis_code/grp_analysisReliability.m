@@ -9,24 +9,31 @@
 % the midline) for LM tasks and uses Cronbach's alpha to assess whether the
 % data is consistent across sessions and modalities
 
-%% Loading data for each session
+%% Loading data
+% Getting directory
+filePath = cd;
+[dirBias, name, ext] = fileparts(filePath); %subject to change depending on where you analysis;
+dirData = [dirBias filesep 'Data'];
+cd(dirBias)
+mkdir Analysis;
+dirAnaAll = [dirBias filesep 'Analysis']; %directory for all analysis - here is where data should be saved from this file
+
 nParticipants = [1:19,21:24,26:30];
 allData = struct;
 matfilename = ('ReliabilityAnalysis.mat');
+
 for p = 1:length(nParticipants)
     ppID = sprintf('P%0*d',2,nParticipants(p)); %for use when navigating files
     % Variables 
     nSessions = 1:4;
     visualFilename = sprintf('%s_visualanalysis.mat', ppID);
     tactileFilename = sprintf('%s_tactileanalysis.mat', ppID);
-    % Directories
-    % Directory
-    dirBias = ('M:\Alex_Files\Experiments\Bias'); %subject to change depending on where you analyse
-    dirPP = [dirBias filesep 'Data' filesep ppID]; %participant directory
+
+    % Individual participant directories 
+    dirPP = [dirData filesep ppID]; %participant directory
     dirAna = [dirPP filesep 'Analysis' filesep];
     dirVis = [dirAna 'Visual' filesep];
     dirTact = [dirAna 'Tactile' filesep];
-    dirAnaAll = [dirBias filesep 'Analysis']; %directory for all analysis - here is where data should be saved from this file
     
     % Loading files for each participant visual and tactile data analysis
     cd(dirVis)
@@ -274,31 +281,6 @@ SDall = results.plotting.modalities(:,6);
 CIall = results.plotting.modalities(:,7);
 
 cd(dirAnaAll);
-% Making initial mean error (all modalities) plot
-figure('units', 'centimeters', 'Position', [5 3 18 12])
-scatter(results.plotting.modalities(:,8), results.plotting.modalities(:,2), ...
-    'filled', '^'); % mean task data
-ylim([-10 10]);
-line('XData', [0 length(results.observers)], 'YData', [0, 0], 'LineStyle', '-', ...
-    'LineWidth', 0.5, 'Color', 'k'); %midpoint
-% Adding SD shaded area
-ax = gca;
-xVal = [ax.XLim(1):ax.XLim(end)];
-shadedVal = zeros(length(xVal),1); %making the same length so can plot shaded error bar around 0
-hold on
-createShadedRegion(xVal, shadedVal, (shadedVal - SDpt5), (shadedVal + SDpt5),':','color', [0.1 0.1 0.1]);
-hold on
-createShadedRegion(xVal, shadedVal, (shadedVal - SD2), (shadedVal + SD2),':','color', [0.5 0.5 0.5]);
-% Adding error bars to the mean data
-hold on
-errorbar(results.plotting.modalities(:,8), results.plotting.modalities(:,2), CIall, 'LineStyle', 'none',...
-    'LineWidth', 0.7, 'Color', [0 0 0], 'CapSize', 0);
-% Making it prettier
-set(ax, 'FontSize', 10);
-set(ax, 'XTick', results.observers);
-xlabel('Observers'); ylabel('Bias (mm)');
-pdfFileName = strcat('meanBias', '.pdf');
-saveas(gcf, pdfFileName);
 
 %% Making plot to show mean bias in all modalities
 pdfFileName = strcat('biasModalities', '.pdf');
@@ -963,38 +945,6 @@ xticks(ax, [1 2 3]); yticks(ax, [1 2 3]);
 xticklabels(ax, xLabels); yticklabels(ax, yLabels);
 ytickangle(90)
 saveas(gcf, pngFileName);
-
-%% Absolute error check
-% Caculating the absolute error for each task
-% If this is significantly different - are the tasks comparable?
-% By recommendation of Markus Hausmann
-
-% Absolute error across all sessions
-absLandmark = sqrt(results.plotting.modalities(:,3).^2);
-absLineBisection = sqrt(results.plotting.modalities(:,4).^2);
-absTactileRod = sqrt(results.plotting.modalities(:,5).^2);
-
-absoluteTaskError = [mean(absLandmark), mean(absLineBisection),...
-    mean(absTactileRod)];
-
-results.absoluteError.modality(:,1) = absLandmark;
-results.absoluteError.modality(:,2) = absLineBisection;
-results.absoluteError.modality(:,3) = absTactileRod;
-
-
-for i = 1:length(nSessions)
-    session = sprintf('Session%0*d',2,nSessions(i));
-    
-    %absolute error landmark sessions
-    absLM = sqrt(results.plotting.sessions.lm(:,2+i).^2);
-    results.absoluteError.landmark(:,i) = absLM;
-    %absolute error line bisection sessions
-    absMLB = sqrt(results.plotting.sessions.mlb(:,2+i).^2);
-    results.absoluteError.lineBisection(:,i) = absMLB;
-    %absolute error tactile rod sessions
-    absTRB = sqrt(results.plotting.sessions.trb(:,2+i).^2);
-    results.absoluteError.tactileRod(:,i) = absTRB;
-end
 
 %% save and close
 close all

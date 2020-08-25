@@ -9,8 +9,10 @@
 clear all
 nParticipants = [1:19,21:24,26:30];
 % Directory
-dirBias = ('M:\Alex_Files\Experiments\Bias'); %subject to change depending on where you analyse
-dirAna = ('M:\Alex_Files\Experiments\Bias\Analysis');
+filePath = cd;
+[dirBias, name, ext] = fileparts(filePath); %subject to change depending on where you analysis;
+cd(dirBias)
+dirAna = [dirBias filesep 'Analysis'];
 
 for p = 1:length(nParticipants)
     ppID = sprintf('P%0*d',2,nParticipants(p)); %for use when navigating files

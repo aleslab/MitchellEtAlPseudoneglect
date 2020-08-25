@@ -9,8 +9,10 @@
 clear all
 nParticipants = [1:10,12:16,18,21:24,26:30];
 % Directory
-dirBias = ('M:\Alex_Files\Experiments\Bias'); %subject to change depending on where you analyse
-dirAna = ('M:\Alex_Files\Experiments\Bias\Analysis');
+% Getting directory
+filePath = cd;
+[dirBias, name, ext] = fileparts(filePath); %subject to change depending on where you analysis;
+cd(dirBias)
 
 %% Looping through participants and getting data
 for p = 1:length(nParticipants)

@@ -3,6 +3,12 @@
 clear all
 
 %% File paths
+% Getting data directory - cd'ing to main-path/Data (should be fine if
+% downloaded straight from github
+filePath = cd;
+[dirBias, name, ext] = fileparts(filePath); %subject to change depending on where you analyse
+dirData = [dirBias filesep 'Data'];
+    
 nParticipants = [1:19,21:24,26:30];
 for p = 1:length(nParticipants)
     ppID = sprintf('P%0*d',2,nParticipants(p)); %for use when navigating files
@@ -10,9 +16,10 @@ for p = 1:length(nParticipants)
 
     matfilename = sprintf('%s_visualanalysisStart.mat', ppID);
     nSessions = 1:4; %vector number of sessions each participant does
-    % Directory
-    dirBias = ('M:\Alex_Files\Experiments\Bias'); %subject to change depending on where you analyse
-    dirPP = [dirBias filesep 'Data' filesep ppID]; %participant directory
+    
+    % Directory - getting data directory for participant
+    dirPP = [dirData filesep ppID]; 
+    
     % Making new anaysis folder for saving
     cd(dirPP)
     mkdir Analysis;
