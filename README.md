@@ -3,6 +3,9 @@ Collection of files for Investigating reliability and task demands in pseudonegl
 
 DOWNLOAD
 
+**Run 'analyzeData.m' to download and run all analysis scripts**
+Alternatively:
+
 Download and unzip raw Data from OSF (https://osf.io/5fksw/) - make sure data is saved in folder called 'Data' within repository
 
 Download all code directly from github - place code in the same folder as 'Data' (NOT inside 'Data')
@@ -29,7 +32,7 @@ Output files saved in same folder:
 All data-files are saved in individual session folders in each participant folder alongside initial analyses
 
 
-INSTRUCTIONS FOR DATA ANALYSIS
+DATA ANALYSIS INFORMATION
 
 To run data analysis you will need:
 - MATLAB
