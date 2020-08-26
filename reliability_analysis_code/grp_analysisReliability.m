@@ -11,12 +11,11 @@
 
 %% Loading data
 % Getting directory
-filePath = cd;
-[dirBias, name, ext] = fileparts(filePath); %subject to change depending on where you analysis;
-dirData = [dirBias filesep 'Data'];
-cd(dirBias)
-mkdir Analysis;
-dirAnaAll = [dirBias filesep 'Analysis']; %directory for all analysis - here is where data should be saved from this file
+
+dataLocation = fileparts(which('analyzeData'));
+dirData = fullfile(dataLocation,'Data');
+dirAnaAll = fullfile(dataLocation, 'Analysis');
+mkdir(dirAnaAll)
 
 nParticipants = [1:19,21:24,26:30];
 allData = struct;
@@ -26,24 +25,26 @@ for p = 1:length(nParticipants)
     ppID = sprintf('P%0*d',2,nParticipants(p)); %for use when navigating files
     % Variables 
     nSessions = 1:4;
-    visualFilename = sprintf('%s_visualanalysis.mat', ppID);
-    tactileFilename = sprintf('%s_tactileanalysis.mat', ppID);
 
     % Individual participant directories 
     dirPP = [dirData filesep ppID]; %participant directory
     dirAna = [dirPP filesep 'Analysis' filesep];
     dirVis = [dirAna 'Visual' filesep];
     dirTact = [dirAna 'Tactile' filesep];
-    
+
+    %
+    visualFilename = sprintf('%s_visualanalysis.mat', ppID);
+    tactileFilename = sprintf('%s_tactileanalysis.mat', ppID);
+
     % Loading files for each participant visual and tactile data analysis
-    cd(dirVis)
-    load(visualFilename)
-    cd(dirTact)
-    load(tactileFilename)
+    %cd(dirVis)
+    load(fullfile(dirVis,visualFilename))
+    %cd(dirTact)
+    load(fullfile(dirTact,tactileFilename))
     
     %% Making structures and matrices for analysis
     for i = 1:length(nSessions)
-        cd(dirPP)
+        %cd(dirPP)
         session = sprintf('Session%0*d',2,nSessions(i));
         
         % Saving data to matrix - one participant per row
@@ -170,8 +171,8 @@ outlierAll = [outlierLM, outlierMLB, outlierTRB]; outlierSum = sum(outlierAll,2)
 % Participant 24 = curve fitted poorly and not identified through outlier removeal
 % should be removed
 outlierSum(24,1) = 1;
-cd(dirAnaAll)
-save('outliers.mat', 'outlierSum')
+%cd(dirAnaAll)
+save(fullfile(dirAnaAll,'outliers.mat'), 'outlierSum')
 
 remove = find(outlierSum > 0.1); %identifies paticipants that need removing
 remove = sort(remove); %sorting so in participant order
@@ -282,11 +283,11 @@ SD2 = allData.means.tot(2)*2;
 SDall = results.plotting.modalities(:,6);
 CIall = results.plotting.modalities(:,7);
 
-cd(dirAnaAll);
+%cd(dirAnaAll);
 
 %% Making plot to show mean bias in all modalities
-pdfFileName = strcat('biasModalities', '.pdf');
-pngFileName = strcat('biasModalities', '.png');
+pdfFileName = fullfile(dirAnaAll,strcat('biasModalities', '.pdf'));
+pngFileName = fullfile(dirAnaAll,strcat('biasModalities', '.png'));
 
 figure('units', 'centimeters', 'Position', [5 3 18 12])
 hold on
@@ -486,8 +487,8 @@ rightDim = [0.575 0.13 0.29 0.045]; midDim = [0.41 0.13 0.16 0.045];
 % annotation('textbox', rightDim, 'String', 'Right', 'FontSize', 8); %'Color', [0.7 0.7 0.7]);
 % annotation('textbox', midDim, 'String', 'Unspecified', 'FontSize', 8);  %'Color', [0.45 0.45 0.45]);
 % % saving as both pdf and png for ease
-saveas(gcf, pdfFileName);
-saveas(gcf, pngFileName);
+saveas(gcf, fullfile(dirAnaAll,pdfFileName));
+saveas(gcf, fullfile(dirAnaAll,pngFileName));
 
 %% Plotting mlb all PP
 pdfFileName = strcat('biasSessions_mlb', '.pdf');
@@ -544,8 +545,8 @@ rightDim = [0.82 0.13 0.06 0.045]; midDim = [0.565 0.13 0.25 0.045];
 % annotation('textbox', rightDim, 'String', 'Right', 'FontSize', 8); %'Color', [0.7 0.7 0.7]);
 % annotation('textbox', midDim, 'String', 'Unspecified', 'FontSize', 8);  %'Color', [0.45 0.45 0.45]);
 % % saving as both pdf and png for ease
-saveas(gcf, pdfFileName);
-saveas(gcf, pngFileName);
+saveas(gcf, fullfile(dirAnaAll,pdfFileName));
+saveas(gcf, fullfile(dirAnaAll,pngFileName));
 
 %% Plotting trb all PP
 pdfFileName = strcat('biasSessions_trb', '.pdf');
@@ -602,8 +603,8 @@ rightDim = [0.68 0.13 0.195 0.045]; midDim = [0.445 0.13 0.23 0.045];
 % annotation('textbox', rightDim, 'String', 'Right', 'FontSize', 8); %'Color', [0.7 0.7 0.7]);
 % annotation('textbox', midDim, 'String', 'Unspecified', 'FontSize', 8);  %'Color', [0.45 0.45 0.45]);
 % saving as both pdf and png for ease
-saveas(gcf, pdfFileName);
-saveas(gcf, pngFileName);
+saveas(gcf, fullfile(dirAnaAll,pdfFileName));
+saveas(gcf, fullfile(dirAnaAll,pngFileName));
 
 %% Plotting mean sessions all PP
 pdfFileName = strcat('biasSessions_all', '.pdf');
@@ -660,8 +661,8 @@ rightDim = [0.68 0.13 0.195 0.045]; midDim = [0.445 0.13 0.23 0.045];
 % annotation('textbox', rightDim, 'String', 'Right', 'FontSize', 8); %'Color', [0.7 0.7 0.7]);
 % annotation('textbox', midDim, 'String', 'Unspecified', 'FontSize', 8);  %'Color', [0.45 0.45 0.45]);
 % saving as both pdf and png for ease
-saveas(gcf, pdfFileName);
-saveas(gcf, pngFileName);
+saveas(gcf, fullfile(dirAnaAll,pdfFileName));
+saveas(gcf, fullfile(dirAnaAll,pngFileName));
 
 %% Plotting modality mean across all sessions
 % Going to try this 2 ways
@@ -713,8 +714,8 @@ xlabel('Sessions');
 f3lgd = legend([s1 s2 s3], 'Landmarks', 'MLB', 'TRB', [88 233 0.1 0.3]);
 f3Text = [f3lgd, f3lgd.ItemText]; set(f3Text, 'FontSize', 10);
 legend boxoff
-saveas(gcf, pdfFileName);
-saveas(gcf, pngFileName);
+saveas(gcf, fullfile(dirAnaAll,pdfFileName));
+saveas(gcf, fullfile(dirAnaAll,pngFileName));
 
 
 % Second - bias y axis, modality xaxis, session separate
@@ -769,8 +770,8 @@ ylabel('Bias (mm)'); xlabel('Task');
 f4lgd = legend([s1, s2, s3, s4], '1', '2', '3', '4', [70 225 0.1 0.3]);
 legend boxoff
 f4Text = [f4lgd, f4lgd.ItemText]; set(f4Text, 'FontSize', 10);
-saveas(gcf, pdfFileName);
-saveas(gcf, pngFileName);
+saveas(gcf, fullfile(dirAnaAll,pdfFileName));
+saveas(gcf, fullfile(dirAnaAll,pngFileName));
 
 %% Cronbach's alpha and other stats...
 type = 'C-k'; %type of ICC used - 2-k, 2-way fixed effects
@@ -914,14 +915,14 @@ xticks(ax, [1 2 3 4]); yticks(ax, [1 2 3 4]);
 xticklabels(ax, xLabels); yticklabels(ax, yLabels);
 ytickangle(90)
 title('Tactile rod bisection')
-saveas(gcf, pngFileName);
+saveas(gcf, fullfile(dirAnaAll, pngFileName));
 
 figure(4)
 ax = gca;
 set(ax, 'FontSize', 14);
 colormap gray
 colorbar('eastoutside', 'Direction', 'reverse')
-saveas(figure(4), 'covarColourbar.png');
+saveas(figure(4), fullfile(dirAnaAll,'covarColourbar.png'));
 
 
 %% Modalities
@@ -946,9 +947,8 @@ yLabels = {'LM', 'MLB', 'TRB'};
 xticks(ax, [1 2 3]); yticks(ax, [1 2 3]);
 xticklabels(ax, xLabels); yticklabels(ax, yLabels);
 ytickangle(90)
-saveas(gcf, pngFileName);
+saveas(gcf, fullfile(dirAnaAll,pngFileName));
 
 %% save and close
 close all
-cd(dirAnaAll)
-save(matfilename, 'allData', 'results', 'outlierSum');
+save(fullfile(dirAnaAll,matfilename), 'allData', 'results', 'outlierSum');

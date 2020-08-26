@@ -5,9 +5,16 @@ clear all
 %% File paths
 % Getting data directory - cd'ing to main-path/Data (should be fine if
 % downloaded straight from github
-filePath = cd;
-[dirBias, name, ext] = fileparts(filePath); %subject to change depending on where you analyse
-dirData = [dirBias filesep 'Data'];
+
+%This looks for where the "analyzeData" script is and expects data to be in
+%the same directory as that script.  
+dataLocation = fileparts(which('analyzeData'));
+
+disp(['Test for Alex, this code is executing: ' mfilename('fullpath')])
+
+%filePath = ;
+%[dirBias, name, ext] = fileparts(filePath); %subject to change depending on where you analyse
+dirData = fullfile(dataLocation,'Data');
     
 nParticipants = [1:19,21:24,26:30];
 for p = 1:length(nParticipants)
@@ -19,23 +26,23 @@ for p = 1:length(nParticipants)
     
     % Directory - getting data directory for participant
     dirPP = [dirData filesep ppID]; 
-    
-    % Making new anaysis folder for saving
-    cd(dirPP)
-    mkdir Analysis;
     dirAna = [dirPP filesep 'Analysis' filesep];
-    cd(dirAna)
-    mkdir Visual
     dirVis = [dirAna 'Visual' filesep];
+    
+    if ~exist(dirPP,'file')
+        mkdir(dirPP)
+        mkdir(dirAna)
+        mkdir(dirVis)
+    end
 
     % Load data for all trials
     for i = 1:length(nSessions)
         session = sprintf('Session%0*d',2,nSessions(i));
         dirSess = [dirPP filesep session filesep]; %current session pathway
-        cd(dirSess); %directing to current session folder
+        %cd(dirSess); %directing to current session folder
 
         % Manual line bisection
-        mlbName = dir([dirSess 'MLB_*.mat']); %getting file details for MLB data
+        mlbName = dir(fullfile(dirSess, 'MLB_*.mat')); %getting file details for MLB data
         load(mlbName.name);    
         mlb.(sprintf('%s', session)) = data;
         hand_used = zeros(length(data.matrix),1);
@@ -54,13 +61,13 @@ for p = 1:length(nParticipants)
         end
 
         % Landmarks
-        lmName = dir([dirSess 'LM_*.mat']); %getting file details for MLB data
+        lmName = dir(fullfile(dirSess, 'LM_*.mat')); %getting file details for MLB data
         load(lmName.name);    
         lm.(sprintf('%s', session)) = data;
         lm.(sprintf('%s', session)).matrix(:,5) = stim.pos;
         
         % Landmarks 2AFC
-        lm2Name= dir([dirSess 'LM2afc_*.mat']); %getting file details for MLB data
+        lm2Name= dir(fullfile(dirSess, 'LM2afc_*.mat')); %getting file details for MLB data
         load(lm2Name.name);    
         lm2.(sprintf('%s', session)) = data;
         lm2.(sprintf('%s', session)).response = response.key; %adding actual responses to aid with analysis
@@ -72,7 +79,7 @@ for p = 1:length(nParticipants)
     for i = 1:length(nSessions)
         % Grouping into line length
         session = sprintf('Session%0*d',2,nSessions(i));
-        cd(dirSess); %directing to current session folder
+       % cd(dirSess); %directing to current session folder
         length1 = 100; length2 = 200; length3 = 300; %length of lines in mm
         % 10 cm line
         mlb.(sprintf('%s', session)).line1mat = ...
@@ -152,7 +159,7 @@ for p = 1:length(nParticipants)
     mlb.right_hand.err = [mean(av_rightHand), std(av_rightHand)];
     
     %% Plotting MLB task
-    cd(dirVis); %navigating to analysis folder to save plots to
+    %cd(dirVis); %navigating to analysis folder to save plots to
     % Plot across all sessions
     % Matrices for session plotting, each line
     mlb.sessionVals.line1.err(1,:) = avL1; mlb.sessionVals.line1.err(2,:) = stdL1; %values for sessions
@@ -189,7 +196,7 @@ for p = 1:length(nParticipants)
         errorbar(mlb.sessionVals.(sprintf('%s', line)).properr(1,:), mlb.sessionVals.(sprintf('%s', line)).properr(2,:), 'k')
         xlabel('Sessions'); ylabel('Proportion bisection error');
         title(sprintf('MLB %s', line));
-        saveas(figure(j), sprintf('%s_MLB%s.jpg', ppID, line));
+        saveas(figure(j), fullfile(dirVis, sprintf('%s_MLB%s.jpg', ppID, line)));
     end
 
     % Plotting average of all lines
@@ -200,7 +207,7 @@ for p = 1:length(nParticipants)
     ylim([-0.2 0.2]);
     xlabel('Sessions'); ylabel('Proportion bisection error');
     title('MLB all sessions');
-    saveas(figure(4), sprintf('%s_MLBsess.jpg', ppID));
+    saveas(figure(4),fullfile(dirVis,  sprintf('%s_MLBsess.jpg', ppID)));
 
     % Plotting averages of all sessions
     lines(1,:) = [mlb.line1.properr(1), mlb.line2.properr(1), mlb.line3.properr(1)];
@@ -212,7 +219,7 @@ for p = 1:length(nParticipants)
     ylim([-0.2 0.2]);
     xlabel('Lines'); ylabel('Bisection error');
     title('MLB all lines');
-    saveas(figure(5), sprintf('%s_MLBlines.jpg', ppID));
+    saveas(figure(5), fullfile(dirVis, sprintf('%s_MLBlines.jpg', ppID)));
 
 
     %% Analyse LM data 
@@ -220,7 +227,7 @@ for p = 1:length(nParticipants)
     % Grouping into line length
     for i = 1:length(nSessions)
         session = sprintf('Session%0*d',2,nSessions(i));
-        cd(dirSess); %directing to current session folder
+        %cd(dirSess); %directing to current session folder
         %% Line matrix for each session
         % 10 cm line
         lmmat1 = lm.(sprintf('%s', session)).matrix(find(lm.(sprintf('%s', session)).matrix(:,1)== 1),:);
@@ -637,7 +644,7 @@ end
     lm.lapse = mean(errors); %lapse rate calculated in percentage
 
     %% Plotting LM task
-    cd(dirVis); %analysis directory for saving figures
+    %cd(dirVis); %analysis directory for saving figures
     % Plot percent left side longer for each session
     % For each line 
     asym = lm.Session01.line1.res(:,1); %for labelling
@@ -663,7 +670,7 @@ end
         legend('Sess1', 'Sess2', 'Sess3', 'Sess4');
         ylabel('Left-side perceived as longer (%)');
         xlabel('Stimulus asymmetry (mm)');
-        saveas(figure(i+4), sprintf('%s_LM%s_raw.jpg', ppID, line));
+        saveas(figure(i+4), fullfile(dirVis, sprintf('%s_LM%s_raw.jpg', ppID, line)));
     end
 
     % For all lines
@@ -687,7 +694,7 @@ end
     legend('Sess1', 'Sess2', 'Sess3', 'Sess4');
     ylabel('Left-side perceived as longer (%)');
     xlabel('Stimulus asymmetry (mm)');
-    saveas(figure(9), sprintf('%s_LMsess_raw.jpg', ppID));
+    saveas(figure(9),fullfile(dirVis, sprintf('%s_LMsess_raw.jpg', ppID)));
 
     % For all sessions
     figure(10)
@@ -708,7 +715,7 @@ end
     legend('10cm line', '20cm line', '30cm line');
     ylabel('Left-side perceived as longer (%)');
     xlabel('Stimulus asymmetry (mm)');
-    saveas(figure(10), sprintf('%s_LMlines_raw.jpg', ppID));
+    saveas(figure(10), fullfile(dirVis,sprintf('%s_LMlines_raw.jpg', ppID)));
 
     %% Adding psychometric functions to here
     % Use the demo and have a look at Abi's code
@@ -857,6 +864,6 @@ end
     %% Lapse rate for LM2 task
     %% Close and save
     close all
-    cd(dirVis)
-    save(matfilename, 'mlb', 'lm', 'lm2');
+    %cd(dirVis)
+    save(fullfile(dirVis,matfilename), 'mlb', 'lm', 'lm2');
 end
