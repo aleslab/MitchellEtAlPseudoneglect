@@ -54,14 +54,16 @@ end
 %looking, these changes get inherited by all subsequent plot commands. 
 setPlotDefaults();
 
+%Supress the warnings if data directories already exist. 
+warning('off', 'MATLAB:MKDIR:DirectoryExists');
+
 %This script runs the 
 disp('Running the visual analysis')
 pp_analysisVisual
 
 disp('Running the psychometric function fits')
-if has_pal
-    pp_psychometricVisual
-end
+
+pp_psychometricVisual
 
 disp('Running the tactile analysis')
 pp_analysisTactile
@@ -69,18 +71,17 @@ pp_analysisTactile
 disp('Running gorup reliability analysis')
 has_finv = ~isempty(which('finv'));
 if ~has_finv
-    warning('Warning calculating ICC for reliability analysis requires the statitistics toolbox\n Skipping reliability calculations')
-    
-else    
-    %Note that there are multiple libraries that override matlab default
-    %statistics function and can be broken/incorrect.  If you have errors
-    %calculating ICC check that: finv betapdf and betainv functions are from
-    %matlab statistics toolbox and not a 3rd-party toolbox 
-    %This can be done using: 
-    %which('finv')   
-    grp_analysisReliability
+    warning('Warning calculating ICC for reliability analysis requires the statitistics toolbox\n Calculating ICC will generate error')
 end
+%Note that there are multiple libraries that override matlab default
+%statistics function and can be broken/incorrect.  If you have errors
+%calculating ICC check that: finv betapdf and betainv functions are from
+%matlab statistics toolbox and not a 3rd-party toolbox
+%This can be done using:
+%which('finv')
 
+
+grp_analysisReliability
 %Now start the analysis for the supplem ent 
 disp('***********************')
 
@@ -88,15 +89,13 @@ disp('Now starting analysis for supplementary material')
 
 disp('Running hand used analysis')
 
-if has_finv
-    grp_analysis_handUsed
-end
+
+grp_analysis_handUsed
+
 
 disp('Running line contrast analysis')
-if has_pal
-    pp_psychometricContrast
-end
+pp_psychometricContrast
 
-if has_finv
-    grp_analysis_LMlineContrast
-end
+
+grp_analysis_LMlineContrast
+

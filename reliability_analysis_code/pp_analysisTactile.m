@@ -31,14 +31,15 @@ for p = 1:length(nParticipants)
     nSessions = 1:4; %vector number of sessions each participant does
     
     dirPP = [dirData filesep ppID]; %participant directory
-    % Making new anaysis folder for saving
-    cd(dirPP)
-    mkdir Analysis;
     dirAna = [dirPP filesep 'Analysis' filesep];
-    cd(dirAna)
-    mkdir Tactile
     dirTact = [dirAna 'Tactile' filesep];
 
+    % Making new anaysis folder for saving if they don't exist    
+    mkdir(dirPP)
+    mkdir(dirAna)
+    mkdir(dirTact)
+    
+    
     trb = struct;
     tr2 = struct;
 
