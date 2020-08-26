@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
+% This code reproduces the data analysis from:
 %
 %
 %
@@ -16,7 +16,7 @@ clear all
 
 %Check if this file exists to see if we need to download data. 
 
-dataCheckFile = fullfile('Data','P01','Analysis','Tactile','P01_TRBline1.jpg')
+dataCheckFile = fullfile('Data','P01','Analysis','Tactile','P01_TRBline1.jpg');
 disp(['Checking if data has been downloaded by looking for file: ' dataCheckFile])
 
 %Find where we are running this script from
@@ -26,8 +26,8 @@ codeLocation = mfilename('fullpath');
 %Try to download and unpack the data if it doesn't exist. 
 if ~exist(dataCheckFile,'file')
        
-    url = 'https://osf.io/ch4gs/download'
-    filename = 'data.zip'
+    url = 'https://osf.io/ch4gs/download';
+    filename = 'data.zip';
     disp(['Did not find data, started downloading data from: ' url])    
     websave(fullfile(codeFilePath,filename),url);
     disp('Extracting data archive.')
@@ -39,6 +39,14 @@ end
 %add all the code directories to the path. 
 addpath(genpath(codeFilePath));
 
+%Looking for Palamedes toolbox. 
+has_pal = ~isempty(which('PAL_PFML_Fit'));
+if ~has_pal
+    warning('Missing Palamedes toolbox required for psychometric function fitting')
+    disp('Please download the palamedes toolbox and add it to your path')
+    disp('http://www.palamedestoolbox.org')
+    return;
+end
 
 %Start analysis code.  
 
@@ -51,7 +59,9 @@ disp('Running the visual analysis')
 pp_analysisVisual
 
 disp('Running the psychometric function fits')
-pp_psychometricVisual
+if has_pal
+    pp_psychometricVisual
+end
 
 disp('Running the tactile analysis')
 pp_analysisTactile
@@ -77,10 +87,16 @@ disp('***********************')
 disp('Now starting analysis for supplementary material')
 
 disp('Running hand used analysis')
-grp_analysis_handUsed
+
+if has_finv
+    grp_analysis_handUsed
+end
 
 disp('Running line contrast analysis')
-pp_psychometricContrast
-grp_analysis_LMlineContrast
+if has_pal
+    pp_psychometricContrast
+end
 
-
+if has_finv
+    grp_analysis_LMlineContrast
+end
