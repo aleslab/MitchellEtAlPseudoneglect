@@ -28,7 +28,7 @@ if ~exist(dataCheckFile,'file')
        
     url = 'https://osf.io/ch4gs/download'
     filename = 'data.zip'
-    disp('Did not find data, started downloading Data')    
+    disp(['Did not find data, started downloading data from: ' url])    
     websave(fullfile(codeFilePath,filename),url);
     disp('Extracting data archive.')
     unzip(fullfile(codeFilePath,filename))
@@ -42,6 +42,8 @@ addpath(genpath(codeFilePath));
 
 %Start analysis code.  
 
+%This function changes matlab default plotting options to be a bit nicer
+%looking, these changes get inherited by all subsequent plot commands. 
 setPlotDefaults();
 
 %This script runs the 
