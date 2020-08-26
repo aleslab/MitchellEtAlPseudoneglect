@@ -3,7 +3,6 @@
 % affects bisection error
 % And whether reliability across time is increased if error is from one
 % hand only 
-% Addressing reviewer 2 comments in Neuropsychologia re-submission (1.1)
 
 %% Setting paths
 clear all
@@ -29,7 +28,7 @@ for p = 1:length(nParticipants)
     nSessions = 1:4; %vector number of sessions each participant does
     
     % individual participant directory, analysis
-    dirPP = [dirBias filesep 'Data' filesep ppID filesep 'Analysis']; %participant directory
+    dirPP = [rootDir filesep 'Data' filesep ppID filesep 'Analysis']; %participant directory
     dirVis = [dirPP filesep 'Visual'];
     dirTac = [dirPP filesep 'Tactile'];
     cd(dirPP)

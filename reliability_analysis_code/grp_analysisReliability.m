@@ -9,6 +9,8 @@
 % the midline) for LM tasks and uses Cronbach's alpha to assess whether the
 % data is consistent across sessions and modalities
 
+clear all
+
 %% Loading data
 % Getting directory
 
@@ -324,6 +326,7 @@ set(m4, 'SizeData', 60);
 ylim([-15 15]);
 line('XData', [0 length(results.observers)], 'YData', [0, 0], 'LineStyle', '-', ...
     'LineWidth', 0.5, 'Color', 'k'); %midpoint
+
 % Adding SD shaded area
 ax = gca;
 xVal = [ax.XLim(1):ax.XLim(end)];
@@ -929,7 +932,6 @@ ytickangle(90)
 title('Tactile rod bisection')
 saveas(gcf, fullfile(dirAnaAll, pngFileName));
 
-figure(4)
 ax = gca;
 set(ax, 'FontSize', 14);
 colormap gray
@@ -962,5 +964,5 @@ ytickangle(90)
 saveas(gcf, fullfile(dirAnaAll,pngFileName));
 
 %% save and close
-close all
+%close all
 save(fullfile(dirAnaAll,matfilename), 'allData', 'results', 'outlierSum');

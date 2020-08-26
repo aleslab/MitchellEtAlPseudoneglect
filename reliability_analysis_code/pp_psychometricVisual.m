@@ -21,6 +21,18 @@
 clear all;      %Clear all existing variables from memory
 
 tic
+
+%Supress the warnings if data directories already exist. 
+warning('Turning off Palamedes converge fail warning, due to large amount of data lots of these warnings get created')
+
+warning('off', 'PALAMEDES:convergeFail');
+
+disp('***********************')
+disp('Fitting psychometric functions and bootstrapping fits')
+disp('This takes a long time because we generate 1000 boostrap fits to each dataset')
+disp('to evaluate goodness of fit' )
+disp('***********************')
+
 %% File path
 
 %This looks for where the "analyzeData" script is and expects data to be in
@@ -108,7 +120,8 @@ for p = 1:length(nParticipants)
         searchGrid.beta = linspace(0,30/max(StimLevels),101); %slope
 
         % Perform fit - Cumulative Normal
-        disp(['Fitting function for participant' ppID ' session: ' num2str(i)]);
+        disp(['Fitting function for participant ' ppID ' session: ' num2str(i)]);
+        
         [paramsValues LL exitflag] = PAL_PFML_Fit(StimLevels,NumPos, ...
         OutOfNum,searchGrid,paramsFree,PF,...
         'lapseLimits',[0 1],'gammaEQlambda', gammaEqLambda);
@@ -209,9 +222,9 @@ for p = 1:length(nParticipants)
     searchGrid.beta = linspace(0,30/max(StimLevels),101); %slope
 
     % Perform fit - Cumulative Normal
-    disp('Fitting function.....');
+    disp('Fitting function for all sessions');
     [paramsValues LL exitflag] = PAL_PFML_Fit(StimLevels,NumPos, ...
-        OutOfNum,searchGrid,paramsFree,PF, 'lapseLimits',[0 1],'gammaEQlambda',gammaEqLambda)
+        OutOfNum,searchGrid,paramsFree,PF, 'lapseLimits',[0 1],'gammaEQlambda',gammaEqLambda);
 
     % Getting standard error
     if ParOrNonPar == 1

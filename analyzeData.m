@@ -61,10 +61,6 @@ warning('off', 'MATLAB:MKDIR:DirectoryExists');
 disp('Running the visual analysis')
 pp_analysisVisual
 
-disp('Running the psychometric function fits')
-
-pp_psychometricVisual
-
 disp('Running the tactile analysis')
 pp_analysisTactile
 
@@ -80,8 +76,13 @@ end
 %This can be done using:
 %which('finv')
 
-
 grp_analysisReliability
+
+
+disp('Running the psychometric function fits')
+pp_psychometricVisual
+
+
 %Now start the analysis for the supplem ent 
 disp('***********************')
 

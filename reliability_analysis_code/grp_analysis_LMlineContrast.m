@@ -31,7 +31,7 @@ for p = 1:length(nParticipants)
     matfilename = ('LMcontrast_analysis.mat');
     
     % individual participant directory
-    dirPP = [dirBias filesep 'Data' filesep ppID filesep 'Analysis']; %participant directory
+    dirPP = [rootDir filesep 'Data' filesep ppID filesep 'Analysis']; %participant directory
     dirVis = [dirPP filesep 'Visual'];
     cd(dirVis)
     % load file
