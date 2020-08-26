@@ -3,18 +3,23 @@
 clear all
 
 %% File paths
-% Getting data directory - cd'ing to main-path/Data (should be fine if
-% downloaded straight from github
+
 
 %This looks for where the "analyzeData" script is and expects data to be in
-%the same directory as that script.  
-dataLocation = fileparts(which('analyzeData'));
+%the same directory as that script.  If not it can't find that, it looks
+%for the data relative to wherever this script is being run. 
+rootDir = fileparts(which('analyzeData'));
+dirData = fullfile(rootDir,'Data');
 
-disp(['Test for Alex, this code is executing: ' mfilename('fullpath')])
+if ~exist(dirData,'file')
+    disp('cannot find data, trying another path')
+    dirData = fullfile(fileparts(mfilename('fullpath')),'..','Data');
+    if ~exist(dirData,'file')
+        error('Cannot find data')
+    end
+end
 
-%filePath = ;
-%[dirBias, name, ext] = fileparts(filePath); %subject to change depending on where you analyse
-dirData = fullfile(dataLocation,'Data');
+
     
 nParticipants = [1:19,21:24,26:30];
 for p = 1:length(nParticipants)

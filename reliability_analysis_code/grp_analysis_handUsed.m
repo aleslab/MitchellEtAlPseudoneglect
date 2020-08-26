@@ -9,10 +9,18 @@
 clear all
 nParticipants = [1:19,21:24,26:30];
 % Directory
-filePath = cd;
-[dirBias, name, ext] = fileparts(filePath); %subject to change depending on where you analysis;
-cd(dirBias)
-dirAna = [dirBias filesep 'Analysis'];
+
+rootDir = fileparts(which('analyzeData'));
+dirData = fullfile(rootDir,'Data');
+
+if ~exist(dirData,'file')
+    disp('cannot find data, trying another path')
+    dirData = fullfile(fileparts(mfilename('fullpath')),'..','Data');
+    if ~exist(dirData,'file')
+        error('Cannot find data')
+    end
+end
+dirAna = fullfile(rootDir,'Analysis');
 
 for p = 1:length(nParticipants)
     ppID = sprintf('P%0*d',2,nParticipants(p)); %for use when navigating files

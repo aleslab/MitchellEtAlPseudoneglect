@@ -23,10 +23,21 @@ clear all;      %Clear all existing variables from memory
 tic
 %% File path
 
-filePath = cd;
-[dirBias, name, ext] = fileparts(filePath); %subject to change depending on where you analyse
-dirData = [dirBias filesep 'Data'];
-    
+%This looks for where the "analyzeData" script is and expects data to be in
+%the same directory as that script.  If not it can't find that, it looks
+%for the data relative to wherever this script is being run. 
+rootDir = fileparts(which('analyzeData'));
+dirData = fullfile(rootDir,'Data');
+
+if ~exist(dirData,'file')
+    disp('cannot find data, trying another path')
+    dirData = fullfile(fileparts(mfilename('fullpath')),'..','Data');
+    if ~exist(dirData,'file')
+        error('Cannot find data')
+    end
+end
+
+
 nParticipants = [1:19,21:24,26:30];
 %nParticipants = 11; %for testing
 for p = 1:length(nParticipants)  
@@ -97,10 +108,10 @@ for p = 1:length(nParticipants)
         searchGrid.beta = linspace(0,30/max(StimLevels),101); %slope
 
         % Perform fit - Cumulative Normal
-        disp('Fitting function.....');
+        disp(['Fitting function for participant' ppID ' session: ' num2str(i)]);
         [paramsValues LL exitflag] = PAL_PFML_Fit(StimLevels,NumPos, ...
         OutOfNum,searchGrid,paramsFree,PF,...
-        'lapseLimits',[0 1],'gammaEQlambda', gammaEqLambda)
+        'lapseLimits',[0 1],'gammaEQlambda', gammaEqLambda);
 
         % Getting standard error
         if ParOrNonPar == 1

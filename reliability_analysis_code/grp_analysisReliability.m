@@ -12,14 +12,26 @@
 %% Loading data
 % Getting directory
 
+%This looks for where the "analyzeData" script is and expects data to be in
+%the same directory as that script.  If not it can't find that, it looks
+%for the data relative to wherever this script is being run. 
 dataLocation = fileparts(which('analyzeData'));
 dirData = fullfile(dataLocation,'Data');
+
+if ~exist(dirData,'file')
+    disp('cannot find data, trying another path')
+    dirData = fullfile(fileparts(mfilename('fullpath')),'..','Data');
+    if ~exist(dirData,'file')
+        error('Cannot find data')
+    end
+end
+
 dirAnaAll = fullfile(dataLocation, 'Analysis');
 mkdir(dirAnaAll)
 
 nParticipants = [1:19,21:24,26:30];
 allData = struct;
-matfilename = ('ReliabilityAnalysis.mat');
+matfilename = 'ReliabilityAnalysis.mat';
 
 for p = 1:length(nParticipants)
     ppID = sprintf('P%0*d',2,nParticipants(p)); %for use when navigating files

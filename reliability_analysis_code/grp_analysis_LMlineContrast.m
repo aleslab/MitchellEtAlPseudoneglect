@@ -8,11 +8,21 @@
 %% Setting paths
 clear all
 nParticipants = [1:10,12:16,18,21:24,26:30];
-% Directory
-% Getting directory
-filePath = cd;
-[dirBias, name, ext] = fileparts(filePath); %subject to change depending on where you analysis;
-cd(dirBias)
+
+%This looks for where the "analyzeData" script is and expects data to be in
+%the same directory as that script.  If not it can't find that, it looks
+%for the data relative to wherever this script is being run. 
+rootDir = fileparts(which('analyzeData'));
+dirData = fullfile(rootDir,'Data');
+
+if ~exist(dirData,'file')
+    disp('cannot find data, trying another path')
+    dirData = fullfile(fileparts(mfilename('fullpath')),'..','Data');
+    if ~exist(dirData,'file')
+        error('Cannot find data')
+    end
+end
+
 
 %% Looping through participants and getting data
 for p = 1:length(nParticipants)
