@@ -1,6 +1,6 @@
 # MitchellEtAlPseudoneglect
 
-This is a repository for the material for manuscript: **Mitchell, Harris, Benstock & Ales. (2020). The reliability of pseudoneglect is task dependent. Neuropsychologia**
+This is a repository for the material for this manuscript: **Mitchell, Harris, Benstock & Ales. (2020). The reliability of pseudoneglect is task dependent. Neuropsychologia**
 
 DOWNLOAD
 
