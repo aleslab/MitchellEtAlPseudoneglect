@@ -1,5 +1,6 @@
 # MitchellEtAlPseudoneglect
-Collection of files for Investigating reliability and task demands in pseudoneglect
+
+This is a repository for the material for manuscript: **Mitchell, Harris, Benstock & Ales. (2020). The reliability of pseudoneglect is task dependent. Neuropsychologia**
 
 DOWNLOAD
 
@@ -40,7 +41,6 @@ To run data analysis you will need:
 - Add the 'external' folder to your MATLAB path (includes necessary functions, e.g. ICC)
 
 ** NOTE: The ICC may not work on some platforms, the data to run this outside of MATLAB should be present in data **
-** NOTE2: Make sure MATLAB always runs from script path - if not may get path errors **
 
 All individual analysis files are saved so group analysis should run straight away - but individual analysis scripts are available.
 
