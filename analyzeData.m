@@ -1,8 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This code reproduces the data analysis from:
+% This code reproduces stimuli and data analysis from the paper:
 %
-%
-%
+% Mitchell, Harris, Benstock & Ales (2020). The reliability of pseudoneglect is task dependent. Neuropsychologia
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
